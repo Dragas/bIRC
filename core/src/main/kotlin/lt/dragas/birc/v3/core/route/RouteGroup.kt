@@ -1,6 +1,6 @@
 package lt.dragas.birc.v3.core.route
 
-abstract class RouteGroup<in T, R>(private val ignoreCaseForPrefix: Boolean, private val prefix: String, vararg private val routes: Route<T, R>)
+abstract class RouteGroup<in T, R>(private val ignoreCaseForPrefix: Boolean, private val prefix: String, vararg private val routes: RouteGroup<T, R>)
 {
     protected var isEnabled = true
     protected val regex = Regex(prefix)
