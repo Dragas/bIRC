@@ -31,31 +31,4 @@ abstract class RouteGroup<in T, R>(private val ignoreCaseForPrefix: Boolean, pri
         }
         return false
     }*/
-    /**
-     * IRC Specific
-     * move this garbage to IRC implementation
-     */
-    companion object
-    {
-        /**
-         * Default mode. Means that route does not work solely with private messages or channel messages.
-         */
-        @JvmField
-        val NONE: Int = 0
-        /**
-         * Marks route as ping route. Shouldn't be used outside [Pong]
-         */
-        @JvmField
-        val PING: Int = 4
-        /**
-         * Marks route as private message route.
-         */
-        @JvmField
-        val PRIVATE: Int = 1
-        /**
-         * Marks route as channel route.
-         */
-        @JvmField
-        val CHANNEL: Int = 2
-    }
 }
