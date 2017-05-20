@@ -7,7 +7,8 @@ import java.io.OutputStreamWriter
 /**
  * Contains only the most basic methods needed for [OutputStream] to function.
  *
- * Since this is just a wrapper around
+ * Since this is just a wrapper around socket's output stream, it should contain methods only
+ * used for formatting output.
  * @param outputStream OutputStream : server socket's output stream.
  */
 abstract class Output<T>(outputStream: OutputStream)
