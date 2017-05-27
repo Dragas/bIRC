@@ -19,7 +19,7 @@ class IrcAdapter : Adapter<Request, Response>()
             message = rawMessage.substring(rawMessage.indexOf(" :") + 2)
             if (rawMessage.startsWith("ping", true))
             {
-                type = 1
+                type = Request.PING
             }
             else
             {
@@ -29,12 +29,10 @@ class IrcAdapter : Adapter<Request, Response>()
                     username = array[0].substring(1, array[0].indexOf("!"))
                     target = array[2]
                     if (target.startsWith("#"))
-                        type = 2//channel
+                        type = Request.CHANNEL//channel
                     else
-                    {
-                        type = 3
-                        target = username
-                    }
+                        type = Request.PRIVATE
+                    target = username
 
                 }
                 catch(err: Exception)
