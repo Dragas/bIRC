@@ -3,8 +3,8 @@ package lt.dragas.birc.v3.irc.message
 
 class Request() : Message()
 {
+    var origin: String = ""
     var type: Int = NONE
-
     /**
      * Default mode. Means that route does not work solely with private messages or channel messages.
      */
@@ -27,5 +27,6 @@ class Request() : Message()
          */
         @JvmField
         val CHANNEL: Int = 2
+
     }
 }
