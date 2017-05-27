@@ -3,7 +3,7 @@ package lt.dragas.birc.v3.irc.message
 
 class Request() : Message()
 {
-    var type: Int = 0
+    var type: Int = NONE
 
     /**
      * Default mode. Means that route does not work solely with private messages or channel messages.
