@@ -3,6 +3,8 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty_main.iml" group="Chatty" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty_test.iml" group="Chatty" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC.iml" group="IRC" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC_main.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC_main.iml" group="IRC" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC_test.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC_test.iml" group="IRC" />
