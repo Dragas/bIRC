@@ -5,35 +5,16 @@ import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
 
 
-open class IrcRouteGroup(ignoreCase: Boolean, prefix: String, vararg routes: IrcRouteGroup) : RouteGroup<Request, Response>(ignoreCase, prefix, *routes)
+open class IrcRouteGroup(prefix: String, vararg routes: IrcRoute) : RouteGroup<Request, Response>(prefix, *routes)
 {
-    open val type = NONE
+    open val type = Request.NONE
     override fun canTrigger(request: Request): Boolean
     {
-        return isEnabled && request.type.and(type) == type && regex.matches(request.message)
-    }
-
-    companion object
-    {
-        /**
-         * Default mode. Means that route does not work solely with private messages or channel messages.
-         */
-        @JvmField
-        val NONE: Int = 0
-        /**
-         * Marks route as ping route. Shouldn't be used outside [Pong]
-         */
-        @JvmField
-        val PING: Int = 4
-        /**
-         * Marks route as private message route.
-         */
-        @JvmField
-        val PRIVATE: Int = 1
-        /**
-         * Marks route as channel route.
-         */
-        @JvmField
-        val CHANNEL: Int = 2
+        val canTrigger = isEnabled && request.type.and(type) == type && regex.matches(request.message)
+        if (canTrigger)
+        {
+            request.message = request.message.replaceFirst(regex, "")
+        }
+        return canTrigger
     }
 }
