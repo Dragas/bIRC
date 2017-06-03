@@ -1,9 +1,6 @@
 package lt.dragas.birc.v3.irc.adapter
 
 
-import lt.dragas.birc.v3.irc.message.Request
-import lt.dragas.birc.v3.irc.message.Request.Companion.CHANNEL
-import lt.dragas.birc.v3.irc.message.Request.Companion.PRIVATE
 import lt.dragas.birc.v3.irc.message.Response
 import org.junit.Assert
 import org.junit.Test
@@ -37,8 +34,8 @@ class IrcAdapterTest
     {
         val message = "PING :1745AB"
         val deserialized = adapter.deserialize(message)
-        Assert.assertEquals(Request.PING, deserialized.type)
-        Assert.assertEquals("1745AB", deserialized.message)
+        Assert.assertEquals("PING", deserialized.command)
+        Assert.assertEquals("1745AB", deserialized.arguments[0])
     }
 
     @Test
@@ -46,15 +43,16 @@ class IrcAdapterTest
     {
         //                                                     v that is the mysterious addon
         val message = ":hollywood.purplesurge.com 252 niceman 11 :operator(s) online"
-        val requestType = 252
+        val requestType = "252"
         val requestMessage = "operator(s) online"
         val target = "niceman"
         val origin = "hollywood.purplesurge.com"
         val request = adapter.deserialize(message)
-        Assert.assertEquals(requestType, request.type)
-        Assert.assertEquals(target, request.target)
-        Assert.assertEquals(requestMessage, request.message)
-        Assert.assertEquals(origin, request.origin)
+        Assert.assertEquals(requestType, request.command)
+        //Assert.assertEquals(target, request.target) // one of arguments
+        //Assert.assertEquals(requestMessage, request.message)
+        //Assert.assertEquals(origin, request.origin)
+        TODO("There's still no internal support for this")
     }
 
     @Test
@@ -65,11 +63,12 @@ class IrcAdapterTest
         val requestMessage = "As our motto suggests, PurpleSurge rives to be"
         val target = "niceman"
         val origin = "hollywood.purplesurge.com"
-        val request = adapter.deserialize(message)
+        val request = adapter.deserialize(message)/*
         Assert.assertEquals(requestType, request.type)
         Assert.assertEquals(target, request.target)
         Assert.assertEquals(requestMessage, request.message)
-        Assert.assertEquals(origin, request.origin)
+        Assert.assertEquals(origin, request.origin)*/
+        TODO("There's still no internal support for this")
     }
 
     @Test
@@ -80,62 +79,66 @@ class IrcAdapterTest
         val requestMessage = "- without prior written approval."
         val target = "niceman"
         val origin = "services.purplesurge.com"
-        val request = adapter.deserialize(message)
+        val request = adapter.deserialize(message)/*
         Assert.assertEquals(requestType, request.type)
         Assert.assertEquals(target, request.target)
         Assert.assertEquals(requestMessage, request.message)
-        Assert.assertEquals(origin, request.origin)
+        Assert.assertEquals(origin, request.origin)*/
+        TODO("There's still no internal support for this")
     }
 
     @Test
     fun deserializesRequestToSelf()
     {
         val message = ":niceman!man@AA3DA92D.A1380E30.9FA3D578.IP PRIVMSG niceman :asdf"
-        val requestType = PRIVATE
+        val requestType = "PRIVMSG"
         val origin = "man@AA3DA92D.A1380E30.9FA3D578.IP"
         val username = "niceman"
         val target = "niceman"
         val requestMessage = "asdf"
-        val request = adapter.deserialize(message)
+        val request = adapter.deserialize(message)/*
         Assert.assertEquals(requestType, request.type)
         Assert.assertEquals(target, request.target)
         Assert.assertEquals(requestMessage, request.message)
         Assert.assertEquals(origin, request.origin)
-        Assert.assertEquals(username, request.username)
+        Assert.assertEquals(username, request.username)*/
+        TODO("There's still no internal support for this")
     }
 
     @Test
     fun deserializesRequestToOther()
     {
         val message = ":niceman!man@AA3DA92D.A1380E30.9FA3D578.IP PRIVMSG notniceman :asdf"
-        val requestType = PRIVATE
+        val requestType = "PRIVMSG"
         val origin = "man@AA3DA92D.A1380E30.9FA3D578.IP"
         val username = "niceman"
         val target = "notniceman"
         val requestMessage = "asdf"
-        val request = adapter.deserialize(message)
+        val request = adapter.deserialize(message)/*
         Assert.assertEquals(requestType, request.type)
         Assert.assertEquals(target, request.target)
         Assert.assertEquals(requestMessage, request.message)
         Assert.assertEquals(origin, request.origin)
-        Assert.assertEquals(username, request.username)
+        Assert.assertEquals(username, request.username)*/
+        TODO("There's still no internal support for this")
     }
 
     @Test
     fun deserializesRequestToChannel()
     {
         val message = ":niceman!man@AA3DA92D.A1380E30.9FA3D578.IP PRIVMSG #notnicemanchannel :asdf"
-        val requestType = CHANNEL
+        val requestType = "PRIVMSG"
         val origin = "man@AA3DA92D.A1380E30.9FA3D578.IP"
         val username = "niceman"
         val target = "#notnicemanchannel"
         val requestMessage = "asdf"
-        val request = adapter.deserialize(message)
+        val request = adapter.deserialize(message)/*
         Assert.assertEquals(requestType, request.type)
         Assert.assertEquals(target, request.target)
         Assert.assertEquals(requestMessage, request.message)
         Assert.assertEquals(origin, request.origin)
-        Assert.assertEquals(username, request.username)
+        Assert.assertEquals(username, request.username)*/
+        TODO("There's still no internal support for this")
     }
 
 }
