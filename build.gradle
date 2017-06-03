@@ -11,7 +11,7 @@ buildscript {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
     }
 }
-apply plugin: 'java-library'
+apply plugin: 'java'
 apply plugin: 'kotlin'
 sourceCompatibility = 1.8
 
@@ -22,7 +22,7 @@ dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
 subprojects {
-    apply plugin: 'java-library'
+    apply plugin: 'java'
     apply plugin: 'kotlin'
     group 'lt.salty-juice.dragas'
     sourceCompatibility = 1.8
