@@ -23,9 +23,12 @@ class IrcAdapter : Adapter<Request, Response>()
         val request = Request(block)
         val metadata = splitMetaData(block)
         val prefixList = extractPrefix(metadata[0])
-        val command = metadata[1]
         val arguments = extractArguments(metadata[2])
-        request.command = command
+        request.command = metadata[1]
+        request.host = prefixList[2]
+        request.arguments = arguments
+        request.user = prefixList[1]
+        request.nickname = prefixList[0]
         //request.nickname =
         /*request.apply {
             message = rawMessage.substring(rawMessage.indexOf(" :") + 2)
