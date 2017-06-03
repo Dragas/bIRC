@@ -1,7 +1,7 @@
 package lt.dragas.birc.v3.irc.message
 
 
-class Request() : Message()
+class Request(override var rawMessage: String) : Message()
 {
     var origin: String = ""
     var type: Int = NONE

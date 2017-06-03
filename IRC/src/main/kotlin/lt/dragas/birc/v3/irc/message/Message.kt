@@ -5,8 +5,8 @@ package lt.dragas.birc.v3.irc.message
  */
 open class Message
 {
-    var rawMessage: String = ""
-    var target: String = ""
-    var username: String = ""
-    var message: String = ""
+    open var rawMessage: String = ""
+    open var target: String = ""
+    open var username: String = ""
+    open var message: String = ""
 }
