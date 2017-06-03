@@ -1,6 +1,7 @@
 package lt.dragas.birc.v3.irc.adapter
 
 
+import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Request.Companion.CHANNEL
 import lt.dragas.birc.v3.irc.message.Request.Companion.PRIVATE
 import lt.dragas.birc.v3.irc.message.Response
@@ -29,6 +30,15 @@ class IrcAdapterTest
         val response = Response("privmsg #purple hey") // feels pointless
         val serialized = adapter.serialize(response)
         Assert.assertEquals("privmsg #purple hey", serialized)
+    }
+
+    @Test
+    fun deserializesPingRequest()
+    {
+        val message = "PING :1745AB"
+        val deserialized = adapter.deserialize(message)
+        Assert.assertEquals(Request.PING, deserialized.type)
+        Assert.assertEquals("1745AB", deserialized.message)
     }
 
     @Test
