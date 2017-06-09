@@ -9,5 +9,4 @@ cache:
 script:
   - chmod 777 ./gradlew
   - ./gradlew check
-  - ./gradlew assemble
   - ./gradlew :IRC:test
