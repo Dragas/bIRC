@@ -1,13 +1,13 @@
 package lt.dragas.birc.v3.core.route
 
 
-abstract class Route<T, R>(regexString: String, protected val callback: Controller<T, R>) : RouteGroup<T, R>(regexString)
+abstract class Route<T, R>(regexString: String, protected val callback: (T) -> R) : RouteGroup<T, R>(regexString)
 {
 
-    override fun attempTrigger(request: T): R?
+    override fun attemptTrigger(request: T): R?
     {
         if (canTrigger(request))
-            return callback.onTrigger(request)
+            return callback(request)
         return null
     }
     /*{

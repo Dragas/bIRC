@@ -56,7 +56,7 @@ abstract class Client<T, R>(private val routes: Array<RouteGroup<T, R>>)
     {
         val request = sin.getRequest()
         routes.forEach {
-            it.attempTrigger(request)?.apply {
+            it.attemptTrigger(request)?.apply {
                 sout.writeResponse(this)
             }
         }
