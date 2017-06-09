@@ -8,11 +8,11 @@ abstract class RouteGroup<in T, R>(private val prefix: String, vararg private va
     protected var isEnabled = true
     protected val regex = Regex(prefix)
 
-    open fun attempTrigger(request: T): R?
+    open fun attemptTrigger(request: T): R?
     {
         if (canTrigger(request))
             routes.forEach {
-                val response = it.attempTrigger(request)
+                val response = it.attemptTrigger(request)
                 if (response != null)
                     return response
             }

@@ -9,7 +9,7 @@ import lt.dragas.birc.v3.irc.message.Response
  */
 open class IrcRoute(regexString: String, private val callback: Controller<Request, Response>) : IrcRouteGroup(regexString)
 {
-    override fun attempTrigger(request: Request): Response?
+    override fun attemptTrigger(request: Request): Response?
     {
         if (canTrigger(request))
             return callback.onTrigger(request)
