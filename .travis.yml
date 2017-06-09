@@ -9,6 +9,6 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - sudo chmod +x ./gradlew
   - ./gradlew check
+  - ./gradlew :IRC:cleanTest
   - ./gradlew :IRC:test
