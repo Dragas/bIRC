@@ -1,5 +1,5 @@
-apply plugin:"application"
+apply plugin: "application"
 mainClassName = "lt.dragas.birc.v3.irc.Mainkt"
 dependencies {
-    compile project (":core")
+    compile project(":core")
 }
