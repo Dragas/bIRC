@@ -22,40 +22,9 @@ class IrcAdapter : Adapter<Request, Response>()
     {
         val request = Request(block)
         val metadata = splitMetaData(block)
-        val prefixList = extractPrefix(metadata[0])
-        val arguments = extractArguments(metadata[2])
+        request.prefixes = extractPrefix(metadata[0])
+        request.arguments = extractArguments(metadata[2])
         request.command = metadata[1]
-        request.host = prefixList[2]
-        request.arguments = arguments
-        request.user = prefixList[1]
-        request.nickname = prefixList[0]
-        //request.nickname =
-        /*request.apply {
-            message = rawMessage.substring(rawMessage.indexOf(" :") + 2)
-            if (rawMessage.startsWith("ping", true))
-            {
-                type = Request.PING
-            }
-            else
-            {
-                try
-                {
-                    val array = rawMessage.take(rawMessage.indexOf(" :")).split(" ")
-                    username = array[0].substring(1, array[0].indexOf("!"))
-                    target = array[2]
-                    if (target.startsWith("#"))
-                        type = Request.CHANNEL//channel
-                    else
-                        type = Request.PRIVATE
-                    target = username
-
-                }
-                catch(err: Exception)
-                {
-                    err.printStackTrace()
-                }
-            }
-        }*/
         return request
     }
 
@@ -84,7 +53,8 @@ class IrcAdapter : Adapter<Request, Response>()
         {
             //Is it possible that there's only command available, thus padding must be added
             nullableList.add(0, "")
-            nullableList.add("")
+            if (nullableList.size < 3) // padding for arguments
+                nullableList.add("")
         }
         return nullableList
     }
@@ -118,7 +88,7 @@ class IrcAdapter : Adapter<Request, Response>()
         if (atIndex == -1)
         {
             extractedData[0] = prefixContainer // means that prefix is only hostname
-        }
+        }                                                       // also replaces start of line
         else
         {
             val nicknameAndUser = prefixContainer.substring(0, atIndex)
@@ -129,16 +99,24 @@ class IrcAdapter : Adapter<Request, Response>()
             }
             extractedData[2] = prefixContainer.substring(atIndex + 1)
         }
-
+        extractedData[0] = extractedData[0].replace(":", "")
         return extractedData
     }
 
     /**
      * Extracts arguments from message according to RFC 2813 syntax:
      * *14( SPACE middle ) [ SPACE ":" trailing ] / 14( SPACE middle ) [ SPACE [ ":" ] trailing ]
+     *
+     * @param arguments a 3rd returned value from [splitMetaData]
+     * @return a list of arguments split by " "
      */
-    fun extractArguments(arguments: String): List<String>
+    private fun extractArguments(arguments: String): List<String>
     {
-        return arguments.split(" ").map { it.replaceFirst(":", "") }
+        val separateLongArgument = arguments.split(Regex("( )?:"), 2) // always returns 2, even if one of them is empty
+        val actualArguments = separateLongArgument[0].split(" ")
+        val returnable = ArrayList(actualArguments)
+        returnable.add(separateLongArgument[1])
+        returnable.removeAll { it.isEmpty() }
+        return returnable
     }
 }
