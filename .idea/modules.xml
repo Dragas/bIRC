@@ -3,14 +3,29 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty.iml" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/Chatty-IRC_main.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/Chatty-IRC_main.iml" group="IRC" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/Chatty-IRC_test.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/Chatty-IRC_test.iml" group="IRC" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Chatty-core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Chatty-core_main.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/Chatty-core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/Chatty-core_test.iml" group="core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty_main.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty_main.iml" group="Chatty" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty_main.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty_main.iml" group="Chatty" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/Chatty_test.iml" filepath="$PROJECT_DIR$/.idea/modules/Chatty_test.iml" group="Chatty" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty_test.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\Chatty_test.iml" group="Chatty" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC.iml" group="IRC" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC.iml" group="IRC" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC_main.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC_main.iml" group="IRC" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC_main.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC_main.iml" group="IRC" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/IRC/IRC_test.iml" filepath="$PROJECT_DIR$/.idea/modules/IRC/IRC_test.iml" group="IRC" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC_test.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\IRC\IRC_test.iml" group="IRC" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core.iml" group="core" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core.iml" group="core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_main.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_main.iml" group="core" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core_main.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core_main.iml" group="core" />
       <module fileurl="file://$PROJECT_DIR$/.idea/modules/core/core_test.iml" filepath="$PROJECT_DIR$/.idea/modules/core/core_test.iml" group="core" />
+      <module fileurl="file://C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core_test.iml" filepath="C:\Users\mgrid\Desktop\repos\random work\Chatty\.idea\modules\core\core_test.iml" group="core" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/random work-Chatty_main.iml" filepath="$PROJECT_DIR$/.idea/modules/random work-Chatty_main.iml" group="Chatty" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/modules/random work-Chatty_test.iml" filepath="$PROJECT_DIR$/.idea/modules/random work-Chatty_test.iml" group="Chatty" />
     </modules>
   </component>
 </project>
