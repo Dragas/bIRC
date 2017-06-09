@@ -1,6 +1,7 @@
-package lt.dragas.birc.v3.irc.adapter
+package lt.dragas.birc.v3.irc.adapter.unit
 
 
+import lt.dragas.birc.v3.irc.adapter.IrcAdapter
 import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
 import org.junit.Assert
