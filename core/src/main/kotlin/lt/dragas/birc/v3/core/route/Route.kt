@@ -1,6 +1,7 @@
 package lt.dragas.birc.v3.core.route
 
 
+@Deprecated("Doesn't check for route type")
 abstract class Route<T, R>(regexString: String, protected val callback: (T) -> R) : RouteGroup<T, R>(regexString)
 {
 

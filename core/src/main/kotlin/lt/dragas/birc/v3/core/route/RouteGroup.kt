@@ -1,5 +1,6 @@
 package lt.dragas.birc.v3.core.route
 
+@Deprecated("Parent should be a regular route instead")
 abstract class RouteGroup<in T, R>(private val prefix: String, vararg protected val routes: RouteGroup<T, R>)
 {
     /**
