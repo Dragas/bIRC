@@ -1,17 +1,20 @@
 package lt.dragas.birc.v3.irc.route
 
+import lt.dragas.birc.v3.core.routing.Route
 import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
+import java.util.regex.Pattern
 
 /**
- * Created by mgrid on 2017-05-27.
+ * An IRC implementation of [Route] objects.
+ *
+ * By default, they only test if provided type matches the request type,
+ * implementations should test the request arguments according to its type
  */
-open class IrcRoute(type: String, regexString: String, protected val callback: (Request) -> Response) : IrcRouteGroup(type, regexString)
+abstract class IrcRoute(open protected val type: String, pattern: Pattern, callback: (Request) -> Response) : Route<Request, Response>(pattern, callback)
 {
-    override fun attemptTrigger(request: Request): Response?
+    override fun canTrigger(request: Request): Boolean
     {
-        if (canTrigger(request))
-            return callback(request)
-        return null
+        return request.command == type
     }
 }
