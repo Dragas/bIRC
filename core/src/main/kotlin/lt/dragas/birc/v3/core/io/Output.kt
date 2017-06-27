@@ -32,7 +32,7 @@ abstract class Output<Response>(outputStream: OutputStream)
      * @param response an object used by application to push around
      */
     @Synchronized
-    fun writeResponse(response: Response)
+    open fun writeResponse(response: Response)
     {
         writeResponse(adapter.serialize(response))
     }

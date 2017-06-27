@@ -10,7 +10,7 @@ import lt.dragas.birc.v3.irc.message.Response
  * Should be implemented in accordance to RFC2812 section 2.3 and be able to deserialize
  * [ ":" prefix SPACE ] command [ params ] crlf syntax messages.
  */
-class IrcAdapter : Adapter<Request, Response>()
+open class IrcAdapter : Adapter<Request, Response>()
 {
     override fun serialize(any: Response): String
     {
@@ -37,7 +37,7 @@ class IrcAdapter : Adapter<Request, Response>()
      * @param block message provided by server to be decoded.
      * @return a list which is split in up to 3 groups: prefix, command and params. Particular spots are empty strings, when unavailable.
      */
-    private fun splitMetaData(block: String): List<String>
+    protected open fun splitMetaData(block: String): List<String>
     {
         //There seems to be a discrepancy between RFC 1459 and RFC 2812, where there's an additional
         // *14 symbol in parameters definition. The inverse of this (14*) would be repetition which
@@ -74,7 +74,7 @@ class IrcAdapter : Adapter<Request, Response>()
      *
      * If a parameter is unavailable, querying the list returns an empty string for that parameter.
      */
-    private fun extractPrefix(prefixContainer: String): List<String>
+    protected open fun extractPrefix(prefixContainer: String): List<String>
     {
         val extractedData = ArrayList<String>(3)
         extractedData.addAll(arrayOf("", "", ""))
@@ -110,7 +110,7 @@ class IrcAdapter : Adapter<Request, Response>()
      * @param arguments a 3rd returned value from [splitMetaData]
      * @return a list of arguments split by " "
      */
-    private fun extractArguments(arguments: String): List<String>
+    protected open fun extractArguments(arguments: String): List<String>
     {
         val separateLongArgument = arguments.split(Regex("( )?:"), 2) // always returns 2, even if one of them is empty
         val actualArguments = separateLongArgument[0].split(" ")

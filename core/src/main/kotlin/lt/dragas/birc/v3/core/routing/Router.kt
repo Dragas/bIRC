@@ -10,12 +10,12 @@ import lt.dragas.birc.v3.core.adapter.Deserializer
  */
 abstract class Router<Request, Response>
 {
-    protected open val routes: ArrayList<Route<Request, Response>> = ArrayList()
+    protected val routes: ArrayList<Route<Request, Response>> = ArrayList()
 
     /**
      * Holds the default route when none of the testing routes correspond to request's pattern.
      */
-    protected var defaultRoute: Route<Request, Response>? = null
+    protected open var defaultRoute: Route<Request, Response>? = null
 
 
     /**
@@ -54,7 +54,7 @@ abstract class Router<Request, Response>
      * @param route a route object to append to internal list
      * @return this [Router], so that you could chain calls
      */
-    fun `when`(route: Route<Request, Response>): Router<Request, Response>
+    open fun `when`(route: Route<Request, Response>): Router<Request, Response>
     {
         if (!routes.contains(route))
             routes.add(route)
@@ -66,7 +66,7 @@ abstract class Router<Request, Response>
      * @param pattern string regex pattern which is used to test [Request] objects.
      * @param callback a callback to invoke once [Request] object passes the test
      */
-    fun `when`(pattern: String, callback: (Request) -> Response): Router<Request, Response>
+    open fun `when`(pattern: String, callback: (Request) -> Response): Router<Request, Response>
     {
         return `when`(buildRoute(pattern, callback))
     }
@@ -76,7 +76,7 @@ abstract class Router<Request, Response>
      * pass the test.
      * @param callback default callback which is used to generate default response objects.
      */
-    fun otherwise(callback: (Request) -> Response)
+    open fun otherwise(callback: (Request) -> Response)
     {
         this.defaultRoute = buildRoute("", callback)
     }
