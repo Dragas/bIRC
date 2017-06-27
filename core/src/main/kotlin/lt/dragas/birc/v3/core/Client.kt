@@ -8,13 +8,29 @@ import java.util.concurrent.ExecutorService
 import java.util.concurrent.Executors
 
 
-abstract class Client<T, R>(private val routes: Array<RouteGroup<T, R>>)
+/**
+ * An abstraction which defines how bot's client should be defined. Usually the pipeline
+ * will be implemented as follows:
+ * * [Client] connects to some server via [Socket]
+ * * [Client] binds [Socket]'s input and output streams with [Input] and [Output] wrappers.
+ * * [Client] requests some data from [Input], which handles wrapping data to something usable by the
+ * bot.
+ * * [Client] passes [Request] object to [Router], which handles testing [Route] objects against the provided Request
+ * * [Client] passes [Response] object if it's returned by [Router] to [Output] wrapper, which handles
+ * deserializing the Response
+ * * [Client] then goes back to 3rd step unless the [Socket] is closed.
+ *
+ * Such behavior can be wrapped in multithreading environment if necessary, as most of the time adapters
+ * and router will not have any variable data in themselves.
+ */
+@Deprecated("Depends on another deprecated class and is a mess in general", ReplaceWith("Client()", "lt.dragas.birc.v3.core.main.Client"))
+abstract class Client<Request, Response>(private val routes: Array<RouteGroup<Request, Response>>)
 {
     protected val threadPoolSize = Runtime.getRuntime().availableProcessors()
     protected val socket = Socket()
     protected val executor: ExecutorService = Executors.newFixedThreadPool(threadPoolSize)
-    protected abstract val sin: Input<T>
-    protected abstract val sout: Output<R>
+    protected abstract val sin: Input<Request>
+    protected abstract val sout: Output<Response>
 
     abstract fun connect()
 
