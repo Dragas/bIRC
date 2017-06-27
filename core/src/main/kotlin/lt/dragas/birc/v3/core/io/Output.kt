@@ -11,10 +11,10 @@ import java.io.OutputStreamWriter
  * used for formatting output.
  * @param outputStream OutputStream : server socket's output stream.
  */
-abstract class Output<T>(outputStream: OutputStream)
+abstract class Output<Response>(outputStream: OutputStream)
 {
     protected val sout: OutputStreamWriter = OutputStreamWriter(outputStream)
-    protected abstract val adapter: Serializer<T>
+    protected abstract val adapter: Serializer<Response>
     /**
      * Writes response to server.
      * @param response preformatted message that is sent to server.
@@ -32,7 +32,7 @@ abstract class Output<T>(outputStream: OutputStream)
      * @param response an object used by application to push around
      */
     @Synchronized
-    fun writeResponse(response: T)
+    fun writeResponse(response: Response)
     {
         writeResponse(adapter.serialize(response))
     }
