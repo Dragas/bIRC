@@ -8,10 +8,12 @@ package lt.dragas.birc.v3.core.adapter
  * twitter, reddit, etc., this interface is left for implementation for particular case.
  *
  */
-interface Deserializer<out T>
+interface Deserializer<out Request>
 {
     /**
      * Deserializes response from server to something more usable in application.
+     * @param block a string block which is received from server
+     * @return a deserialized [Request] object
      */
-    fun deserialize(block: String): T // FIXME: Is block always a string?
+    fun deserialize(block: String): Request // FIXME: Is block always a string?
 }
