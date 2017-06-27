@@ -1,14 +1,16 @@
 package lt.dragas.birc.v3.irc.adapter.unit
 
+import lt.dragas.birc.v3.core.routing.Router
 import lt.dragas.birc.v3.irc.adapter.IrcAdapter
-import lt.dragas.birc.v3.irc.initializeRoutes
 import lt.dragas.birc.v3.irc.message.Request
-import lt.dragas.birc.v3.irc.route.IrcRouteGroup
+import lt.dragas.birc.v3.irc.message.Response
+import lt.dragas.birc.v3.irc.route.IrcRoute
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.regex.Pattern
 
 /**
  * Created by mgrid on 2017-06-09.
@@ -19,30 +21,22 @@ class RouteTest
     @Test
     fun buildsRouteMapByType()
     {
-        val correspondingRoutes = routemap[privateMessage.command]
-        Assert.assertNotNull(correspondingRoutes)
+
+        Assert.assertNotNull(router)
     }
 
     @Test
     fun canTriggerRoute()
     {
-        val correspondingRoutes = routemap[privateMessage.command]
-        val canTrigger = correspondingRoutes?.let { routes ->
-            var triggers = false
-            routes.forEach { route ->
-                if (triggers)
-                    return@forEach
-                triggers = route.canTrigger(privateMessage)
-            }
-            triggers
-        }
-        Assert.assertTrue(canTrigger == true)
+        val route = object : IrcRoute("PRIVMSG", Pattern.compile(""), { request -> Response("OK") })
+        {}
+        Assert.assertTrue(route.canTrigger(privateMessage))
     }
 
     companion object
     {
         @JvmStatic
-        private lateinit var routemap: HashMap<String, ArrayList<IrcRouteGroup>>
+        private var router: Router<*, *>? = null
         @JvmStatic
         private lateinit var privateMessage: Request
 
@@ -50,7 +44,7 @@ class RouteTest
         @JvmStatic
         fun initializeRoutesBeforeTests()
         {
-            routemap = initializeRoutes()
+            router = null
             privateMessage = IrcAdapter().deserialize(":niceman1!man@AA3DA92D.A1380E30.9FA3D578.IP PRIVMSG niceman :asdf")
         }
     }

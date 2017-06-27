@@ -54,8 +54,9 @@ abstract class Router<Request, Response>
      * @param route a route object to append to internal list
      * @return this [Router], so that you could chain calls
      */
-    open fun `when`(route: Route<Request, Response>): Router<Request, Response>
+    open fun `when`(route: Route<Request, Response>?): Router<Request, Response>
     {
+        route ?: return this
         if (!routes.contains(route))
             routes.add(route)
         return this
@@ -81,5 +82,5 @@ abstract class Router<Request, Response>
         this.defaultRoute = buildRoute("", callback)
     }
 
-    protected abstract fun buildRoute(pattern: String, callback: (Request) -> Response): Route<Request, Response>
+    protected abstract fun buildRoute(pattern: String, callback: (Request) -> Response): Route<Request, Response>?
 }
