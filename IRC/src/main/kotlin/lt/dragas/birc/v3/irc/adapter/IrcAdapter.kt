@@ -14,8 +14,14 @@ open class IrcAdapter : Adapter<Request, Response>()
 {
     override fun serialize(any: Response): String
     {
-        val response = if (any.rawMessage == "") "privmsg ${any.target} ${any.message}" else any.rawMessage
-        return response
+        val sb = StringBuilder()
+        sb.append(any.command)
+        any.arguments.forEach {
+            sb.append(" ")
+            sb.append(it)
+        }
+        sb.append("\r\n")
+        return sb.toString()
     }
 
     override fun deserialize(block: String): Request
