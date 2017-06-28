@@ -10,6 +10,8 @@ import java.util.regex.Pattern
  * Channel messages and Private messages use same command PRIVMSG to send the messages between targets.
  * This particular implementation does not check for that and is just a general implementation.
  * Should you need something specific use [ChannelMessageRoute] or [PrivateMessageRoute] instead.
+ * @param pattern a pattern against which the request is tested against
+ * @param callback a callback which is invoked when test has passed successfully
  */
 open class MessageRoute(pattern: String, callback: (Request) -> Response) : IrcRoute(IrcRouter.MESSAGE, Pattern.compile(pattern), callback)
 {
