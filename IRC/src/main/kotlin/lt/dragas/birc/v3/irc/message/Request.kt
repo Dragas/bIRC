@@ -1,8 +1,11 @@
 package lt.dragas.birc.v3.irc.message
 
+import java.util.concurrent.atomic.AtomicInteger
+
 
 class Request(val rawMessage: String)
 {
+    val id = atomicID.getAndAdd(1)
     var prefixes: List<String> = ArrayList(3)
     var arguments: List<String> = ArrayList()
 
@@ -28,4 +31,9 @@ class Request(val rawMessage: String)
     request.host = prefixList[2]
         request.user = prefixList[1]
      */
+
+    companion object
+    {
+        private val atomicID = AtomicInteger(Int.MIN_VALUE)
+    }
 }
