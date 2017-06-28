@@ -57,7 +57,7 @@ open class IrcAdapter : Adapter<Request, Response>()
         }
         if (nullableList.size < 3)
         {
-            //Is it possible that there's only command available, thus padding must be added
+            //It is possible that there's only command available, thus padding must be added
             nullableList.add(0, "")
             if (nullableList.size < 3) // padding for arguments
                 nullableList.add("")
