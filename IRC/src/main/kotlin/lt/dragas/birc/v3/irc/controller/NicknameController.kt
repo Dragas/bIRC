@@ -2,6 +2,7 @@ package lt.dragas.birc.v3.irc.controller
 
 import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
+import lt.dragas.birc.v3.irc.route.IrcRouter
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -15,5 +16,15 @@ class NicknameController(vararg val nicknames: String)
     {
         val nickname = nicknames.getOrNull(lastUsedNickname.getAndAdd(1)) ?: "Botter-${lastUsedNickname.getAndAdd(1)}"
         return Response("nick", nickname)
+    }
+
+    companion object
+    {
+        lateinit var instance: NicknameController
+        @JvmStatic
+        fun initialize(router: IrcRouter, nicknames: Array<out String>)
+        {
+            instance = NicknameController(*nicknames)
+        }
     }
 }
