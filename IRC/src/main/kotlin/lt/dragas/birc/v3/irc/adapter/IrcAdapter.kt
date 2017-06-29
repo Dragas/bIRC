@@ -118,10 +118,11 @@ open class IrcAdapter : Adapter<Request, Response>()
      */
     protected open fun extractArguments(arguments: String): List<String>
     {
-        val separateLongArgument = arguments.split(Regex("( )?:"), 2) // always returns 2, even if one of them is empty
+        val separateLongArgument = arguments.split(Regex(" ?:"), 2) // always returns 2, even if one of them is empty
         val actualArguments = separateLongArgument[0].split(" ")
         val returnable = ArrayList(actualArguments)
-        returnable.add(separateLongArgument[1])
+        if (separateLongArgument.size > 1)
+            returnable.add(separateLongArgument[1])
         returnable.removeAll { it.isEmpty() }
         return returnable
     }
