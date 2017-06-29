@@ -4,6 +4,7 @@ package lt.dragas.birc.v3.irc.adapter.unit
 import lt.dragas.birc.v3.irc.adapter.IrcAdapter
 import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
+import lt.dragas.birc.v3.irc.route.Command
 import org.junit.Assert
 import org.junit.Test
 import org.junit.runner.RunWith
@@ -18,9 +19,9 @@ class IrcAdapterTest
     @Test
     fun serializeSimpleResponse()
     {
-        val response = Response("#purple", "Hey")
+        val response = Response(Command.PRIVMSG, "#purple", "Hey")
         val serialized = adapter.serialize(response)
-        Assert.assertEquals("privmsg #purple Hey", serialized)
+        Assert.assertEquals("PRIVMSG #purple Hey\r\n", serialized)
     }
 
     @Test
@@ -28,7 +29,7 @@ class IrcAdapterTest
     {
         val response = Response("kek #purple hey") // feels pointless
         val serialized = adapter.serialize(response)
-        Assert.assertEquals("kek #purple hey", serialized)
+        Assert.assertEquals("kek #purple hey\r\n", serialized)
     }
 
     @Test
