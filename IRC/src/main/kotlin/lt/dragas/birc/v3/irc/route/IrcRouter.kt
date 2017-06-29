@@ -34,17 +34,18 @@ open class IrcRouter : Router<Request, Response>()
         return `when`(buildRoute(type, pattern, callback)) as IrcRouter
     }
 
-    override fun buildRoute(pattern: String, callback: (Request) -> Response?): IrcRoute?
+    override fun buildRoute(pattern: String, callback: (Request) -> Response?): IrcRoute
     {
         return buildRoute(Command.CHANNEL_MESSAGE, pattern, callback)
     }
 
-    open fun buildRoute(type: Command, pattern: String, callback: (Request) -> Response?): IrcRoute?
+    open fun buildRoute(type: Command, pattern: String, callback: (Request) -> Response?): IrcRoute
     {
         when (type)
         {
             Command.PRIVATE_MESSAGE -> return PrivateMessageRoute(pattern, callback)
             Command.CHANNEL_MESSAGE -> return ChannelMessageRoute(pattern, callback)
+            Command.AUTH -> return NoticeAuthRoute(pattern, callback)
             else -> return CommandRoute(type, callback, pattern)
         }
     }
