@@ -6,7 +6,7 @@ import java.util.concurrent.atomic.AtomicInteger
 class Request(val rawMessage: String)
 {
     val id = atomicID.getAndAdd(1)
-    var prefixes: List<String> = ArrayList(3)
+    var prefixes: List<String> = ArrayList()
     var arguments: List<String> = ArrayList()
 
     val user: String
