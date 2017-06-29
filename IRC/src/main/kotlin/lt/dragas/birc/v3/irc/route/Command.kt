@@ -1669,6 +1669,11 @@ enum class Command(val value: String)
     RPL_TOPIC("332"),
 
     /**
+     * Even though this is undocumented, topic metadata is sent under code 333
+     */
+    RPL_TOPICBY("333"),
+
+    /**
      * Any command requiring 'chanop' privileges (such as
      * MODE messages) MUST return this error if the client
      * making the attempt is not a chanop on the specified
