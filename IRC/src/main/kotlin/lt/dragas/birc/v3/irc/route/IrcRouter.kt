@@ -10,11 +10,19 @@ import lt.dragas.birc.v3.irc.message.Response
 open class IrcRouter : Router<Request, Response>()
 {
     /**
-     * Equivalent to calling [when(CHANNEL_MESSAGE, String, (Request)->Response)]
+     * Equivalent to calling `when`(Command.CHANNEL_MESSAGE, pattern, callback)
      */
     override fun `when`(pattern: String, callback: (Request) -> Response?): IrcRouter
     {
         return `when`(Command.CHANNEL_MESSAGE, pattern, callback)
+    }
+
+    /**
+     * Equivalent to calling `when`(type, ".*", callback)`
+     */
+    open fun `when`(type: Command, callback: (Request) -> Response?): IrcRouter
+    {
+        return `when`(type, ".*", callback)
     }
 
     /**
