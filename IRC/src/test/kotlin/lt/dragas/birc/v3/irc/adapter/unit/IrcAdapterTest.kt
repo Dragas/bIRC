@@ -47,7 +47,7 @@ class IrcAdapterTest
     {
         //                                                     v that is the mysterious addon
         val message = ":hollywood.purplesurge.com 252 niceman 11 :operator(s) online"// ^ is a retard. That's an argument
-        val requestType = "252"
+        val requestType = "252"                                //^means long argument
         val requestMessage = "operator(s) online"
         val target = "niceman"
         val origin = "hollywood.purplesurge.com"
