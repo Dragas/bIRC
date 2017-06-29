@@ -1,7 +1,7 @@
 package lt.dragas.birc.v3.irc.adapter.integration
 
+import lt.dragas.birc.v3.irc.adapter.IrcAdapter
 import lt.dragas.birc.v3.irc.controller.PingController
-import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
 import lt.dragas.birc.v3.irc.route.Command
 import lt.dragas.birc.v3.irc.route.IrcRouter
@@ -16,7 +16,7 @@ class PingControllerTest
     @Test
     fun canPingOrigin()
     {
-        val request = getRequest()
+        val request = adapter.deserialize("PING origin")
         val response = router.consume(request)
         Assert.assertNotNull(response)
         response as Response
@@ -27,11 +27,7 @@ class PingControllerTest
     @Test
     fun canPingTarget()
     {
-        val request = getRequest()
-        request.arguments.apply {
-            this as ArrayList
-            add("secondargument")
-        }
+        val request = adapter.deserialize("PING origin target")
         val response = router.consume(request)
         Assert.assertNotNull(response)
         response as Response
@@ -39,22 +35,13 @@ class PingControllerTest
         Assert.assertEquals(request.arguments[1], response.arguments[0])
     }
 
-    fun getRequest(): Request
-    {
-        val request = Request("")
-        request.command = Command.PING.value
-        request.arguments = ArrayList()
-        request.arguments.apply {
-            this as ArrayList
-            add("firstargument")
-        }
-        return request
-    }
-
     companion object
     {
         @JvmStatic
         val router = IrcRouter()
+
+        @JvmStatic
+        val adapter = IrcAdapter()
 
         @BeforeClass
         @JvmStatic
