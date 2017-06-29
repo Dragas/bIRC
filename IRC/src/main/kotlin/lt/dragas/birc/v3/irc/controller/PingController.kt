@@ -2,6 +2,7 @@ package lt.dragas.birc.v3.irc.controller
 
 import lt.dragas.birc.v3.irc.message.Request
 import lt.dragas.birc.v3.irc.message.Response
+import lt.dragas.birc.v3.irc.route.Command
 import lt.dragas.birc.v3.irc.route.IrcRouter
 
 /**
@@ -14,7 +15,7 @@ class PingController private constructor()
         var destination = request.arguments[0]
         if (request.arguments.size > 1)
             destination = request.arguments[1]
-        return Response(IrcRouter.Command.PONG, destination)
+        return Response(Command.PONG.value, destination)
     }
 
     companion object
@@ -24,7 +25,7 @@ class PingController private constructor()
         @JvmStatic
         fun initialize(router: IrcRouter)
         {
-            router.`when`(IrcRouter.Command.PING, instance::onPing)
+            router.`when`(Command.PING, instance::onPing)
         }
     }
 }
