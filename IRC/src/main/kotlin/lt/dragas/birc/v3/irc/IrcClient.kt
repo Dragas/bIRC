@@ -36,7 +36,7 @@ open class IrcClient(protected val settings: Settings) : Client<Request, Respons
 
     override fun initialize()
     {
-        NicknameController.initialize(router, settings.nicknames.toTypedArray())
+        NicknameController.initialize(router, settings)
         ChannelController.initialize(router)
         PingController.initialize(router)
     }
