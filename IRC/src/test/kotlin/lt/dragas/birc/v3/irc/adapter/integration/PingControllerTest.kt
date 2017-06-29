@@ -2,6 +2,7 @@ package lt.dragas.birc.v3.irc.adapter.integration
 
 import lt.dragas.birc.v3.irc.controller.PingController
 import lt.dragas.birc.v3.irc.message.Request
+import lt.dragas.birc.v3.irc.message.Response
 import lt.dragas.birc.v3.irc.route.Command
 import lt.dragas.birc.v3.irc.route.IrcRouter
 import org.junit.Assert
@@ -18,8 +19,9 @@ class PingControllerTest
         val request = getRequest()
         val response = router.consume(request)
         Assert.assertNotNull(response)
-        Assert.assertEquals(Command.PONG.value, response?.command)
-        Assert.assertEquals(request.arguments[0], response?.arguments?.get(0))
+        response as Response
+        Assert.assertEquals(Command.PONG.value, response.command)
+        Assert.assertEquals(request.arguments[0], response.arguments[0])
     }
 
     @Test
@@ -32,8 +34,9 @@ class PingControllerTest
         }
         val response = router.consume(request)
         Assert.assertNotNull(response)
-        Assert.assertEquals(Command.PONG.value, response?.command)
-        Assert.assertEquals(request.arguments[1], response?.arguments?.get(0))
+        response as Response
+        Assert.assertEquals(Command.PONG.value, response.command)
+        Assert.assertEquals(request.arguments[1], response.arguments[0])
     }
 
     fun getRequest(): Request
