@@ -43,10 +43,10 @@ open class IrcClient(protected val settings: Settings) : Client<Request, Respons
 
     override fun onConnect()
     {
-        sin.getRequest()
+        /*sin.getRequest()
         sin.getRequest()
         sout.writeResponse(Response("user", settings.user, settings.mode, settings.unused, settings.realname))
-        sout.writeResponse(Response("nick", settings.nicknames[0]))
+        sout.writeResponse(Response("nick", settings.nicknames[0]))*/
     }
 
     override fun onDisconnect()
