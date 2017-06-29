@@ -67,7 +67,7 @@ abstract class Router<Request, Response>
      * @param pattern string regex pattern which is used to test [Request] objects.
      * @param callback a callback to invoke once [Request] object passes the test
      */
-    open fun `when`(pattern: String, callback: (Request) -> Response): Router<Request, Response>
+    open fun `when`(pattern: String, callback: (Request) -> Response?): Router<Request, Response>
     {
         return `when`(buildRoute(pattern, callback))
     }
@@ -82,5 +82,5 @@ abstract class Router<Request, Response>
         this.defaultRoute = buildRoute("", callback)
     }
 
-    protected abstract fun buildRoute(pattern: String, callback: (Request) -> Response): Route<Request, Response>?
+    protected abstract fun buildRoute(pattern: String, callback: (Request) -> Response?): Route<Request, Response>?
 }
