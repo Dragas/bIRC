@@ -4,6 +4,9 @@ import lt.dragas.birc.v3.core.io.Input
 import lt.dragas.birc.v3.core.io.Output
 import lt.dragas.birc.v3.core.main.Client
 import lt.dragas.birc.v3.irc.adapter.IrcAdapter
+import lt.dragas.birc.v3.irc.controller.ChannelController
+import lt.dragas.birc.v3.irc.controller.NicknameController
+import lt.dragas.birc.v3.irc.controller.PingController
 import lt.dragas.birc.v3.irc.io.IrcInput
 import lt.dragas.birc.v3.irc.io.IrcOutput
 import lt.dragas.birc.v3.irc.message.Request
@@ -33,9 +36,9 @@ open class IrcClient(protected val settings: Settings) : Client<Request, Respons
 
     override fun initialize()
     {
-        router.apply {
-            //`when`()
-        }
+        NicknameController.initialize(router, settings.nicknames.toTypedArray())
+        ChannelController.initialize(router)
+        PingController.initialize(router)
     }
 
     override fun onConnect()
