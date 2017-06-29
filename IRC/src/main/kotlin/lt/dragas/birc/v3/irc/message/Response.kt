@@ -1,5 +1,7 @@
 package lt.dragas.birc.v3.irc.message
 
+import lt.dragas.birc.v3.irc.route.Command
+
 /**
  * Response to server.
  *
@@ -8,5 +10,5 @@ package lt.dragas.birc.v3.irc.message
  */
 class Response(val command: String, vararg val arguments: String)
 {
-
+    constructor(command: Command, vararg arguments: String) : this(command.value, *arguments)
 }
