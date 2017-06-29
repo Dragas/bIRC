@@ -11,4 +11,6 @@ import lt.dragas.birc.v3.irc.route.Command
 class Response(val command: String, vararg val arguments: String)
 {
     constructor(command: Command, vararg arguments: String) : this(command.value, *arguments)
+
+    val otherResponses = ArrayList<Response>()
 }

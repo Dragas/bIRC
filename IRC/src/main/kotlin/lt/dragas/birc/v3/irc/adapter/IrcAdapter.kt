@@ -21,6 +21,9 @@ open class IrcAdapter : Adapter<Request, Response>()
             sb.append(it)
         }
         sb.append("\r\n")
+        any.otherResponses.forEach {
+            sb.append(serialize(it))
+        }
         return sb.toString()
     }
 
