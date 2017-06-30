@@ -3,8 +3,9 @@ package lt.saltyjuice.dragas.chatty.v3.irc.message
 import java.util.concurrent.atomic.AtomicInteger
 
 
-class Request(val rawMessage: String)
+open class Request(val rawMessage: String)
 {
+    @Deprecated("Should be handled by implementations")
     val id = atomicID.getAndAdd(1)
     var prefixes: List<String> = ArrayList()
     var arguments: List<String> = ArrayList()
@@ -34,6 +35,7 @@ class Request(val rawMessage: String)
 
     companion object
     {
+        @Deprecated("Should be handled by implementations")
         private val atomicID = AtomicInteger(Int.MIN_VALUE)
     }
 }
