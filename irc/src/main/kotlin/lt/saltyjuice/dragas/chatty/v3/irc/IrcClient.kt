@@ -1,7 +1,5 @@
 package lt.saltyjuice.dragas.chatty.v3.irc
 
-import lt.saltyjuice.dragas.chatty.v3.core.io.Input
-import lt.saltyjuice.dragas.chatty.v3.core.io.Output
 import lt.saltyjuice.dragas.chatty.v3.core.main.Client
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.ChannelController
@@ -11,22 +9,23 @@ import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcInput
 import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcOutput
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
-import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
+
 import java.net.Socket
 
 /**
  * IRC implementation of chatty client.
  */
-open class IrcClient(protected open val settings: Settings) : Client<Request, Response>()
+open class IrcClient(protected open val settings: IrcSettings) : Client<String, Request, Response, String>()
 {
-    override val sin: Input<Request> by lazy()
+    override val sin: IrcInput by lazy()
     {
-        val input = IrcInput(socket.getInputStream(), adapter)
+        val input = IrcInput(adapter, socket.getInputStream())
         input
     }
-    override val sout: Output<Response> by lazy()
+    override val sout: IrcOutput by lazy()
     {
-        val output = IrcOutput(socket.getOutputStream(), adapter)
+        val output = IrcOutput(adapter, socket.getOutputStream())
         output
     }
     override val router: IrcRouter = IrcRouter()
