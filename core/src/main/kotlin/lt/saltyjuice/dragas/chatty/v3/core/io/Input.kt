@@ -17,7 +17,8 @@ abstract class Input<InputBlock, Request>(protected open val adapter: Deserializ
     //protected val sin = Scanner(inputStream)
 
     /**
-     * Returns a request from provided adapter. Do note that this should also implement
+     * Returns a request from provided adapter. Do note that the implementing class should
+     * also implement a method of getting actual data for this.
      */
     abstract fun getRequest(): Request
     /*{
