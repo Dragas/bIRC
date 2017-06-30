@@ -4,6 +4,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.IrcSettings
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.NicknameController
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
+import lt.saltyjuice.dragas.chatty.v3.irc.middleware.AuthMiddleware
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
 import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 import org.junit.Assert
@@ -64,6 +65,7 @@ class NicknameControllerTest
         {
             val settings = IrcSettings()
             settings.nicknames.addAll(nicknames)
+            AuthMiddleware()
             NicknameController.initialize(router, settings)
         }
     }
