@@ -2,7 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.main
 
 import lt.saltyjuice.dragas.chatty.v3.core.io.Input
 import lt.saltyjuice.dragas.chatty.v3.core.io.Output
-import lt.saltyjuice.dragas.chatty.v3.core.routing.Router
+import lt.saltyjuice.dragas.chatty.v3.core.route.Router
 import java.net.Socket
 
 /**
@@ -24,16 +24,16 @@ import java.net.Socket
  * By default, [Client] does not have an internal socket, as some implementations won't be using it.
  * It's up to the implementing module to decide what will it use as a "Socket"
  */
-abstract class Client<Request, Response>
+abstract class Client<InputBlock, Request, Response, OutputBlock>
 {
     /**
      * A wrapper for socket's input stream, which is used to deserialize provided data.
      */
-    protected abstract val sin: Input<Request>
+    protected abstract val sin: Input<InputBlock, Request>
     /**
      * A wrapper for socket's output stream, which is used to serialize generated data by the bot.
      */
-    protected abstract val sout: Output<Response>
+    protected abstract val sout: Output<Response, OutputBlock>
     /**
      * Handles testing of [Request] wrappers.
      */

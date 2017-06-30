@@ -8,12 +8,12 @@ package lt.saltyjuice.dragas.chatty.v3.core.adapter
  * twitter, reddit, etc., this interface is left for implementation for particular case.
  *
  */
-interface Deserializer<out Request>
+interface Deserializer<out Request, Block>
 {
     /**
      * Deserializes response from server to something more usable in application.
      * @param block a string block which is received from server
      * @return a deserialized [Request] object
      */
-    fun deserialize(block: String): Request // FIXME: Is block always a string?
+    fun deserialize(block: Block): Request
 }
