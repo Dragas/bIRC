@@ -6,7 +6,7 @@ import java.net.SocketAddress
 /**
  * Handles settings for IRC client.
  */
-open class Settings
+open class IrcSettings
 {
     open var address: String = ""
     open var port: Int = 6667
