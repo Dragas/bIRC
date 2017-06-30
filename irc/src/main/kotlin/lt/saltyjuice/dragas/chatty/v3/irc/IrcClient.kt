@@ -3,6 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.irc
 import lt.saltyjuice.dragas.chatty.v3.core.main.Client
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.ChannelController
+import lt.saltyjuice.dragas.chatty.v3.irc.controller.ConnectionController
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.NicknameController
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.PingController
 import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcInput
@@ -35,6 +36,7 @@ open class IrcClient(protected open val settings: IrcSettings) : Client<String, 
     override fun initialize()
     {
         AuthMiddleware()
+        ConnectionController.initialize(router, settings)
         NicknameController.initialize(router, settings)
         ChannelController.initialize(router)
         PingController.initialize(router)
