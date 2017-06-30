@@ -3,22 +3,35 @@ version '1.0-SNAPSHOT'
 
 buildscript {
     ext.kotlin_version = '1.1.3'
-
+    ext.dokka_version = "0.9.15"
     repositories {
         mavenCentral()
+        jcenter()
     }
     dependencies {
         classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
+        classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
     }
 }
 apply plugin: 'java'
 apply plugin: 'kotlin'
+apply plugin: 'org.jetbrains.dokka'
 sourceCompatibility = 1.8
 
 repositories {
     mavenCentral()
     jcenter()
 }
+dokka {
+    outputFormat = "gfm"
+    outputDirectory = "$buildDir/kdoc"
+    kotlinTasks {
+        defaultKotlinTasks() + [':core:compileKotlin']
+    }
+    includes = ["core/readme.md", "irc/readme.md", "birc/readme.md"]
+    skipDeprecated = true
+}
+
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
 }
