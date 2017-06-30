@@ -18,7 +18,7 @@ class NicknameController()
 
     fun onNicknameChangeRequest(request: Request): Response
     {
-        val nickname = settings.nicknames.getOrElse(lastUsedNickname.getAndAdd(1), { it -> "${settings.nicknames[0]}-$it}" })
+        val nickname = settings.nicknames.getOrElse(lastUsedNickname.getAndAdd(1), { it -> "${settings.nicknames[0]}-$it" })
         return Response(Command.NICK, nickname)
     }
 
