@@ -1,10 +1,10 @@
 package lt.saltyjuice.dragas.chatty.v3.irc.controller
 
-import lt.saltyjuice.dragas.chatty.v3.irc.Settings
+import lt.saltyjuice.dragas.chatty.v3.irc.IrcSettings
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 import java.util.concurrent.atomic.AtomicInteger
 
 /**
@@ -52,17 +52,39 @@ class NicknameController()
         }
 
         @JvmStatic
-        private var settings: Settings = Settings()
+        private var settings: IrcSettings = IrcSettings()
 
         @JvmStatic
-        fun initialize(router: IrcRouter, settings: Settings)
+        fun initialize(router: IrcRouter, settings: IrcSettings)
         {
             Companion.settings = settings
-            router.`when`(Command.ERR_NICKCOLLISION, instance::onNicknameChangeRequest)
-            router.`when`(Command.ERR_NICKNAMEINUSE, instance::onNicknameChangeRequest)
-            router.`when`(Command.ERR_NOTREGISTERED, instance::onNicknameInitialize)
-            router.`when`(Command.AUTH, instance::onNicknameInitialize)
-            router.`when`(Command.NICK, instance::onNicknameChange)
+            router.add(router.builder().let {
+                it.type(Command.ERR_NICKCOLLISION)
+                it.callback(instance::onNicknameChangeRequest)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.callback(instance::onNicknameChangeRequest)
+                it.type(Command.ERR_NICKNAMEINUSE)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.callback(instance::onNicknameInitialize)
+                it.type(Command.ERR_NOTREGISTERED)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.callback(instance::onNicknameInitialize)
+                it.type(Command.AUTH)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.callback(instance::onNicknameChange)
+                it.type(Command.NICK)
+                it.build()
+            })
+
+
         }
 
         @JvmStatic

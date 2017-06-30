@@ -5,7 +5,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.model.Channel
 import lt.saltyjuice.dragas.chatty.v3.irc.model.User
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 import java.util.*
 
 /**
@@ -80,10 +80,26 @@ class ChannelController private constructor()
         @JvmStatic
         fun initialize(router: IrcRouter)
         {
-            router.`when`(Command.RPL_TOPIC, instance::onChannelTopic)
-            router.`when`(Command.RPL_TOPICBY, instance::onChannelTopicDate)
-            router.`when`(Command.JOIN, instance::onChannelJoin)
-            router.`when`(Command.RPL_NAMEREPLY, instance::onChannelUsers)
+            router.add(router.builder().let {
+                it.type(Command.RPL_TOPIC)
+                it.callback(instance::onChannelTopic)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.type(Command.RPL_TOPICBY)
+                it.callback(instance::onChannelTopicDate)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.type(Command.JOIN)
+                it.callback(instance::onChannelJoin)
+                it.build()
+            })
+            router.add(router.builder().let {
+                it.type(Command.RPL_NAMEREPLY)
+                it.callback(instance::onChannelUsers)
+                it.build()
+            })
         }
 
         /**

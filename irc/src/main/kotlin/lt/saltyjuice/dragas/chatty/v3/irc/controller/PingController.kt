@@ -3,7 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.irc.controller
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 
 /**
  * Handles ping requests from server
@@ -26,7 +26,11 @@ class PingController private constructor()
         @JvmStatic
         fun initialize(router: IrcRouter)
         {
-            router.`when`(Command.PING, instance::onPing)
+            router.add(router.builder().let {
+                it.type(Command.PING)
+                it.callback(instance::onPing)
+                it.build()
+            })
         }
     }
 }
