@@ -16,7 +16,8 @@ import java.util.regex.Pattern
  * @param callback a callback to invoke when this route triggers.
  * @param pattern a pattern to test against when this route is supposed to trigger
  */
-class CommandRoute(type: Command, callback: (Request) -> Response?, pattern: String = ".*") : IrcRoute(type, Pattern.compile(pattern), callback)
+@Deprecated("Use route builders instead")
+open class CommandRoute(type: Command, callback: (Request) -> Response?, pattern: String = ".*") : IrcRoute(type, Pattern.compile(pattern), callback)
 {
     override fun canTrigger(request: Request): Boolean
     {

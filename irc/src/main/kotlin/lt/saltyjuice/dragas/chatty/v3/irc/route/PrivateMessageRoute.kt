@@ -11,7 +11,8 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
  * @param pattern a pattern that the request is is tested against
  * @param callback a callback that's invoked when request passes the test
  */
-class PrivateMessageRoute(pattern: String, callback: (Request) -> Response?) : MessageRoute(pattern, callback)
+@Deprecated("Use middleware instead")
+open class PrivateMessageRoute(pattern: String, callback: (Request) -> Response?) : MessageRoute(pattern, callback)
 {
     override fun canTrigger(request: Request): Boolean
     {

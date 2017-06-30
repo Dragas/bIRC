@@ -7,7 +7,8 @@ import java.util.regex.Pattern
 /**
  * responds to notice auth messages
  */
-class NoticeAuthRoute(pattern: String = ".*", callback: (Request) -> Response?) : IrcRoute(Command.NOTICE, Pattern.compile(pattern), callback)
+@Deprecated("Should be handled by implementations instead")
+open class NoticeAuthRoute(pattern: String = ".*", callback: (Request) -> Response?) : IrcRoute(Command.NOTICE, Pattern.compile(pattern), callback)
 {
     override fun canTrigger(request: Request): Boolean
     {

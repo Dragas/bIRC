@@ -13,6 +13,7 @@ import java.util.regex.Pattern
  * @param pattern a pattern against which the request is tested against
  * @param callback a callback which is invoked when test has passed successfully
  */
+@Deprecated("use route builders instead")
 open class MessageRoute(pattern: String, callback: (Request) -> Response?) : IrcRoute(Command.PRIVMSG, Pattern.compile(pattern), callback)
 {
     override fun canTrigger(request: Request): Boolean

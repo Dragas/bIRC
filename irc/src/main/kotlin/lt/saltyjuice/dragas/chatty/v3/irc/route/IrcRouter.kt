@@ -7,11 +7,13 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 /**
  * A router implementation for IRC Servers
  */
+@Deprecated("Depends on deprecated router")
 open class IrcRouter : Router<Request, Response>()
 {
     /**
      * Equivalent to calling `when`(Command.CHANNEL_MESSAGE, pattern, callback)
      */
+    @Deprecated("Uses a keyword", ReplaceWith("on(pattern, callback)"))
     override fun `when`(pattern: String, callback: (Request) -> Response?): IrcRouter
     {
         return `when`(Command.CHANNEL_MESSAGE, pattern, callback)
