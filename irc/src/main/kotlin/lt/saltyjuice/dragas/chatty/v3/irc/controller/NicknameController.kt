@@ -75,7 +75,8 @@ class NicknameController()
             })
             router.add(router.builder().let {
                 it.callback(instance::onNicknameInitialize)
-                it.type(Command.AUTH)
+                it.type(Command.NOTICE)
+                it.middleware("AUTH")
                 it.build()
             })
             router.add(router.builder().let {
