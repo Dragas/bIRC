@@ -1,4 +1,4 @@
-group 'lt.salty-juice.dragas'
+group 'lt.saltyjuice.dragas'
 version '1.0-SNAPSHOT'
 
 buildscript {
