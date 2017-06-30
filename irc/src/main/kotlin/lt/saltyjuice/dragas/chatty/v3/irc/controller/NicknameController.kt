@@ -10,6 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Handles nickname changes when necessary.
  */
+@Deprecated("should be handled by implementations")
 class NicknameController()
 {
     private var lastUsedNickname = AtomicInteger(0)

@@ -8,6 +8,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 /**
  * Handles ping requests from server
  */
+@Deprecated("should be handled by implementations")
 class PingController private constructor()
 {
     fun onPing(request: Request): Response

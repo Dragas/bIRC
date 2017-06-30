@@ -11,6 +11,7 @@ import java.util.*
 /**
  * Handles channel operations.
  */
+@Deprecated("Should be handled by implementations")
 class ChannelController private constructor()
 {
     val channels = HashMap<String, Channel>()
