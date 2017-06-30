@@ -1,3 +1,5 @@
 rootProject.name = 'Chatty'
 include ":core"
-include ":IRC"
+include ":irc"
+include ':birc'
+
