@@ -10,7 +10,7 @@ import java.util.concurrent.atomic.AtomicInteger
 /**
  * Handles nickname changes when necessary.
  */
-class NicknameController(private val settings: Settings)
+class NicknameController()
 {
     private var lastUsedNickname = AtomicInteger(0)
     private var currentNickname = ""
@@ -46,17 +46,17 @@ class NicknameController(private val settings: Settings)
         @JvmStatic
         val instance: NicknameController by lazy()
         {
-            val controller = NicknameController(setttings)
+            val controller = NicknameController()
             controller
         }
 
         @JvmStatic
-        private var setttings: Settings = Settings()
+        private var settings: Settings = Settings()
 
         @JvmStatic
         fun initialize(router: IrcRouter, settings: Settings)
         {
-            setttings = settings
+            this.settings = settings
             router.`when`(Command.ERR_NICKCOLLISION, instance::onNicknameChangeRequest)
             router.`when`(Command.ERR_NICKNAMEINUSE, instance::onNicknameChangeRequest)
             router.`when`(Command.ERR_NOTREGISTERED, instance::onNicknameInitialize)
