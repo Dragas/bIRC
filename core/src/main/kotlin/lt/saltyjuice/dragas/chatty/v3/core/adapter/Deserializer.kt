@@ -8,7 +8,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.adapter
  * twitter, reddit, etc., this interface is left for implementation for particular case.
  *
  */
-interface Deserializer<out Request, Block>
+interface Deserializer<Block, out Request>
 {
     /**
      * Deserializes response from server to something more usable in application.
