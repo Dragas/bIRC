@@ -11,6 +11,7 @@ import java.util.regex.Pattern
  * is a lamba reference, you can implement MVC pattern (or model-response-controller) around
  * router objects.
  */
+@Deprecated("Doesn't support that much of extensibility")
 abstract class Route<in Request, out Response>(protected open val pattern: Pattern, open val callback: ((Request) -> Response?)? = null)
 {
     /**

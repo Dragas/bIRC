@@ -8,14 +8,10 @@ import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
  * @param Request a wrapper object obtained from [Deserializer] implementation
  * @param Response a wrapper object returned from callback of corresponding route
  */
+@Deprecated("Depends on deprecated routes")
 abstract class Router<Request, Response>
 {
     protected val routes: ArrayList<Route<Request, Response>> = ArrayList()
-
-    /**
-     * Holds the default route when none of the testing routes correspond to request's pattern.
-     */
-    protected open var defaultRoute: Route<Request, Response>? = null
 
 
     /**
@@ -45,7 +41,6 @@ abstract class Router<Request, Response>
             if (response != null)
                 return response
         }
-        response = defaultRoute?.callback?.invoke(request)
         return response
     }
 
@@ -54,6 +49,7 @@ abstract class Router<Request, Response>
      * @param route a route object to append to internal list
      * @return this [Router], so that you could chain calls
      */
+    @Deprecated("Uses a keyword")
     open fun `when`(route: Route<Request, Response>): Router<Request, Response>
     {
         if (!routes.contains(route))
@@ -66,19 +62,10 @@ abstract class Router<Request, Response>
      * @param pattern string regex pattern which is used to test [Request] objects.
      * @param callback a callback to invoke once [Request] object passes the test
      */
+    @Deprecated("Uses a keyword")
     open fun `when`(pattern: String, callback: (Request) -> Response?): Router<Request, Response>
     {
         return `when`(buildRoute(pattern, callback))
-    }
-
-    /**
-     * Builds a default route with provided callback, which is used when none of the internal routes
-     * pass the test.
-     * @param callback default callback which is used to generate default response objects.
-     */
-    open fun otherwise(callback: (Request) -> Response)
-    {
-        this.defaultRoute = buildRoute("", callback)
     }
 
     protected abstract fun buildRoute(pattern: String, callback: (Request) -> Response?): Route<Request, Response>
