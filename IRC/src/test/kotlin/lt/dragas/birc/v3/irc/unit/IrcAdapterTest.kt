@@ -1,4 +1,4 @@
-package lt.dragas.birc.v3.irc.adapter.unit
+package lt.dragas.birc.v3.irc.unit
 
 
 import lt.dragas.birc.v3.irc.adapter.IrcAdapter
