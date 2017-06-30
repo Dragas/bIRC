@@ -18,6 +18,7 @@ enum class Command(val value: String)
      * difference between sending a private message to user and private message to channel,
      * hence the separation here as well.
      */
+    @Deprecated("Use PRIVMSG instead", ReplaceWith("PRIVMSG"))
     PRIVATE_MESSAGE("private"),
 
     /**
@@ -25,6 +26,7 @@ enum class Command(val value: String)
      *
      * @see [PRIVATE_MESSAGE]
      */
+    @Deprecated("Use PRIVMSG instead", ReplaceWith("PRIVMSG"))
     CHANNEL_MESSAGE("channel"),
 
     /* ---- Chatty/IRC specific definitions end ---- */
