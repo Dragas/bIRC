@@ -10,7 +10,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
  * Should be implemented in accordance to RFC2812 section 2.3 and be able to deserialize
  * [ ":" prefix SPACE ] command [ params ] crlf syntax messages.
  */
-open class IrcAdapter : Adapter<Request, Response>()
+open class IrcAdapter : Adapter<String, Request, Response, String>()
 {
     override fun serialize(any: Response): String
     {
