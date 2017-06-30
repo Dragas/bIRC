@@ -11,7 +11,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
  */
 abstract class Router<Request, Response>
 {
-    protected val routes: ArrayList<Route<Request, Response>> = ArrayList()
+    protected open val routes: ArrayList<Route<Request, Response>> = ArrayList()
 
     /**
      * Returns a route builder, which handles assigning middlewares, callback and test callback

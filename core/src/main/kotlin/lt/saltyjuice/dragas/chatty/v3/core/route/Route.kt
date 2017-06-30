@@ -10,9 +10,9 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
  */
 abstract class Route<Request, Response>
 {
-    protected var middlewares: List<Middleware<Request>> = listOf()
-    protected var testCallback: (Request) -> Boolean = { false }
-    protected var callback: (Request) -> Response? = { null }
+    protected open var middlewares: List<Middleware<Request>> = listOf()
+    protected open var testCallback: (Request) -> Boolean = { false }
+    protected open var callback: (Request) -> Response? = { null }
 
     /**
      * Tests the request by first checking whether or not it passes the middleware test,
