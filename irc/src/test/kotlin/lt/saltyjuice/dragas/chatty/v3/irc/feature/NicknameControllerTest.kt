@@ -1,11 +1,11 @@
 package lt.saltyjuice.dragas.chatty.v3.irc.feature
 
-import lt.saltyjuice.dragas.chatty.v3.irc.Settings
+import lt.saltyjuice.dragas.chatty.v3.irc.IrcSettings
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.NicknameController
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
@@ -62,7 +62,7 @@ class NicknameControllerTest
         @JvmStatic
         fun init()
         {
-            val settings = Settings()
+            val settings = IrcSettings()
             settings.nicknames.addAll(nicknames)
             NicknameController.initialize(router, settings)
         }
