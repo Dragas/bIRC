@@ -27,22 +27,22 @@ abstract class Middleware<Request>()
     companion object
     {
         @JvmStatic
-        private val middlewareCache = HashMap<String, Middleware<*>>()
+        private val middlewareCache = ArrayList<Middleware<*>>()
 
         @JvmStatic
         fun getMiddleware(name: String): Middleware<*>
         {
-            return middlewareCache[name] ?: throw Exception("No such middleware")
+            return middlewareCache.firstOrNull { name == it.name } ?: throw Exception("No such middleware")
         }
 
         @JvmStatic
         fun registerMiddleware(middleware: Middleware<*>)
         {
-            if (middlewareCache.containsKey(middleware.name))
+            if (middlewareCache.firstOrNull { it.name == middleware.name } != null)
                 throw Exception("Middleware under name ${middleware.name} is already registered")
-            if (middlewareCache.containsValue(middleware))
+            if (middlewareCache.contains(middleware))
                 throw Exception("This particular middleware is already registered")
-            middlewareCache[middleware.name] = middleware
+            middlewareCache.add(middleware)
         }
     }
 }
