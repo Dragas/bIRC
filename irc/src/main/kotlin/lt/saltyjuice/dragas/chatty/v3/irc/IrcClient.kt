@@ -9,8 +9,8 @@ import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcInput
 import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcOutput
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
+import lt.saltyjuice.dragas.chatty.v3.irc.middleware.AuthMiddleware
 import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
-
 import java.net.Socket
 
 /**
@@ -32,9 +32,9 @@ open class IrcClient(protected open val settings: IrcSettings) : Client<String, 
     protected open val adapter: IrcAdapter = IrcAdapter()
     protected open var socket: Socket = Socket()
 
-
     override fun initialize()
     {
+        AuthMiddleware()
         NicknameController.initialize(router, settings)
         ChannelController.initialize(router)
         PingController.initialize(router)
