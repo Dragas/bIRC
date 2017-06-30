@@ -26,4 +26,17 @@ abstract class Router<Request, Response>
         if (!routes.contains(route))
             routes.add(route)
     }
+
+    /**
+     * Attempts consuming provided [request] request. Returns null on failure.
+     */
+    open fun consume(request: Request): Response?
+    {
+        routes.forEach {
+            val result = it.attemptTrigger(request)
+            if (result != null)
+                return result
+        }
+        return null
+    }
 }

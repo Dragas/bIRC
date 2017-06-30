@@ -10,9 +10,9 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
  */
 abstract class Route<Request, Response>
 {
-    var middlewares: List<Middleware<Request>> = listOf()
-    var testCallback: (Request) -> Boolean = { false }
-    var callback: (Request) -> Response? = { null }
+    protected var middlewares: List<Middleware<Request>> = listOf()
+    protected var testCallback: (Request) -> Boolean = { false }
+    protected var callback: (Request) -> Response? = { null }
 
     /**
      * Tests the request by first checking whether or not it passes the middleware test,
@@ -22,6 +22,16 @@ abstract class Route<Request, Response>
     {
         middlewares.firstOrNull { it -> !it.handle(request) } ?: return testCallback(request)
         return false
+    }
+
+    /**
+     * Attempts consuming the provided request. On failure returns null.
+     */
+    open fun attemptTrigger(request: Request): Response?
+    {
+        if (canTrigger(request))
+            return callback(request)
+        return null
     }
 
 }
