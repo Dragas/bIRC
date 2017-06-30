@@ -84,5 +84,16 @@ class ChannelController private constructor()
             router.`when`(Command.JOIN, instance::onChannelJoin)
             router.`when`(Command.RPL_NAMEREPLY, instance::onChannelUsers)
         }
+
+        /**
+         * A shorthand to return channel in which implementation probably is.
+         * @param channelName string based channel name, usually starting with #.
+         * @return Channel model if implementation is in that channel, otherwise null.
+         */
+        @JvmStatic
+        fun getChannel(channelName: String): Channel?
+        {
+            return instance.channels[channelName]
+        }
     }
 }
