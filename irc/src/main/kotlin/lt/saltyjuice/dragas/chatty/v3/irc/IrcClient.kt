@@ -17,7 +17,7 @@ import java.net.Socket
 /**
  * IRC implementation of chatty client.
  */
-open class IrcClient(protected val settings: Settings) : Client<Request, Response>()
+open class IrcClient(protected open val settings: Settings) : Client<Request, Response>()
 {
     override val sin: Input<Request> by lazy()
     {
@@ -30,8 +30,8 @@ open class IrcClient(protected val settings: Settings) : Client<Request, Respons
         output
     }
     override val router: IrcRouter = IrcRouter()
-    protected val adapter: IrcAdapter = IrcAdapter()
-    protected var socket: Socket = Socket()
+    protected open val adapter: IrcAdapter = IrcAdapter()
+    protected open var socket: Socket = Socket()
 
 
     override fun initialize()
