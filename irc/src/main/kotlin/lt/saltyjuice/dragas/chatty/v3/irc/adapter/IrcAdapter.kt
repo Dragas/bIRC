@@ -17,14 +17,27 @@ open class IrcAdapter : Adapter<String, Request, Response, String>()
         val sb = StringBuilder()
         sb.append(any.command)
         any.arguments.forEach {
-            sb.append(" ")
-            sb.append(it)
+            sb.append(" $it")
         }
         if (!sb.isBlank())
             sb.append("\r\n")
-        any.otherResponses.forEach {
-            sb.append(serialize(it))
-        }
+        val serializedChildren = any.otherResponses.
+                parallelStream()
+                .map(this::serialize)
+                .filter {
+                    it.isNotEmpty()
+                }
+                .collect(
+                        {
+                            StringBuilder()
+                        },
+                        { supplier: StringBuilder, element: String ->
+                            supplier.append(element)
+                        },
+                        { supplier: StringBuilder, element: StringBuilder ->
+                            supplier.append(element.toString())
+                        })
+        sb.append(serializedChildren)
         return sb.toString()
     }
 
