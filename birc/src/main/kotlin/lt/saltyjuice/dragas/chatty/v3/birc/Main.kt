@@ -2,10 +2,11 @@
 
 package lt.saltyjuice.dragas.chatty.v3.birc
 
+import kotlinx.coroutines.experimental.runBlocking
 import java.io.FileReader
 
 
-fun main(args: Array<String>)
+fun main(args: Array<String>) = runBlocking<Unit>
 {
     val settings = BIrcSettings()
     val client = BIrcClient(settings)
