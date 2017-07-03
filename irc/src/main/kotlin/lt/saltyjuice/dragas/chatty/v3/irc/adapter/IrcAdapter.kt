@@ -20,7 +20,7 @@ open class IrcAdapter : Adapter<String, Request, Response, String>()
             sb.append(" ")
             sb.append(it)
         }
-        if (!sb.isEmpty())
+        if (!sb.isBlank())
             sb.append("\r\n")
         any.otherResponses.forEach {
             sb.append(serialize(it))
