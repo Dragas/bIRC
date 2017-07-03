@@ -43,7 +43,7 @@ open class IrcRouteBuilder : RouteBuilder<Request, Response>()
 
     open fun testCallback(pattern: String): IrcRouteBuilder
     {
-        mTestCallback = { request -> Pattern.compile(pattern).matcher(request.arguments.last()).matches() }
+        mTestCallback = { request -> Pattern.compile(pattern).matcher(request.arguments.last()).find() }
         return this
     }
 
