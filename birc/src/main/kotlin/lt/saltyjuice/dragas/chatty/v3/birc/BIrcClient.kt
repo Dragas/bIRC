@@ -19,6 +19,8 @@ class BIrcClient(override val settings: BIrcSettings) : IrcClient(settings)
         BIrcOutput(adapter, socket.getOutputStream())
     }
 
+    override val router: AsyncRouter = AsyncRouter()
+
     override fun initialize()
     {
         super.initialize()
