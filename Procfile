@@ -1,1 +1,1 @@
-worker: gradlew :birc:run
+worker: ./gradlew :birc:installDist; build/install/birc
