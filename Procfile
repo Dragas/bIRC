@@ -1,1 +1,1 @@
-worker: build/install/birc
+worker: sh birc/build/install/birc/bin/birc
