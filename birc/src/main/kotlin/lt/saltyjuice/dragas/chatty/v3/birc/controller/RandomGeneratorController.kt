@@ -10,71 +10,102 @@ import java.util.regex.Pattern
 
 class RandomGeneratorController
 {
-    private val generator = Random()
-
     fun onRandomRequest(request: Request): Response
     {
-        val args = request.arguments[1].split("d", limit = 2)
-        val count = Integer.parseInt(args[0])
-        val limit = Integer.parseInt(obtainArguments(args[1], "\\d+")[0])
-        var sum = 0
-        val sb = StringBuilder()
-        sb.append(request.nickname)
-        sb.append(": ")
-        val mod = obtainArguments(args[1], "(\\+|-)\\d+").sumBy { Integer.parseInt(it) }
-        for (i in 0..count - 1)
-        {
-            if (i >= 1)
-            {
-                sb.append(", ")
-            }
-            val generated = generator.nextInt(limit) + 1 + mod
-            sum += generated
-            sb.append(generated)
-        }
-
-        if (count > 1)
-        {
-            sb.append(". Sum: $sum")
-        }
-        if (mod != 0)
-        {
-            sb.append(". Mod: $mod")
-        }
+        val generator = Random()
+        val matcher = Pattern.compile(pattern).matcher(request.arguments[1])
         val response = Response("")
-
-        splitBy(sb.toString(), 512).forEachIndexed { index, text ->
-            response.otherResponses.add(Response(Command.PRIVMSG, request.arguments[0], text))
+        while (matcher.find())
+        {
+            val rollArguments = matcher.group()
+            val count = getCount(rollArguments)
+            val limit = getLimit(rollArguments)
+            if(Math.max(count, limit) <= 0)
+                return response
+            val modifier = getModifier(rollArguments)
+            var sum: Int = modifier
+            repeat(count) {
+                sum += generator.nextInt(limit) + 1
+            }
+            val stringbuilder = StringBuilder()
+            stringbuilder.append(request.arguments[1])
+            response.otherResponses.add(generateResponse(request, "$sum"))
         }
-
         return response
     }
 
-    private fun obtainArguments(source: String, pattern: String): Array<String>
+    private fun getArgument(arguments: String, pattern: String): String
     {
-        val cPattern = Pattern.compile(pattern)
-        val matcher = cPattern.matcher(source)
-        val arrayList = ArrayList<String>()
-        while (matcher.find())
+        val matcher = Pattern.compile(pattern).matcher(arguments)
+        if (matcher.find())
         {
-            arrayList.add(matcher.group())
+            return matcher.group()
         }
-        return arrayList.toTypedArray()
+        return ""
     }
 
-    private fun splitBy(source: String, length: Int): Array<String>
+    private fun getCount(arguments: String): Int
     {
-        val mod = if (source.length % length > 0) 1 else 0
-        val array = Array(source.length / length + mod, { "" })
-        var iterator = 0
-        while (iterator < array.size)
+        var returnable = -1
+        val argument = getArgument(arguments, "${countPattern}d").replace("d", "")
+        if (argument.isNotBlank())
         {
-            val realend = (iterator + 1) * length
-            val end = if (realend > source.length) source.length else realend
-            array[iterator] = source.substring(iterator * length, end)
-            iterator++
+            try
+            {
+                returnable = argument.toInt()
+            }
+            catch (err: Exception)
+            {
+                print(err)
+                returnable = -2
+            }
         }
-        return array
+        return returnable
+    }
+
+    private fun getLimit(arguments: String): Int
+    {
+        var returnable = -1
+        val argument = getArgument(arguments, "d$limitPattern").replace("d", "")
+        if(argument.isNotBlank())
+        {
+            try
+            {
+                returnable = argument.toInt()
+            }
+            catch (err: Exception)
+            {
+                print(err)
+                returnable = -2
+            }
+        }
+        return returnable
+    }
+
+    private fun getModifier(arguments: String): Int
+    {
+        var returnable = 0
+        val argument = getArgument(arguments, "($modifierPattern)+")
+        val matcher = Pattern.compile(modifierPattern).matcher(argument)
+        while(matcher.find())
+        {
+            try
+            {
+                returnable += matcher.group().toInt()
+            }
+            catch (err : Exception)
+            {
+                print(err)
+                break
+            }
+        }
+        return returnable
+    }
+
+    private fun generateResponse(request: Request, sum: String): Response
+    {
+        val response = Response(Command.PRIVMSG, request.arguments[0], "${request.nickname}: $sum.")
+        return response
     }
 
     companion object
@@ -86,11 +117,26 @@ class RandomGeneratorController
         fun initialize(router: IrcRouter)
         {
             router.add(router.builder().let {
-                it.testCallback("\\d+d\\d+((\\+|-)\\d+)*")
+                it.testCallback(pattern)
                 it.callback(instance::onRandomRequest)
                 it.type(Command.PRIVMSG)
                 it.build()
             })
         }
+
+        @JvmStatic
+        private val countPattern = "\\d+"
+
+        @JvmStatic
+        private val limitPattern = "\\d+"
+
+        @JvmStatic
+        private val modifierPattern = "([+-])\\d+"
+
+        @JvmStatic
+        private val modifiersPattern = "($modifierPattern)*"
+
+        @JvmStatic
+        private val pattern = "(?<!\\S)${countPattern}d${limitPattern}${modifiersPattern}(?!\\S)"
     }
 }
