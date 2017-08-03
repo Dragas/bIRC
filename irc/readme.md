@@ -1,14 +1,14 @@
 # Chatty/IRC
 An implementation of Chatty for IRC based networks.
 
-##Setting up
+## Setting up
 
 Chatty/IRC implementations should use `IrcSettings` model to set up settings before attempting to
 connect to your server. Each field corresponds to parameter that's used during authentication when
 connected to server.
 
 
-##Adding hookers and blackjack
+## Adding hookers and blackjack
 
 By default, Chatty/IRC client implementation already handles pinging the server,
 joining the default channels and setting default nickname, etc. Adding functionality
