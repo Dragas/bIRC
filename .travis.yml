@@ -9,5 +9,5 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - ./gradlew :irc:test
+  - ./gradlew :irc:uploadArchives
   - ./gradlew :birc:test
