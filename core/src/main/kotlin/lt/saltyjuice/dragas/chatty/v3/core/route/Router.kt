@@ -19,12 +19,20 @@ abstract class Router<Request, Response>
     abstract fun builder(): RouteBuilder<Request, Response>
 
     /**
-     * Adds a route to router, which is later to test
+     * Adds a route to router, which is later used to test requests
      */
     open fun add(route: Route<Request, Response>)
     {
         if (!routes.contains(route))
             routes.add(route)
+    }
+
+    /**
+     * a shorthand to build and add a route.
+     */
+    open fun add(route: RouteBuilder<Request, Response>)
+    {
+        add(route.build())
     }
 
     /**
