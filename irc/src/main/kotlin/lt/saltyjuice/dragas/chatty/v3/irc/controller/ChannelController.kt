@@ -11,14 +11,13 @@ import java.util.*
 /**
  * Handles channel operations.
  */
-@Deprecated("Should be handled by implementations")
 class ChannelController private constructor()
 {
     val channels = HashMap<String, Channel>()
 
     fun onChannelJoin(request: Request): Response?
     {
-        if (request.nickname == NicknameController.currentNickname)
+        if (request.nickname == ConnectionController.currentNickname)
         {
             val channel = Channel()
             channel.name = request.arguments[0]

@@ -2,7 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.irc.feature
 
 import lt.saltyjuice.dragas.chatty.v3.irc.IrcSettings
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
-import lt.saltyjuice.dragas.chatty.v3.irc.controller.NicknameController
+import lt.saltyjuice.dragas.chatty.v3.irc.controller.ConnectionController
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.middleware.AuthMiddleware
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
@@ -13,10 +13,31 @@ import org.junit.Test
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
-
 @RunWith(JUnit4::class)
-class NicknameControllerTest
+class ConnectionControllerTest
 {
+    @Test
+    fun canPingOrigin()
+    {
+        val request = adapter.deserialize("PING origin")
+        val response = router.consume(request)
+        Assert.assertNotNull(response)
+        response as Response
+        Assert.assertEquals(Command.PONG.value, response.command)
+        Assert.assertEquals(request.arguments[0], response.arguments[0])
+    }
+
+    @Test
+    fun canPingTarget()
+    {
+        val request = adapter.deserialize("PING origin target")
+        val response = router.consume(request)
+        Assert.assertNotNull(response)
+        response as Response
+        Assert.assertEquals(Command.PONG.value, response.command)
+        Assert.assertEquals(request.arguments[1], response.arguments[0])
+    }
+
     @Test
     fun canChangeNicknameWhenItsBad()
     {
@@ -33,7 +54,7 @@ class NicknameControllerTest
         val request = adapter.deserialize(":!jto@tolsun.oulu.fi NICK Kilroy ")
         val response = router.consume(request)
         Assert.assertNull(response)
-        Assert.assertEquals(NicknameController.currentNickname, request.arguments[0])
+        Assert.assertEquals(ConnectionController.currentNickname, request.arguments[0])
     }
 
     @Test
@@ -44,7 +65,7 @@ class NicknameControllerTest
         Assert.assertNotNull(response)
         response as Response
         Assert.assertEquals(Command.NICK.value, response.command)
-        Assert.assertEquals(NicknameController.currentNickname, response.arguments[0])
+        Assert.assertEquals(ConnectionController.currentNickname, response.arguments[0])
         Assert.assertTrue(response.otherResponses.size > 0)
     }
 
@@ -57,16 +78,18 @@ class NicknameControllerTest
         val adapter = IrcAdapter()
 
         @JvmStatic
-        val nicknames = arrayOf("first", "second", "third")
+        val settings = IrcSettings()
 
+        @JvmStatic
+        val nicknames = arrayOf("first", "second", "third")
+        
         @BeforeClass
         @JvmStatic
         fun init()
         {
-            val settings = IrcSettings()
-            settings.nicknames.addAll(nicknames)
             AuthMiddleware()
-            NicknameController.initialize(router, settings)
+            settings.nicknames.addAll(nicknames)
+            ConnectionController.initialize(router, settings)
         }
     }
 }
