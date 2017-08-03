@@ -59,5 +59,4 @@ subprojects {
         classifier = 'sources'
         from sourceSets.main.allSource
     }
-    apply from: "../upload.gradle"
 }
