@@ -11,7 +11,7 @@ import java.util.regex.Pattern
 open class IrcRouteBuilder : RouteBuilder<Request, Response>()
 {
     protected open var mType: String = ""
-    override val mMiddlewares: ArrayList<Middleware<*>> = ArrayList()
+    override val mMiddlewares: ArrayList<Middleware<*, *>> = ArrayList()
     override var mCallback: ((Request) -> Response?)? = null
     override var mTestCallback: ((Request) -> Boolean)? = { true }
 
@@ -55,7 +55,7 @@ open class IrcRouteBuilder : RouteBuilder<Request, Response>()
                 set(value)
                 {
                 }
-            override var middlewares: List<Middleware<Request>> = this@IrcRouteBuilder.mMiddlewares as List<Middleware<Request>>
+            override var middlewares: List<Middleware<Request, Response>> = this@IrcRouteBuilder.mMiddlewares as List<Middleware<Request, Response>>
             override var testCallback: (Request) -> Boolean = this@IrcRouteBuilder.mTestCallback ?: throw Exception("Route should have a test callback")
                 set(value)
                 {

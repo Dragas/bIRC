@@ -7,7 +7,7 @@ class AuthMiddleware : IrcMiddleware()
 {
     override val name: String = "AUTH"
 
-    override fun handle(request: Request): Boolean
+    override fun before(request: Request): Boolean
     {
         return request.arguments[0] == "AUTH"
     }
