@@ -2,7 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
 
 abstract class RouteBuilder<Request, Response>
 {
-    protected open val mMiddlewares: ArrayList<Middleware<*>> = ArrayList()
+    protected open val mMiddlewares: ArrayList<Middleware<*, *>> = ArrayList()
     protected open var mCallback: ((Request) -> Response?)? = null
     protected open var mTestCallback: ((Request) -> Boolean)? = null
 

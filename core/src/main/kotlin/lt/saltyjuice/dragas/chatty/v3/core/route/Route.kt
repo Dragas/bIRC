@@ -10,7 +10,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
  */
 abstract class Route<Request, Response>
 {
-    protected open var middlewares: List<Middleware<Request>> = listOf()
+    protected open var middlewares: List<Middleware<Request, Response>> = listOf()
     protected open var testCallback: (Request) -> Boolean = { false }
     protected open var callback: (Request) -> Response? = { null }
 
@@ -20,17 +20,26 @@ abstract class Route<Request, Response>
      */
     open fun canTrigger(request: Request): Boolean
     {
-        middlewares.firstOrNull { it -> !it.handle(request) } ?: return testCallback(request)
+        middlewares.firstOrNull { it -> !it.before(request) } ?: return testCallback(request)
         return false
     }
 
+    open fun canRespond(response: Response): Boolean
+    {
+        val failingMiddleware = middlewares.firstOrNull { it -> !it.after(response) }
+        return failingMiddleware == null
+    }
     /**
      * Attempts consuming the provided request. On failure returns null.
      */
     open fun attemptTrigger(request: Request): Response?
     {
         if (canTrigger(request))
-            return callback(request)
+        {
+            val response = callback(request) ?: return null
+            if (canRespond(response))
+                return response
+        }
         return null
     }
 

@@ -6,7 +6,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
  *
  * Since middlewares are singletons, they should not be registered more than once.
  */
-abstract class Middleware<Request>()
+abstract class Middleware<Request, Response>()
 {
     /**
      * Used for caching purposes. Also makes it so that you can get this middleware back by calling
@@ -17,7 +17,21 @@ abstract class Middleware<Request>()
     /**
      * Tests whether or not particular request passes the middleware.
      */
-    abstract fun handle(request: Request): Boolean
+    @Deprecated("Use Before and After methods, instead. this calls before")
+    open fun handle(request: Request): Boolean
+    {
+        return before(request)
+    }
+
+    open fun before(request: Request): Boolean
+    {
+        return true
+    }
+
+    open fun after(response: Response): Boolean
+    {
+        return true
+    }
 
     init
     {
@@ -27,16 +41,16 @@ abstract class Middleware<Request>()
     companion object
     {
         @JvmStatic
-        private val middlewareCache = ArrayList<Middleware<*>>()
+        private val middlewareCache = ArrayList<Middleware<*, *>>()
 
         @JvmStatic
-        fun getMiddleware(name: String): Middleware<*>
+        fun getMiddleware(name: String): Middleware<*, *>
         {
             return middlewareCache.firstOrNull { name == it.name } ?: throw Exception("No such middleware")
         }
 
         @JvmStatic
-        fun registerMiddleware(middleware: Middleware<*>)
+        fun registerMiddleware(middleware: Middleware<*, *>)
         {
             if (middlewareCache.firstOrNull { it.name == middleware.name } != null)
                 throw Exception("Middleware under name ${middleware.name} is already registered")
