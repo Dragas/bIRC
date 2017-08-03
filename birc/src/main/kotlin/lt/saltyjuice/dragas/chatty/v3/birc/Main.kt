@@ -4,6 +4,7 @@ package lt.saltyjuice.dragas.chatty.v3.birc
 
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.FileReader
+import java.io.IOException
 
 
 fun main(args: Array<String>) = runBlocking<Unit>
@@ -12,12 +13,24 @@ fun main(args: Array<String>) = runBlocking<Unit>
     val client = BIrcClient(settings)
     client.initialize()
     client.connect()
-    client.onConnect()
-    while (client.isConnected())
+    if (client.isConnected())
+        client.onConnect()
+    try // sockets usually disconnect by throwing IOException.
     {
-        client.run()
+        while (client.isConnected())
+        {
+            client.run()
+        }
     }
-    client.onDisconnect()
+    catch(exception: IOException)
+    {
+        println(exception)
+        exception.printStackTrace()
+    }
+    finally
+    {
+        client.onDisconnect()
+    }
 }
 
 fun getReader(): FileReader
