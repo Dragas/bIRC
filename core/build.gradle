@@ -14,7 +14,7 @@ buildscript {
 apply plugin: 'java'
 apply plugin: 'kotlin'
 sourceCompatibility = 1.8
-
+archivesBaseName = "chatty-core"
 repositories {
     mavenCentral()
     jcenter()

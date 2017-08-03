@@ -24,6 +24,7 @@ applicationDefaultJvmArgs = ["-Dfile.encoding=UTF-8"]
 repositories {
     mavenCentral()
     jcenter()
+    maven {url "https://oss.sonatype.org/content/repositories/snapshots"}
 }
 dependencies {
     compile project(":irc")

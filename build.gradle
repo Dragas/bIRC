@@ -42,3 +42,22 @@ compileKotlin {
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
+
+subprojects {
+    task kotlindokkaJar(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        outputFormat = 'javadoc'
+        outputDirectory = javadoc.destinationDir
+        inputs.dir 'src/main/kotlin'
+    }
+
+    task javadocJar(type: Jar, dependsOn: kotlindokkaJar) {
+        classifier = 'javadoc'
+        from javadoc.destinationDir
+    }
+
+    task sourcesJar(type: Jar) {
+        classifier = 'sources'
+        from sourceSets.main.allSource
+    }
+    apply from: "../upload.gradle"
+}
