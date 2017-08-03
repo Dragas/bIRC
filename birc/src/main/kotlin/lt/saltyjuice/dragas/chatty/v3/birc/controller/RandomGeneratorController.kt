@@ -8,7 +8,7 @@ import java.util.*
 import java.util.regex.Pattern
 
 
-class RandomGeneratorController
+open class RandomGeneratorController
 {
     fun onRandomRequest(request: Request): Response
     {
@@ -34,7 +34,7 @@ class RandomGeneratorController
         return response
     }
 
-    private fun getArgument(arguments: String, pattern: String): String
+    protected fun getArgument(arguments: String, pattern: String): String
     {
         val matcher = Pattern.compile(pattern).matcher(arguments)
         if (matcher.find())
@@ -44,7 +44,7 @@ class RandomGeneratorController
         return ""
     }
 
-    private fun getCount(arguments: String): Int
+    protected fun getCount(arguments: String): Int
     {
         var returnable = -1
         val argument = getArgument(arguments, "${countPattern}d").replace("d", "")
@@ -63,7 +63,7 @@ class RandomGeneratorController
         return returnable
     }
 
-    private fun getLimit(arguments: String): Int
+    protected fun getLimit(arguments: String): Int
     {
         var returnable = -1
         val argument = getArgument(arguments, "d$limitPattern").replace("d", "")
@@ -82,7 +82,7 @@ class RandomGeneratorController
         return returnable
     }
 
-    private fun getModifier(arguments: String): Int
+    protected fun getModifier(arguments: String): Int
     {
         var returnable = 0
         val argument = getArgument(arguments, "($modifierPattern)+")
@@ -102,7 +102,7 @@ class RandomGeneratorController
         return returnable
     }
 
-    private fun generateResponse(request: Request, sum: String): Response
+    protected fun generateResponse(request: Request, sum: String): Response
     {
         val response = Response(Command.PRIVMSG, request.arguments[0], "${request.nickname}: $sum.")
         return response
@@ -125,18 +125,18 @@ class RandomGeneratorController
         }
 
         @JvmStatic
-        private val countPattern = "\\d+"
+        protected val countPattern = "\\d+"
 
         @JvmStatic
-        private val limitPattern = "\\d+"
+        protected val limitPattern = "\\d+"
 
         @JvmStatic
-        private val modifierPattern = "([+-])\\d+"
+        protected val modifierPattern = "([+-])\\d+"
 
         @JvmStatic
-        private val modifiersPattern = "($modifierPattern)*"
+        protected val modifiersPattern = "($modifierPattern)*"
 
         @JvmStatic
-        private val pattern = "(?<!\\S)${countPattern}d${limitPattern}${modifiersPattern}(?!\\S)"
+        protected val pattern = "(?<!\\S)${countPattern}d${limitPattern}${modifiersPattern}(?!\\S)"
     }
 }

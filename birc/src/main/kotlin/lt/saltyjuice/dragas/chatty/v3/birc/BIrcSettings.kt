@@ -7,7 +7,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.IrcSettings
  * Extends usual setting behavior with default settings as well as routes that
  * are created from json routes (ArrayList<CommandRoute>) field.
  */
-class BIrcSettings : IrcSettings()
+open class BIrcSettings : IrcSettings()
 {
     //var routes : ArrayList<CommandRoute> = ArrayList()
     override var address: String = "irc.purplesurge.com"

@@ -7,7 +7,7 @@ import java.io.OutputStream
 /**
  * Wrapper for Chatty/IRC output class.
  */
-class BIrcOutput(adapter: IrcAdapter, outputStream: OutputStream) : IrcOutput(adapter, outputStream)
+open class BIrcOutput(adapter: IrcAdapter, outputStream: OutputStream) : IrcOutput(adapter, outputStream)
 {
     override fun writeResponse(response: String)
     {

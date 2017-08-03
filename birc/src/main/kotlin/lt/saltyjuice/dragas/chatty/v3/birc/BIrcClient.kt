@@ -10,7 +10,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.controller.ConnectionController
  * As stated in [IrcClient], this handles concurrency as well as extends some functions
  * for example route generation from json
  */
-class BIrcClient(override val settings: BIrcSettings) : IrcClient(settings)
+open class BIrcClient(override val settings: BIrcSettings) : IrcClient(settings)
 {
     override val sin: BIrcInput by lazy {
         BIrcInput(adapter, socket.getInputStream())

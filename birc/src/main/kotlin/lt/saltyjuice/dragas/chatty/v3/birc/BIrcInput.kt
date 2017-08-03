@@ -7,7 +7,7 @@ import java.io.InputStream
 /**
  * Wrapper for Chatty/IRC input implementation
  */
-class BIrcInput(adapter: IrcAdapter, inputStream: InputStream) : IrcInput(adapter, inputStream)
+open class BIrcInput(adapter: IrcAdapter, inputStream: InputStream) : IrcInput(adapter, inputStream)
 {
     override fun getData(): String
     {

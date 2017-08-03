@@ -7,7 +7,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 /**
  * Handles routes asynchronously
  */
-class AsyncRouter : IrcRouter()
+open class AsyncRouter : IrcRouter()
 {
     override fun consume(request: Request): Response?
     {
