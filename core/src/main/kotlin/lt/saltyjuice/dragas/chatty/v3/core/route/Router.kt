@@ -58,9 +58,11 @@ abstract class Router<Request, Response>
      */
     open fun consume(request: Request): Response?
     {
+        if (middlewares.firstOrNull { !it.before(request) } != null)
+            return null
         routes.forEach {
             val result = it.attemptTrigger(request)
-            if (result != null)
+            if (result != null && middlewares.firstOrNull { !it.after(result) } == null)
                 return result
         }
         return null
