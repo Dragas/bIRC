@@ -11,8 +11,9 @@ import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
  */
 abstract class Router<Request, Response>
 {
-    protected open val routes: ArrayList<Route<Request, Response>> = ArrayList()
+    protected open val routes: MutableList<Route<Request, Response>> = ArrayList()
 
+    protected open val middlewares: MutableList<Middleware<Request, Response>> = ArrayList()
     /**
      * Returns a route builder, which handles assigning middlewares, callback and test callback
      */
@@ -33,6 +34,23 @@ abstract class Router<Request, Response>
     open fun add(route: RouteBuilder<Request, Response>)
     {
         add(route.build())
+    }
+
+    /**
+     * Adds global middleware to router.
+     */
+    open fun add(middleware: Middleware<Request, Response>)
+    {
+        if (!middlewares.contains(middleware))
+            middlewares.add(middleware)
+    }
+
+    /**
+     * A shorthand to get middleware singleton from cache and add it as global middleware.
+     */
+    open fun add(title: String)
+    {
+        add(Middleware.getMiddleware(title) as Middleware<Request, Response>)
     }
 
     /**
