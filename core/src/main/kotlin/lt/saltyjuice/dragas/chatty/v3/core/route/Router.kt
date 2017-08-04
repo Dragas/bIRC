@@ -55,6 +55,8 @@ abstract class Router<Request, Response>
 
     /**
      * Attempts consuming provided [request] request. Returns null on failure.
+     *
+     * Implementations should take into consideration, that there are global middlewares that should be tested against.
      */
     open fun consume(request: Request): Response?
     {
