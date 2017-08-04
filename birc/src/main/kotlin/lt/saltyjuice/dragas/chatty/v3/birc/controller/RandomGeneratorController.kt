@@ -3,7 +3,6 @@ package lt.saltyjuice.dragas.chatty.v3.birc.controller
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
 import java.util.*
 import java.util.regex.Pattern
 
@@ -118,6 +117,7 @@ open class RandomGeneratorController
         {
             router.add(router.builder().let {
                 it.testCallback(pattern)
+                it.middleware("DICEROLLAN")
                 it.callback(instance::onRandomRequest)
                 it.type(Command.PRIVMSG)
                 it.build()

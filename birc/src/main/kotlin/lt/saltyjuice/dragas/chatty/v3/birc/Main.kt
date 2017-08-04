@@ -2,6 +2,7 @@
 
 package lt.saltyjuice.dragas.chatty.v3.birc
 
+import com.google.gson.Gson
 import kotlinx.coroutines.experimental.runBlocking
 import java.io.FileReader
 import java.io.IOException
@@ -9,7 +10,8 @@ import java.io.IOException
 
 fun main(args: Array<String>) = runBlocking<Unit>
 {
-    val settings = BIrcSettings()
+    val gson = Gson()
+    val settings = gson.fromJson<BIrcSettings>(getReader("settings.json"), BIrcSettings::class.java)
     val client = BIrcClient(settings)
     client.initialize()
     client.connect()
@@ -33,8 +35,9 @@ fun main(args: Array<String>) = runBlocking<Unit>
     }
 }
 
-fun getReader(): FileReader
+fun getReader(filename: String): FileReader
 {
-    val fileReader = FileReader("settings.json")
+    val classLoader = Thread.currentThread().contextClassLoader
+    val fileReader = FileReader(classLoader.getResource(filename).file)
     return fileReader
 }

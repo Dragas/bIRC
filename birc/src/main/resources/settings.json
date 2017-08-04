@@ -1,0 +1,19 @@
+{
+  "address": "irc.purplesurge.com",
+  "port": 6667,
+  "user": "bIRC",
+  "mode": "0",
+  "unused": "*",
+  "realname": "Chatty/IRC Implementation",
+  "nicknames": [
+    "ne"
+  ],
+  "channels": [
+    "#vrpoutcharacter"
+  ],
+  "currentMode": 0,
+  "modes": {
+    "silent": 0,
+    "dicerollan": 1
+  }
+}
