@@ -4,6 +4,7 @@ import lt.saltyjuice.dragas.chatty.v3.birc.BIrcSettings
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 
 class ModeController
 {
