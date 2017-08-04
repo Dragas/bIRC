@@ -2,7 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
 
 /**
  * Sometimes routes have to contain logic that tests origin of request (for example host).
- * Middleware becomes an abstraction layer that separates such logic from routes.
+ * Middleware becomes an abstraction layer that separates such logic from routes and router itself.
  *
  * Since middlewares are singletons, they should not be registered more than once.
  */
@@ -44,12 +44,14 @@ abstract class Middleware<Request, Response>()
         private val middlewareCache = ArrayList<Middleware<*, *>>()
 
         @JvmStatic
+        @Throws(Exception::class)
         fun getMiddleware(name: String): Middleware<*, *>
         {
             return middlewareCache.firstOrNull { name == it.name } ?: throw Exception("No such middleware")
         }
 
         @JvmStatic
+        @Throws(Exception::class)
         fun registerMiddleware(middleware: Middleware<*, *>)
         {
             if (middlewareCache.firstOrNull { it.name == middleware.name } != null)
