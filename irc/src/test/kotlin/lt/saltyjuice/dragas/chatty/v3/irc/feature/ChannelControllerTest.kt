@@ -3,7 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.irc.feature
 import lt.saltyjuice.dragas.chatty.v3.irc.adapter.IrcAdapter
 import lt.saltyjuice.dragas.chatty.v3.irc.controller.ChannelController
 import lt.saltyjuice.dragas.chatty.v3.irc.model.Channel
-import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.FixMethodOrder

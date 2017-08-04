@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.irc.routing
+package lt.saltyjuice.dragas.chatty.v3.irc.route
 
 import lt.saltyjuice.dragas.chatty.v3.core.route.Route
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request

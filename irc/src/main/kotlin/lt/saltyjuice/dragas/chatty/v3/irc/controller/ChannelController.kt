@@ -5,7 +5,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.model.Channel
 import lt.saltyjuice.dragas.chatty.v3.irc.model.User
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 import java.util.*
 
 /**

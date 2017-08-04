@@ -9,7 +9,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.io.IrcOutput
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.middleware.AuthMiddleware
-import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 import java.net.Socket
 
 /**

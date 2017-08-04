@@ -6,7 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.irc.controller.ConnectionController
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.middleware.AuthMiddleware
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
-import lt.saltyjuice.dragas.chatty.v3.irc.routing.IrcRouter
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
