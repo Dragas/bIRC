@@ -11,7 +11,7 @@ import java.io.IOException
 fun main(args: Array<String>) = runBlocking<Unit>
 {
     val gson = Gson()
-    val settings = gson.fromJson<BIrcSettings>(getReader("settings.json"), BIrcSettings::class.java)
+    val settings = gson.fromJson<BIrcSettings>(getReader("../lib/settings.json"), BIrcSettings::class.java)
     val client = BIrcClient(settings)
     client.initialize()
     client.connect()
@@ -37,7 +37,7 @@ fun main(args: Array<String>) = runBlocking<Unit>
 
 fun getReader(filename: String): FileReader
 {
-    val classLoader = Thread.currentThread().contextClassLoader
-    val fileReader = FileReader(classLoader.getResource(filename).file)
+    //val classLoader = Thread.currentThread().contextClassLoader
+    val fileReader = FileReader(filename)
     return fileReader
 }
