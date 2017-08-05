@@ -58,6 +58,41 @@ class ChannelControllerTest
         }
     }
 
+    @Test
+    fun can5UserLeaveChannel()
+    {
+        val request = adapter.deserialize(":Gypsy_Prime!bee@AA3DA92D.A1380E30.9FA3D578.IP PART :#channel")
+        val response = router.consume(request)
+        Assert.assertNull(response)
+        val channel = ChannelController.getChannel("#channel")
+        Assert.assertNotNull(channel)
+        channel as Channel
+        val user = channel.users.find { it.name == request.nickname }
+        Assert.assertNull(user)
+    }
+
+    @Test
+    fun can6UserChangeNickname()
+    {
+        val request = adapter.deserialize(":Jack!bee@AA3DA92D.A1380E30.9FA3D578.IP NICK :Black")
+        val newNickname = "Black"
+        val response = router.consume(request)
+        Assert.assertNull(response)
+        val channel = ChannelController.getChannel("#channel") as Channel
+        val user = channel.users.find { it.name.endsWith(newNickname) }
+        Assert.assertNotNull(user)
+    }
+
+    @Test
+    fun can7ILeaveChannel()
+    {
+        val request = adapter.deserialize(":!bee@AA3DA92D.A1380E30.9FA3D578.IP PART :#channel")
+        val response = router.consume(request)
+        Assert.assertNull(response)
+        val channel = ChannelController.getChannel("#channel")
+        Assert.assertNull(channel)
+    }
+
     companion object
     {
         @JvmStatic

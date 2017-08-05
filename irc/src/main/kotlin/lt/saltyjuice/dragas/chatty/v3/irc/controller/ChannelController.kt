@@ -17,11 +17,20 @@ class ChannelController private constructor()
 
     fun onChannelJoin(request: Request): Response?
     {
+
+        val channel = getChannel(request, -1) ?: Channel()
         if (request.nickname == ConnectionController.currentNickname)
         {
-            val channel = Channel()
+
             channel.name = request.arguments[0]
             channels[channel.name] = channel
+        }
+        else
+        {
+            val user = User()
+            user.name = request.nickname
+            user.host = request.host
+            channel.users.add(user)
         }
         return null
     }
@@ -66,6 +75,36 @@ class ChannelController private constructor()
         return null
     }
 
+    fun onChannelLeave(request: Request): Response?
+    {
+        val channel = getChannel(request, -1)
+        if (channel != null)
+        {
+            if (request.nickname == ConnectionController.currentNickname)
+            {
+                channels.remove(channel.name)
+            }
+            else
+            {
+                channel.users.removeIf { it.name == request.nickname }
+            }
+        }
+        return null
+    }
+
+    fun onUserNicknameChange(request: Request): Response?
+    {
+        val original = request.nickname
+        val target = request.arguments[0]
+        channels.forEach { (key, value) ->
+            value.users.forEach {
+                if (it.name.endsWith(original))
+                    it.name = it.name.replace(original, target)
+            }
+        }
+        return null
+    }
+
     private fun getChannel(request: Request, offset: Int = 0): Channel?
     {
         return channels[request.arguments[1 + offset]]
@@ -99,10 +138,18 @@ class ChannelController private constructor()
                 it.callback(instance::onChannelUsers)
                 it.build()
             })
+            router.add(router.builder().apply {
+                type(Command.PART)
+                callback(instance::onChannelLeave)
+            })
+            router.add(router.builder().apply {
+                type(Command.NICK)
+                callback(instance::onUserNicknameChange)
+            })
         }
 
         /**
-         * A shorthand to return channel in which implementation probably is.
+         * A shorthand to return channel in which the bot probably is.
          * @param channelName string based channel name, usually starting with #.
          * @return Channel model if implementation is in that channel, otherwise null.
          */
