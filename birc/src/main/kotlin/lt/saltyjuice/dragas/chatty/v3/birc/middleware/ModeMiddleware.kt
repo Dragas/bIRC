@@ -5,10 +5,10 @@ import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.middleware.IrcMiddleware
 
-abstract class ModeMiddleware(protected val settings: BIrcSettings) : IrcMiddleware()
+open class ModeMiddleware(protected val settings: BIrcSettings, override val name: String, open val mode: Int) : IrcMiddleware()
 {
-    override val name: String = "MODE"
-    abstract val mode: Int
+    //override val name: String = "MODE"
+
     override fun before(request: Request): Boolean
     {
         return (settings.currentMode.and(mode)) == mode

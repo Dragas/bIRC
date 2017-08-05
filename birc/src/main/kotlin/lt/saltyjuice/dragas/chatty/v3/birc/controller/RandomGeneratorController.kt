@@ -3,13 +3,14 @@ package lt.saltyjuice.dragas.chatty.v3.birc.controller
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Request
 import lt.saltyjuice.dragas.chatty.v3.irc.message.Response
 import lt.saltyjuice.dragas.chatty.v3.irc.route.Command
+import lt.saltyjuice.dragas.chatty.v3.irc.route.IrcRouter
 import java.util.*
 import java.util.regex.Pattern
 
 
 open class RandomGeneratorController
 {
-    fun onRandomRequest(request: Request): Response
+    fun onRandomRequest(request: Request): Response?
     {
         val generator = Random()
         val matcher = Pattern.compile(pattern).matcher(request.arguments[1])
@@ -20,7 +21,7 @@ open class RandomGeneratorController
             val count = getCount(rollArguments)
             val limit = getLimit(rollArguments)
             if(Math.max(count, limit) <= 0)
-                return response
+                return null
             val modifier = getModifier(rollArguments)
             var sum: Int = modifier
             repeat(count) {

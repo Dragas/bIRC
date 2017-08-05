@@ -24,6 +24,8 @@ open class BIrcSettings : IrcSettings()
 
     open var modes: HashMap<String, Int> = HashMap()
 
+    open var tips: ArrayList<String> = ArrayList()
+
     fun getMode(mode: String): Int
     {
         return modes.getOrDefault(mode, -1)

@@ -11,9 +11,36 @@
   "channels": [
     "#vrpoutcharacter"
   ],
-  "currentMode": 0,
+  "currentMode": 1,
   "modes": {
     "silent": 0,
-    "dicerollan": 1
-  }
+    "dicerollan": 1,
+    "tips": 2
+  },
+  "tips": [
+    "People die when they're killed.",
+    "Jam it in.",
+    "Just because you're correct doesn't mean you're right.",
+    "Please respond.",
+    "Translators note: \"Keikakku\" means plan.",
+    "Translators note: \"Kawaii\" means cute.",
+    "Pot of Greed allows you to draw two new cards!",
+    "Try not to die, as you can lose progress when this happens.",
+    "Standing still is a great way to get shot.",
+    "If only you could talk to monsters.",
+    "You are already dead.",
+    "Luck is a skill.",
+    "If a monster has a head, it has a weak spot.",
+    "Don't stand in fire.",
+    "Wolves hunt in packs.",
+    "Would Old Man Henderson be able to win on his own?",
+    "Type \"join #[channel_name]\" to make me join that channel.",
+    "Type \"3d6\" to roll 3 6 sided dice.",
+    "Type \"mode +silent\" to shut me up.",
+    "Type \"mode +dicerollan\" to enable the dice rolling feature.",
+    "Type \"mode -dicerollan\" to enable the dice rolling feature.",
+    "Type \"mode +tips\" to enable the tipping feature.",
+    "Type \"mode -tips\" to disable the tipping feature.",
+    "Psh. Nothing personal, kid."
+  ]
 }
