@@ -39,6 +39,7 @@ abstract class Router<Request, Response>
     /**
      * Adds global middleware to router.
      */
+    @Deprecated("Router shouldn't have middlewares in it. Instead input/output objects should have it.")
     open fun add(middleware: Middleware<Request, Response>)
     {
         if (!middlewares.contains(middleware))
@@ -48,6 +49,7 @@ abstract class Router<Request, Response>
     /**
      * A shorthand to get middleware singleton from cache and add it as global middleware.
      */
+    @Deprecated("Router shouldn't have middlewares in it. Instead input/output objects should have it.")
     open fun add(title: String)
     {
         add(Middleware.getMiddleware(title) as Middleware<Request, Response>)
