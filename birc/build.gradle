@@ -29,7 +29,6 @@ dependencies {
     compile "lt.saltyjuice.dragas:chatty-irc:1.2.2-SNAPSHOT"
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
     compile group: 'com.google.code.gson', name: 'gson', version: '2.8.1'
-    runtime files("src/main/resources/")
     testCompile group: 'junit', name: 'junit', version: '4.12'
 }
 
@@ -38,7 +37,4 @@ compileKotlin {
 }
 compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
-}
-startScripts {
-    classpath += files("src/dist/config/settings.json")
 }
