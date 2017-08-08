@@ -1,12 +1,15 @@
 package lt.saltyjuice.dragas.chatty.v3.core.route
 
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
+
 /**
  * Sometimes routes have to contain logic that tests origin of request (for example host).
  * Middleware becomes an abstraction layer that separates such logic from routes and router itself.
  *
  * Since middlewares are singletons, they should not be registered more than once.
  */
-abstract class Middleware<Request, Response>()
+abstract class Middleware<Request, Response>() : BeforeMiddleware<Request>, AfterMiddleware<Response>
 {
     /**
      * Used for caching purposes. Also makes it so that you can get this middleware back by calling
@@ -23,12 +26,12 @@ abstract class Middleware<Request, Response>()
         return before(request)
     }
 
-    open fun before(request: Request): Boolean
+    override fun before(request: Request): Boolean
     {
         return true
     }
 
-    open fun after(response: Response): Boolean
+    override fun after(response: Response): Boolean
     {
         return true
     }
