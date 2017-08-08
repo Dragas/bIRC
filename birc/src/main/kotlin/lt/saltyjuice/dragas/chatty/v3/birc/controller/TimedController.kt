@@ -30,7 +30,7 @@ class TimedController
 
     private fun parseTip(message: String): String
     {
-        return message.split(" ", limit = 3).last()
+        return message.substringAfter("tip ")
     }
 
     companion object
@@ -50,14 +50,16 @@ class TimedController
             this.settings = settings
             router.add(router.builder().apply {
                 type(Command.PRIVMSG)
-                testCallback("^tip me$")
+                testCallback("tip me$")
                 middleware("TIPS")
+                middleware("ADDRESS")
                 callback(instance::onTip)
             })
             router.add(router.builder().apply {
                 type(Command.PRIVMSG)
-                testCallback("^add tip (?!\\s*$).+")
+                testCallback("add tip (?!\\s*$).+")
                 middleware("TIPS")
+                middleware("ADDRESS")
                 callback(instance::onAddTip)
             })
         }

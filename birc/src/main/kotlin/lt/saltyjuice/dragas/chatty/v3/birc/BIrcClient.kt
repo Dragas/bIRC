@@ -4,6 +4,7 @@ import lt.saltyjuice.dragas.chatty.v3.birc.controller.ModeController
 import lt.saltyjuice.dragas.chatty.v3.birc.controller.MovingController
 import lt.saltyjuice.dragas.chatty.v3.birc.controller.RandomGeneratorController
 import lt.saltyjuice.dragas.chatty.v3.birc.controller.TimedController
+import lt.saltyjuice.dragas.chatty.v3.birc.middleware.AddressingMiddleware
 import lt.saltyjuice.dragas.chatty.v3.birc.middleware.DiceRollerMiddlerware
 import lt.saltyjuice.dragas.chatty.v3.birc.middleware.ModeMiddleware
 import lt.saltyjuice.dragas.chatty.v3.birc.middleware.SilentMiddleware
@@ -35,6 +36,7 @@ open class BIrcClient(override val settings: BIrcSettings) : IrcClient(settings)
     {
         super.initialize()
         DiceRollerMiddlerware(settings)
+        AddressingMiddleware(settings)
         ModeMiddleware(settings, "TIPS", settings.getMode("tips"))
         ModeController.initialize(router, settings)
         MovingController.initialize(router, settings)
