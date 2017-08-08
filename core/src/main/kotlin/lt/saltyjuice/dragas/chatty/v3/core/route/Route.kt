@@ -20,15 +20,17 @@ abstract class Route<Request, Response>
      */
     open fun canTrigger(request: Request): Boolean
     {
-        middlewares.firstOrNull { it -> !it.before(request) } ?: return testCallback(request)
-        return false
+        return middlewares.firstOrNull { it -> !it.before(request) } == null && testCallback(request)
     }
 
+    /**
+     * Tests whether or not particular response can be sent back to the server.
+     */
     open fun canRespond(response: Response): Boolean
     {
-        val failingMiddleware = middlewares.firstOrNull { it -> !it.after(response) }
-        return failingMiddleware == null
+        return middlewares.firstOrNull { it -> !it.after(response) } == null
     }
+
     /**
      * Attempts consuming the provided request. On failure returns null.
      */
