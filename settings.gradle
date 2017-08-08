@@ -2,4 +2,4 @@ rootProject.name = 'Chatty'
 include ":core"
 include ":irc"
 include ':birc'
-
+include ":websocket"
