@@ -29,12 +29,12 @@ Make sure you have sonatype as one of your checked repositories
 repositories {
     mavenCentral()
     jcenter()
-    maven { url "https://oss.sonatype.org/content/repositories/snapshots" }
+    maven { url "https://oss.sonatype.org/content/repositories/releases" }
 }
 ```
 And then just list `chatty-core` as your dependency:
 ```groovy
 dependencies {
-    compile "lt.saltyjuice.dragas:chatty-core:1.2-2-SNAPSHOT"
+    compile "lt.saltyjuice.dragas:chatty-core:1.3.1"
 }
 ```
