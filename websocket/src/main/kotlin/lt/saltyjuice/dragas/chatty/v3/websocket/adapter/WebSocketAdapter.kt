@@ -1,8 +1,8 @@
-package lt.saltyjuice.dragas.chatty.websocket
+package lt.saltyjuice.dragas.chatty.v3.websocket.adapter
 
 import lt.saltyjuice.dragas.chatty.v3.core.adapter.Adapter
-import lt.saltyjuice.dragas.chatty.websocket.message.Request
-import lt.saltyjuice.dragas.chatty.websocket.message.Response
+import lt.saltyjuice.dragas.chatty.v3.websocket.message.Request
+import lt.saltyjuice.dragas.chatty.v3.websocket.message.Response
 import javax.websocket.Session
 
 

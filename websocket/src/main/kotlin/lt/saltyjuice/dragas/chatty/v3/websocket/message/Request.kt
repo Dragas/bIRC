@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.websocket.message
+package lt.saltyjuice.dragas.chatty.v3.websocket.message
 
 import javax.websocket.Session
 
