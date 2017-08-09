@@ -1,6 +1,22 @@
 # Chatty/IRC
 An implementation of Chatty for IRC based networks.
 
+## Downloading
+
+Much like Chatty/Core, you need to add sonatype as one of your repositories.
+```groovy
+repositories {
+    maven { url "https://oss.sonatype.org/content/repositories/releases/" }
+}
+```
+
+And then link Chatty/IRC as your dependency.
+```groovy
+dependencies {
+    compile "lt.saltyjuice.dragas:chatty-irc:1.3.0"
+}
+```
+
 ## Setting up
 
 Chatty/IRC implementations should use `IrcSettings` model to set up settings before attempting to
