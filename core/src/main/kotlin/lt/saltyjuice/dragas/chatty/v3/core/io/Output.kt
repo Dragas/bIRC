@@ -17,7 +17,7 @@ interface Output<Response, OutputBlock>
      * Contains all the middlewares that each response must be tested against when
      * they're supposed to be sent back to the server.
      */
-    val middlewares: MutableCollection<AfterMiddleware<Response>>
+    val afterMiddlewares: MutableCollection<AfterMiddleware<Response>>
     /**
      * Used to serialize the response from application into something more transferable.
      */

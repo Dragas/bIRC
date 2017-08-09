@@ -18,7 +18,7 @@ interface Input<InputBlock, Request>
      *
      * Contains all the middlewares that each request must be tested against before they're used in the application.
      */
-    val middlewares: MutableCollection<BeforeMiddleware<Request>>
+    val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>>
     /**
      * Used to deserialize [InputBlock] type requests from server to something more usable by implementations
      */
