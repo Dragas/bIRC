@@ -6,6 +6,7 @@
 
 - `WebSocketInput` and `WebSocketOutput` wrappers for their core equivalents.
 - `WebSocketRouter` implementation of `chatty.v3.core.route.Router`
+- `WebSocketRouteBuilder` implementation of `chatty.v3.core.route.RouteBuilder` which returns `WebSocketRoute`
 
 ### Changed
 
