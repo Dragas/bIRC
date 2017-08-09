@@ -6,6 +6,8 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.selects.whileSelect
+import lt.saltyjuice.dragas.chatty.v3.core.io.Input
+import lt.saltyjuice.dragas.chatty.v3.core.io.Output
 import lt.saltyjuice.dragas.chatty.websocket.exception.ServerDestroyedException
 import lt.saltyjuice.dragas.chatty.websocket.message.Request
 import lt.saltyjuice.dragas.chatty.websocket.message.Response
@@ -18,8 +20,20 @@ import javax.websocket.*
  *
  * This is a programmatically implemented endpoint, which is meant to simplify websocket implementations
  */
-open class WebSocketEndpoint(protected val adapter: WebSocketAdapter) : Endpoint()
+open class WebSocketEndpoint(override val adapter: WebSocketAdapter) : Endpoint(), Input<String, Request>, Output<Response, String>
 {
+    override val middlewares = mutableListOf<WebSocketMiddleware>()
+
+    override fun getRequest(): Request
+    {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
+    override fun writeResponse(response: Response)
+    {
+        TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+    }
+
     //protected open val sessions: MutableMap<Session, Job> = Collections.synchronizedMap(HashMap<Session, Job>())
     init
     {
