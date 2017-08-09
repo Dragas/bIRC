@@ -28,7 +28,6 @@ dokka {
     kotlinTasks {
         defaultKotlinTasks() + [':core:compileKotlin']
     }
-    includes = ["core/readme.md", "irc/readme.md", "birc/readme.md"]
     skipDeprecated = true
 }
 
@@ -44,13 +43,12 @@ compileTestKotlin {
 }
 
 subprojects {
-    task kotlindokkaJar(type: org.jetbrains.dokka.gradle.DokkaTask) {
-        outputFormat = 'javadoc'
-        outputDirectory = javadoc.destinationDir
-        inputs.dir 'src/main/kotlin'
+    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
+        outputFormat = 'gfm'
+        outputDirectory = "$buildDir/javadoc"
     }
 
-    task javadocJar(type: Jar, dependsOn: kotlindokkaJar) {
+    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
         classifier = 'javadoc'
         from javadoc.destinationDir
     }
