@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.websocket.exception
+package lt.saltyjuice.dragas.chatty.v3.websocket.exception
 
 import java.util.concurrent.CancellationException
 
