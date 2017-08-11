@@ -1,5 +1,26 @@
 ## [Unreleased]
 
+## [0.3]
+
+### Changes
+
+- Entirely rewrote the Websocket Driver for Chatty/Core
+- `WebSocketInput` and `WebSocketOutput` now mute `InputBlock` and `OutputBlock` parameters,
+since that is handled by encoders.
+- `WebSocketEndpoint.getAdapter()` now throws `NotImplementedException`.
+- `WebSocketEndpoint` now opens and closes channels for requests and responses upon opening and closing
+the session.
+- `WebSocketClient` now requires a `WebSocketRouter`
+- `WebSocketClient` now has internal websocket client, provided by Tyrus.
+- `WebSocketRouter.builder()` now returns `WebSocketRouteBuilder` instead of regular `RouteBuilder`
+
+### Removed
+
+- Removed `WebSocketAdapter.deserialize(string, session)`.
+- Removed `WebSocketEndpoint.onServerDestroyed()` method.
+- Removed Base classes for requests and responses. Implementations of this driver should handle that.
+
+
 ## [0.2] 2017-08-09
 
 ### Added 

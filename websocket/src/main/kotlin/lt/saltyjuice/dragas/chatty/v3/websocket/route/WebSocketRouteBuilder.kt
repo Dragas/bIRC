@@ -2,8 +2,6 @@ package lt.saltyjuice.dragas.chatty.v3.websocket.route
 
 import lt.saltyjuice.dragas.chatty.v3.core.route.Middleware
 import lt.saltyjuice.dragas.chatty.v3.core.route.RouteBuilder
-import lt.saltyjuice.dragas.chatty.v3.websocket.message.Request
-import lt.saltyjuice.dragas.chatty.v3.websocket.message.Response
 
 
 /**
@@ -11,11 +9,11 @@ import lt.saltyjuice.dragas.chatty.v3.websocket.message.Response
  *
  * This implementation returns Websocket routes, which can be used in websocket based applications.
  */
-open class WebSocketRouteBuilder : RouteBuilder<Request, Response>()
+open class WebSocketRouteBuilder<Request, Response> : RouteBuilder<Request, Response>()
 {
-    override fun build(): WebSocketRoute
+    override fun build(): WebSocketRoute<Request, Response>
     {
-        return object : WebSocketRoute()
+        return object : WebSocketRoute<Request, Response>()
         {
             override var callback: (Request) -> Response? = this@WebSocketRouteBuilder.mCallback ?: throw NullPointerException("Callback is required.")
                 set(value)
