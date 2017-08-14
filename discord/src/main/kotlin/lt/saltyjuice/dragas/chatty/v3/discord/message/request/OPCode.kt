@@ -9,8 +9,14 @@ import com.google.gson.annotations.SerializedName
 open class OPCode
 {
     @SerializedName("op")
-    open var opCode: Int = -1
+    open var opCode: Int = DEFAULT_OP_CODE
 
     @SerializedName("t")
     open var eventName: String? = null
+
+    companion object
+    {
+        @JvmStatic
+        val DEFAULT_OP_CODE = -1
+    }
 }
