@@ -5,8 +5,6 @@ import lt.saltyjuice.dragas.chatty.v3.core.io.Output
 /**
  * WebSocket implementation wrapper for regular Output
  *
- * Since websockets already handle decoding and encoding, this class just becomes a compatability
- * layer between implementing router and the websocket.
  * @see Output
  */
 interface WebSocketOutput<Response, OutputBlock> : Output<Response, OutputBlock>

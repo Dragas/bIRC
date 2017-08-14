@@ -6,11 +6,17 @@
 
 - Added a workaround for `WebSocketEndpoint` which lets you add multiple message handlers.
 - Added a `WebSocketCallback` which handles how multiple message handlers work.
+- Added `readme.md`
+- Added some more comments.
  
 ### Changes
 
 - Reverted the change where you could try to declare multiple decoders.
 - Undid the [0.3] change where `InputBlock` and `OutputBlock` parameters were muted.
+
+### Removed
+
+- Removed the redundant `ServerDestroyedException`
 
 ## [0.3] 2017-08-11
 

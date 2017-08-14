@@ -23,12 +23,26 @@ import javax.websocket.Endpoint
  */
 abstract class WebSocketClient<InputBlock, Request, Response, OutputBlock> : Client<InputBlock, Request, Response, OutputBlock>()
 {
+    /**
+     * Client manager provided by tyrus that is used to connect to websocket based servers.
+     */
     open val client: ClientManager = ClientManager.createClient()
 
+    /**
+     * Ensures that the implementations use [WebSocketRouter]
+     */
     abstract override val router: WebSocketRouter<Request, Response>
 
+    /**
+     * Provides the URI that the client should connect to via WebSocket.
+     */
     protected abstract val uri: URI
 
+    /**
+     * Default endpoint configuration.
+     *
+     * Implementations should override this so that they could provide their own encoders, decoders and other things.
+     */
     protected open val cec: ClientEndpointConfig = ClientEndpointConfig.Builder.create().build()
 
     protected open var isStarted = false
