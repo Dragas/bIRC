@@ -1,6 +1,5 @@
 package lt.saltyjuice.dragas.chatty.v3.websocket.io
 
-import lt.saltyjuice.dragas.chatty.v3.core.adapter.Serializer
 import lt.saltyjuice.dragas.chatty.v3.core.io.Output
 
 /**
@@ -10,7 +9,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.io.Output
  * layer between implementing router and the websocket.
  * @see Output
  */
-interface WebSocketOutput<Response> : Output<Response, Any>
+interface WebSocketOutput<Response, OutputBlock> : Output<Response, OutputBlock>
 {
-    override val adapter: Serializer<Response, Any> get() = throw NotImplementedError("Shouldn't be implmeneted, as this is handled by Encoding layer in tyrus.")
+    //override val adapter: Serializer<Response, Any> get() = throw NotImplementedError("Shouldn't be implmeneted, as this is handled by Encoding layer in tyrus.")
 }

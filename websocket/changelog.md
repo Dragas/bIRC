@@ -1,10 +1,22 @@
 ## [Unreleased]
 
-## [0.3]
+## [0.4] 2017-08-14
+
+### Added
+
+- Added a workaround for `WebSocketEndpoint` which lets you add multiple message handlers.
+- Added a `WebSocketCallback` which handles how multiple message handlers work.
+ 
+### Changes
+
+- Reverted the change where you could try to declare multiple decoders.
+- Undid the [0.3] change where `InputBlock` and `OutputBlock` parameters were muted.
+
+## [0.3] 2017-08-11
 
 ### Changes
 
-- Entirely rewrote the Websocket Driver for Chatty/Core
+- Entirely rewrote the WebSocket driver for Chatty/Core
 - `WebSocketInput` and `WebSocketOutput` now mute `InputBlock` and `OutputBlock` parameters,
 since that is handled by encoders.
 - `WebSocketEndpoint.getAdapter()` now throws `NotImplementedException`.

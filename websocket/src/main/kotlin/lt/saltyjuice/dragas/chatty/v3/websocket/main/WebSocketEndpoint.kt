@@ -19,18 +19,19 @@ import javax.websocket.*
  * Websocket endpoint.
  *
  * This is a programmatically implemented endpoint, which is meant to simplify websocket implementations.
- *
- * Implementations should have [ClientEndpoint] annotation, which handles what that endpoint uses as encorder/decoder (adapter)
- * classes.
  */
-abstract class WebSocketEndpoint<Request, Response> : Endpoint(), WebSocketInput<Request>, WebSocketOutput<Response>
+abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : Endpoint(), WebSocketInput<InputBlock, Request>, WebSocketOutput<Response, OutputBlock>
 {
 
-    final override val adapter: WebSocketAdapter<Any, Request, Response, Any> get() = throw NotImplementedError("Shouldn't be implmeneted, as this is handled by Decoding/Encoding layer in tyrus.")
+    /**
+     *
+     */
+    override abstract val adapter: WebSocketAdapter<InputBlock, Request, Response, OutputBlock>
     protected open var session: Session? = null
-
+    abstract val baseClass: Class<Request>
     override val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
     override val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
+    protected open val callbackMap: MutableList<WebSocketCallback<*, *>> = mutableListOf()
 
     override fun getRequest(): Request = runBlocking<Request>
     {
@@ -77,12 +78,15 @@ abstract class WebSocketEndpoint<Request, Response> : Endpoint(), WebSocketInput
                 }
             }
         }
+        session.addMessageHandler(baseClass, this::onMessage)
     }
+
+    //abstract fun onMessage(request : Request)
 
     @Throws(IOException::class)
     override fun onClose(session: Session, reason: CloseReason)
     {
-        System.err.println("Session id ${session.id} closed its connection. Reason: ${reason.closeCode} - ${reason.reasonPhrase}")
+        System.err.println("Session id ${session.id} closed its connection. Reason: ${reason.closeCode.code} - ${reason.reasonPhrase}")
         responseListener?.cancel()
         responseListener = null
         requests?.close()
@@ -96,4 +100,32 @@ abstract class WebSocketEndpoint<Request, Response> : Endpoint(), WebSocketInput
         throwable.printStackTrace()
         //System.err.println(throwable)
     }
+
+    open fun onMessage(request: Request)
+    {
+        val fullyCallable = callbackMap.firstOrNull { it.canBeCalled(request as Any) } as? WebSocketCallback<Request, Any>
+        if (fullyCallable != null)
+        {
+            fullyCallable.call(request)
+            return
+        }
+        val partiallyCallable = callbackMap.firstOrNull { it.canBeCalledPartially(request as Any) } as? WebSocketCallback<Request, Any>
+        if (partiallyCallable != null)
+        {
+            partiallyCallable.call(request)
+            return
+        }
+        println("$this W: Unhandled callback for $request")
+    }
+
+
+    open fun <T> addMessageHandler(clazz: Class<T>, callback: ((T) -> Unit))
+    {
+        if (callbackMap.indexOfFirst { it.canBeCalled(clazz) } != -1)
+        {
+            throw IllegalArgumentException("There's already a callback for ${clazz.name}")
+        }
+        callbackMap.add(WebSocketCallback(clazz, callback))
+    }
+
 }

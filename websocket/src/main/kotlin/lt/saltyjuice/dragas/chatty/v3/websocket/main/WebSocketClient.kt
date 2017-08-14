@@ -21,7 +21,7 @@ import javax.websocket.Endpoint
  *
  * @see Client
  */
-abstract class WebSocketClient<Request, Response> : Client<Any, Request, Response, Any>()
+abstract class WebSocketClient<InputBlock, Request, Response, OutputBlock> : Client<InputBlock, Request, Response, OutputBlock>()
 {
     open val client: ClientManager = ClientManager.createClient()
 

@@ -1,6 +1,5 @@
 package lt.saltyjuice.dragas.chatty.v3.websocket.io
 
-import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
 import lt.saltyjuice.dragas.chatty.v3.core.io.Input
 
 /**
@@ -8,7 +7,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.io.Input
  *
  * @see Input
  */
-interface WebSocketInput<Request> : Input<Any, Request>
+interface WebSocketInput<InputBlock, Request> : Input<InputBlock, Request>
 {
-    override val adapter: Deserializer<Any, Request> get() = throw NotImplementedError("Shouldn't be implmeneted, as this is handled by Decoding layer in tyrus.")
+    //override val adapter: Deserializer<Any, Request> get() = throw NotImplementedError("Shouldn't be implmeneted, as this is handled by Decoding layer in tyrus.")
 }
