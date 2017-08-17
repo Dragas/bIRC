@@ -17,8 +17,13 @@ import javax.websocket.EndpointConfig
  */
 open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>, String>(), Decoder.Text<OPRequest<*>>, Encoder.Text<OPResponse<*>>
 {
-    open val decodableOPCodes: Array<Int> = arrayOf(OPCode.DISPATCH, OPCode.HEARTBEAT_ACK, OPCode.HELLO, OPCode.INVALID_SESSION, OPCode.RECONNECT)
-
+    protected open val decodableOPCodes: Array<Int> = arrayOf(OPCode.DISPATCH, OPCode.HEARTBEAT_ACK, OPCode.HELLO, OPCode.INVALID_SESSION, OPCode.RECONNECT)
+    protected open val gson: Gson by lazy()
+    {
+        val gsonBuilder = GsonBuilder()
+        gsonBuilder.serializeNulls()
+        gsonBuilder.create()
+    }
     init
     {
         defaultInstance = this
@@ -36,17 +41,6 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
         return serialize(response)
     }
 
-    protected open val gson: Gson by lazy()
-    {
-        val gsonBuilder = GsonBuilder()
-        gsonBuilder.serializeNulls()
-        gsonBuilder.create()
-    }
-
-    init
-    {
-        //println("Am I real? $this")
-    }
 
     /**
      * This method is called with the endpoint configuration object of the
