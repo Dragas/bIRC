@@ -10,6 +10,6 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.request
  * The inner d key is a boolean that indicates whether the session may be resumable.
  * See Connecting and Resuming for more information.
  */
-class GatewayInvalid : OPRequest<Boolean>()
+open class GatewayInvalid : OPRequest<Boolean>()
 {
 }

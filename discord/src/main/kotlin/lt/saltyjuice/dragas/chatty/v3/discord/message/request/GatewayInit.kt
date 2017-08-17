@@ -17,7 +17,7 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.request
  *
  * Since this is not a request that should be used later in the application's lifecycle, it should only be used
  */
-class GatewayInit
+open class GatewayInit
 {
     var url: String = ""
     var shards: Int = 0

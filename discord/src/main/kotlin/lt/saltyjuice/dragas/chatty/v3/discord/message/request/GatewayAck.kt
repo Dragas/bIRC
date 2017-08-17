@@ -6,6 +6,6 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.request
  * Used for the client to maintain an active gateway connection.
  * Sent by the server after receiving a Gateway Heartbeat
  */
-class GatewayAck : OPRequest<Any>()
+open class GatewayAck : OPRequest<Any>()
 {
 }

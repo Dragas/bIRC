@@ -12,7 +12,7 @@ import com.google.gson.annotations.SerializedName
  * If none has yet been received you should send null
  * (you cannot send a heartbeat before authenticating, however).
  */
-class GatewayHeartbeat(@SerializedName("d") override var data: Long?) : OPResponse<Long?>()
+open class GatewayHeartbeat(@SerializedName("d") override var data: Long?) : OPResponse<Long?>()
 {
     override val op: Int = 1
 }
