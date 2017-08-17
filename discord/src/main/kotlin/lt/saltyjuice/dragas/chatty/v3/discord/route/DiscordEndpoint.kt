@@ -1,9 +1,10 @@
-package lt.saltyjuice.dragas.chatty.v3.discord
+package lt.saltyjuice.dragas.chatty.v3.discord.route
 
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import lt.saltyjuice.dragas.chatty.v3.discord.Settings
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.DiscordAdapter
 import lt.saltyjuice.dragas.chatty.v3.discord.io.DiscordInput
 import lt.saltyjuice.dragas.chatty.v3.discord.io.DiscordOutput
@@ -15,33 +16,41 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
 import lt.saltyjuice.dragas.chatty.v3.websocket.main.WebSocketEndpoint
 import java.util.concurrent.atomic.AtomicLong
 import javax.websocket.CloseReason
-import javax.websocket.EndpointConfig
 import javax.websocket.Session
 
 /**
- * WebSocketEndpoint implementation for discord.
+ * [WebSocketEndpoint] implementation for discord.
+ *
+ * Used to connect to discord API and use JSON encoding. Contains several methods that are called during connection lifecycle.
  */
 open class DiscordEndpoint : WebSocketEndpoint<String, OPRequest<*>, OPResponse<*>, String>(), DiscordInput, DiscordOutput
 {
-    override val adapter: DiscordAdapter by lazy()
-    {
-        DiscordAdapter.getInstance()
-    }
-
-    var heartbeatJob: Job? = null
-    var sequenceNumber: AtomicLong = AtomicLong(-1)
-    override val baseClass: Class<OPRequest<*>> = OPRequest::class.java
-
-    override fun onOpen(session: Session, config: EndpointConfig)
+    init
     {
         addMessageHandler(GatewayHello::class.java, this::onHello)
         addMessageHandler(GatewayAck::class.java, this::onGatewayAck)
         addMessageHandler(GatewayInvalid::class.java, this::onGatewayInvalid)
         addMessageHandler(GatewayReconnect::class.java, this::onGatewayReconnect)
-        super.onOpen(session, config)
-        //session.addMessageHandler()
-
     }
+
+    override val adapter: DiscordAdapter by lazy()
+    {
+        DiscordAdapter.getInstance()
+    }
+
+    /**
+     * A heartbeat job.
+     *
+     * Initialized by [onHello] call, which happens once when session begins. When the session closes, this job
+     * should be cancelled. Preferably in [onClose] call.
+     */
+    protected open var heartbeatJob: Job? = null
+    /**
+     * Used to hold a concurrent reference to last sequence number that was sent via requests, if available.
+     * Since it should be included only if the number is positive, the default value is set to -1.
+     */
+    protected open val sequenceNumber: AtomicLong = AtomicLong(-1)
+    override val baseClass: Class<OPRequest<*>> = OPRequest::class.java
 
     open fun onHello(request: GatewayHello)
     {
@@ -92,10 +101,10 @@ open class DiscordEndpoint : WebSocketEndpoint<String, OPRequest<*>, OPResponse<
 
     override fun onMessage(request: OPRequest<*>)
     {
-        super.onMessage(request)
         if (request.sequenceNumber != null)
             sequenceNumber.set(request.sequenceNumber!!)
     }
+
 
     override fun onClose(session: Session, reason: CloseReason)
     {
