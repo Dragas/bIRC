@@ -50,7 +50,7 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
      */
     override fun init(config: EndpointConfig)
     {
-        //println("Am i initialized? $this")
+        gson
     }
 
     /**
