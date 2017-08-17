@@ -22,7 +22,7 @@ class ShrugController
         {
             router.add(router.builder().apply {
                 type(Command.PRIVMSG)
-                testCallback("[shrug]")
+                testCallback("\\[shrug\\]")
                 callback(instance::onShrug)
             })
         }
