@@ -19,7 +19,7 @@ open class Role
     @SerializedName("position")
     var position: Int = 0
 
-    @SerializedName("position")
+    @SerializedName("permissions")
     var permissions: Int = 0
 
     @SerializedName("managed")
