@@ -6,6 +6,6 @@ import retrofit2.http.GET
 
 interface DiscordAPI
 {
-    @GET("gateway/bot/")
+    @GET("gateway/bot")
     fun gatewayInit(): Call<GatewayInit>
 }
