@@ -1,5 +1,5 @@
 group 'lt.saltyjuice.dragas'
-version '0.4-UNSTABLE'
+version '0.6-UNSTABLE'
 buildscript {
     ext.kotlin_version = '1.1.3'
     repositories {
