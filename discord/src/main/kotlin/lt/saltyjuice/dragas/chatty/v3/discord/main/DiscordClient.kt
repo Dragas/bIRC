@@ -9,7 +9,6 @@ import lt.saltyjuice.dragas.chatty.v3.discord.io.DiscordOutput
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayInit
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.OPRequest
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
-import lt.saltyjuice.dragas.chatty.v3.discord.route.DiscordEndpoint
 import lt.saltyjuice.dragas.chatty.v3.discord.route.DiscordRouter
 import lt.saltyjuice.dragas.chatty.v3.websocket.main.WebSocketClient
 import java.net.URI
