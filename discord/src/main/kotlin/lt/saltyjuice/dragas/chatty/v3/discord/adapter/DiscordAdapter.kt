@@ -16,7 +16,7 @@ import javax.websocket.EndpointConfig
  */
 open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>, String>(), Decoder.Text<OPRequest<*>>, Encoder.Text<OPResponse<*>>
 {
-    open val decodableOPCodes: Array<Int> = arrayOf(0, 11, 10, 9, 7)
+    open val decodableOPCodes: Array<Int> = arrayOf(OPCode.DISPATCH, OPCode.HEARTBEAT_ACK, OPCode.HELLO, OPCode.INVALID_SESSION, OPCode.RECONNECT)
 
     init
     {
@@ -116,12 +116,12 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
         when (opCode.opCode)
         {
         //0 -> return getType(GatewayIdentify::class.java)
-            7 -> return gson.fromJson<GatewayReconnect>(block, GatewayReconnect::class.java)
-            9 -> return gson.fromJson<GatewayInvalid>(block, GatewayInvalid::class.java)
-            10 -> return gson.fromJson<GatewayHello>(block, GatewayHello::class.java)
-            11 -> return gson.fromJson<GatewayAck>(block, GatewayAck::class.java)
+            OPCode.RECONNECT -> return gson.fromJson<GatewayReconnect>(block, GatewayReconnect::class.java)
+            OPCode.INVALID_SESSION -> return gson.fromJson<GatewayInvalid>(block, GatewayInvalid::class.java)
+            OPCode.HELLO -> return gson.fromJson<GatewayHello>(block, GatewayHello::class.java)
+            OPCode.HEARTBEAT_ACK -> return gson.fromJson<GatewayAck>(block, GatewayAck::class.java)
         }
-        if (opCode.opCode == 0)
+        if (opCode.opCode == OPCode.DISPATCH)
         {
             println("some event happened. ${opCode.eventName}")
         }
