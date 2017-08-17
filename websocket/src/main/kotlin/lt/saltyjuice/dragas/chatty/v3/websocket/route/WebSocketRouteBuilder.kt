@@ -14,7 +14,7 @@ open class WebSocketRouteBuilder<Request, Response> : RouteBuilder<Request, Resp
     /**
      * Meant for explicit type handlers.
      *
-     * Equivalent to calling testCallback { it.javaClass.isAssignableFrom(clazz) && clazz.isAssignableFrom(it.javaClass) }
+     * Equivalent to calling `testCallback { it.javaClass.isAssignableFrom(clazz) && clazz.isAssignableFrom(it.javaClass) }`
      */
     open fun type(clazz: Class<*>): WebSocketRouteBuilder<Request, Response>
     {
@@ -39,6 +39,7 @@ open class WebSocketRouteBuilder<Request, Response> : RouteBuilder<Request, Resp
         return super.middleware(name) as WebSocketRouteBuilder<Request, Response>
     }
 
+    @Throws(NullPointerException::class)
     override fun build(): WebSocketRoute<Request, Response>
     {
         return object : WebSocketRoute<Request, Response>()
