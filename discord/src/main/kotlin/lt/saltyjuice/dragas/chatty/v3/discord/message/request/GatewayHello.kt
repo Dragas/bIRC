@@ -8,7 +8,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Hello
  * Sent on connection to the websocket. Defines the heartbeat interval that
  * the client should heartbeat to.
  */
-class GatewayHello() : OPRequest<Hello>()
+open class GatewayHello() : OPRequest<Hello>()
 {
 
 }

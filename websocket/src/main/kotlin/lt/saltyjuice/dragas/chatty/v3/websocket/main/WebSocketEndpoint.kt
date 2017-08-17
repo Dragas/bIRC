@@ -11,6 +11,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
 import lt.saltyjuice.dragas.chatty.v3.websocket.adapter.WebSocketAdapter
 import lt.saltyjuice.dragas.chatty.v3.websocket.io.WebSocketInput
 import lt.saltyjuice.dragas.chatty.v3.websocket.io.WebSocketOutput
+import lt.saltyjuice.dragas.chatty.v3.websocket.route.WebSocketMiddleware
 import java.io.IOException
 import javax.websocket.*
 
@@ -65,16 +66,19 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
     protected abstract val baseClass: Class<Request>
     /**
      * Implements global middlewares that test requests before they are sent to the lifecycle pipeline.
+     * Note that you need to use respective methods to add middlewares instead of adding them directly here.
      */
     override val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
     /**
      * Implements global middlewares that test responses before they are sent to the great beyond.
+     * Note that you need to use respective methods to add middlewares instead of adding them directly here.
      */
     override val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
 
     /**
      * Holds references to all callbacks for this endpoint. This shouldn't be called directly under any circumstances.
      */
+    @Deprecated("Should be handled by router")
     private val callbackMap: MutableList<WebSocketCallback<*, *>> = mutableListOf()
 
     private var initialized = false
@@ -95,15 +99,17 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
 
     override fun getRequest(): Request = runBlocking<Request>
     {
-        return@runBlocking requests!!.receive()
+        val channel = requests ?: throw IllegalStateException("Either the connection hasn't started yet or is already closed.")
+        return@runBlocking channel.receive()
     }
 
     override fun writeResponse(response: Response)
     {
+        val channel = responses ?: throw IllegalStateException("Either the connection hasn't started yet or is already closed.")
         launch(CommonPool)
         {
             if (afterMiddlewares.firstOrNull { !it.after(response) } == null)
-                responses!!.send(response)
+                channel.send(response)
         }
     }
 
@@ -125,7 +131,7 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
                 }
             }
         }
-        session.addMessageHandler(baseClass, this::onMessage)
+        session.addMessageHandler(baseClass, this::handleMessage)
         initialized = true
     }
 
@@ -137,6 +143,8 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
         responseListener = null
         requests?.close()
         responses?.close()
+        requests = null
+        responses = null
     }
 
     @OnError
@@ -148,28 +156,49 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
     }
 
     /**
-     * This method is called when a request from session is received. Implementations should first call the superclass implementation
-     * which checks if the request in question is one of the kind and should be handled regardless.
+     * This method is called when a request from session is received. All requests coming through here are tested with
+     * all available [beforeMiddlewares] before they are even passed to either [callbackMap] or application pipeline.
+     * On success, the request is passed to test the [callbackMap] which looks for explicit handler for the particular
+     * request. This way, the pipeline is filtered from request noise that might be ping requests, identifications, etc.
+     * since they can be handled explicitly. Afterwards, [onMessage] is called, if and only if there is no
+     * explicit handler for that particular call.
      */
-    open fun onMessage(request: Request)
+    private fun handleMessage(request: Request)
     {
-        if (beforeMiddlewares.firstOrNull { !it.before(request) } != null)
+        val failingMiddleware = beforeMiddlewares.find { !it.before(request) }
+        if (failingMiddleware != null)
             return
-        val callable = callbackMap.firstOrNull { it.canBeCalled(request as Any) } as? WebSocketCallback<Request, Any>
-                ?: callbackMap.firstOrNull { it.canBeCalledPartially(request as Any) } as? WebSocketCallback<Request, Any>
+        val callable = callbackMap.find { it.canBeCalled(request as Any) } as? WebSocketCallback<Request, Any>
+                ?: callbackMap.find { it.canBeCalledPartially(request as Any) } as? WebSocketCallback<Request, Any>
         if (callable == null)
         {
-            println("$this W: Unhandled callback for $request")
+            onMessage(request)
+            launch(CommonPool)
+            {
+                requests?.send(request)
+            }
             return
         }
         callable.call(request)
     }
 
+    /**
+     * Called when a message is received that does not have a particular handler registered for it. This means
+     * that this message is somewhat general/generic and was passed to application pipeline. Implementations should not
+     * try to handle the messages here (that's done by router->route->callback pipeline),
+     * but instead check the request for key values that might be used in keeping the session alive.
+     */
+    abstract fun onMessage(request: Request)
 
+
+    /**
+     * Adds an explicit handler for particular message type. Using these means that [onMessage]
+     */
+    @Deprecated("Should be handled by router")
     @Synchronized
     fun <T> addMessageHandler(clazz: Class<T>, callback: ((T) -> Unit))
     {
-        if (callbackMap.indexOfFirst { it.canBeCalled(clazz) } != -1)
+        if (callbackMap.find { it.canBeCalled(clazz) } != null)
         {
             throw IllegalArgumentException("There's already a callback for ${clazz.name}")
         }
@@ -180,4 +209,35 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
         callbackMap.add(WebSocketCallback(clazz, callback))
     }
 
+    fun addBeforeMiddleware(middleware: BeforeMiddleware<Request>)
+    {
+        if (initialized)
+        {
+            throw IllegalStateException("This endpoint is already initialized and it shouldn't be modified any further.")
+        }
+        if (beforeMiddlewares.contains(middleware))
+        {
+            throw IllegalArgumentException("Endpoint already contains this particular `before` middleware")
+        }
+        beforeMiddlewares.add(middleware)
+    }
+
+    fun addAfterMiddleware(middleware: AfterMiddleware<Response>)
+    {
+        if (initialized)
+        {
+            throw IllegalStateException("This endpoint is already initialized and it shouldn't be modified any further.")
+        }
+        if (afterMiddlewares.contains(middleware))
+        {
+            throw IllegalArgumentException("Endpoint already contains this particular `after` middleware")
+        }
+        afterMiddlewares.add(middleware)
+    }
+
+    fun addMiddleware(middleware: WebSocketMiddleware<Request, Response>)
+    {
+        addBeforeMiddleware(middleware)
+        addAfterMiddleware(middleware)
+    }
 }

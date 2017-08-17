@@ -18,5 +18,20 @@ open class OPCode
     {
         @JvmStatic
         val DEFAULT_OP_CODE = -1
+
+        @JvmStatic
+        val DISPATCH = 0
+
+        @JvmStatic
+        val HEARTBEAT_ACK = 11
+
+        @JvmStatic
+        val HELLO = 10
+
+        @JvmStatic
+        val INVALID_SESSION = 9
+
+        @JvmStatic
+        val RECONNECT = 7
     }
 }

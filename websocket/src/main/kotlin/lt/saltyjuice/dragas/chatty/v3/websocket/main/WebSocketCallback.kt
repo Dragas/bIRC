@@ -14,6 +14,7 @@ package lt.saltyjuice.dragas.chatty.v3.websocket.main
  *
  * WebSocketEndpoint implementation prefers callbacks that can be called fully using provided class.
  */
+@Deprecated("Should be handled by Websocket routes instead.")
 open class WebSocketCallback<T, R>(private val clazz: Class<T>, private val callback: ((T) -> R))
 {
 

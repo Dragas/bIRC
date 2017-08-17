@@ -1,5 +1,26 @@
 ## [Unreleased]
 
+## [0.6] 2017-08-17
+
+
+### Added
+
+- `WebSocketRouterBuilder#type` to handle request type testing.
+
+### Changes
+
+- `WebSocketEndpoint#addMessageHandler` is now deprecated. Same functionality is handled by router.
+
+## [0.5] 2017-08-16
+
+### Added 
+- Added methods that handle adding middleware to endpoint.
+
+### Changes
+
+- Changed how messages are handled in WebSocketEndpoint. Now `onMessage(Request)` is called when there is no
+explicit handler for that message type.
+
 ## [0.4] 2017-08-14
 
 ### Added

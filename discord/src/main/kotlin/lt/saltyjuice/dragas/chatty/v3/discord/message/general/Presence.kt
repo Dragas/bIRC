@@ -1,9 +1,9 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.general
 
 import com.google.gson.annotations.SerializedName
-import lt.saltyjuice.dragas.chatty.v3.discord.Status
+import lt.saltyjuice.dragas.chatty.v3.discord.enumerated.Status
 
-class StatusUpdate
+open class Presence
 {
     @SerializedName("since")
     var since: Int? = null

@@ -2,7 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.general
 
 import com.google.gson.annotations.SerializedName
 
-class Identify
+open class Identify
 {
     @SerializedName("token")
     var token: String = ""
@@ -20,5 +20,5 @@ class Identify
     var shard: ArrayList<Int> = ArrayList()
 
     @SerializedName("presence")
-    var presence: StatusUpdate = StatusUpdate()
+    var presence: Presence = Presence()
 }

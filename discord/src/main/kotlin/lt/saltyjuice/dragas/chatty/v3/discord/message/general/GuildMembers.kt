@@ -10,7 +10,7 @@ import com.google.gson.annotations.SerializedName
  * Chunk events in response with up to 1000 members per chunk until all members that match
  * the request have been sent.
  */
-class GuildMembers
+open class GuildMembers
 {
     @SerializedName("guild_id")
     var guildId: String = "0" // snowflake

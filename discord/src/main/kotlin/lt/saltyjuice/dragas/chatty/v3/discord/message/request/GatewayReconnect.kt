@@ -1,6 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.request
 
-class GatewayReconnect : OPRequest<Any>()
+open class GatewayReconnect : OPRequest<Any>()
 {
 
 }

@@ -11,6 +11,35 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.RouteBuilder
  */
 open class WebSocketRouteBuilder<Request, Response> : RouteBuilder<Request, Response>()
 {
+    /**
+     * Meant for explicit type handlers.
+     *
+     * Equivalent to calling `testCallback { it.javaClass.isAssignableFrom(clazz) && clazz.isAssignableFrom(it.javaClass) }`
+     */
+    open fun type(clazz: Class<*>): WebSocketRouteBuilder<Request, Response>
+    {
+        return testCallback({ it: Request ->
+            it as Any
+            it.javaClass.isAssignableFrom(clazz) && clazz.isAssignableFrom(it.javaClass)
+        })
+    }
+
+    override fun testCallback(callback: (Request) -> Boolean): WebSocketRouteBuilder<Request, Response>
+    {
+        return super.testCallback(callback) as WebSocketRouteBuilder<Request, Response>
+    }
+
+    override fun callback(callback: (Request) -> Response?): WebSocketRouteBuilder<Request, Response>
+    {
+        return super.callback(callback) as WebSocketRouteBuilder<Request, Response>
+    }
+
+    override fun middleware(name: String): WebSocketRouteBuilder<Request, Response>
+    {
+        return super.middleware(name) as WebSocketRouteBuilder<Request, Response>
+    }
+
+    @Throws(NullPointerException::class)
     override fun build(): WebSocketRoute<Request, Response>
     {
         return object : WebSocketRoute<Request, Response>()
