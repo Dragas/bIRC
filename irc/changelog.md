@@ -1,3 +1,12 @@
+## [1.3.1] 2017-08-18
+
+### Changes
+
+- Bumped `Chatty/Core` dependency to `1.3.3`
+- Changes names for middlewares in `IrcInput` and `IrcOutput` to accomodate the change in `chatty-core:1.3.3`
+- Properly packed sources.
+- Fixed a typo in `readme.md`
+
 ## [1.3.0] 2017-08-09
 
 ### Changes

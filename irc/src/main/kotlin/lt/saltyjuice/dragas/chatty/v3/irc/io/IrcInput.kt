@@ -12,7 +12,7 @@ import java.util.*
  */
 open class IrcInput(override val adapter: IrcAdapter, inputStream: InputStream) : Input<String, Request>
 {
-    override val middlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
+    override val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
     protected open val scanner = Scanner(inputStream)
     /**
      * Returns data for [getRequest] so that it could be used in deserializing the request.

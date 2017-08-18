@@ -12,7 +12,7 @@ import java.io.OutputStreamWriter
  */
 open class IrcOutput(override val adapter: IrcAdapter, outputStream: OutputStream) : Output<Response, String>
 {
-    override val middlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
+    override val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
     protected val writer = OutputStreamWriter(outputStream)
 
     override fun writeResponse(response: Response)

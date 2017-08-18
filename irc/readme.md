@@ -13,7 +13,7 @@ repositories {
 And then link Chatty/IRC as your dependency.
 ```groovy
 dependencies {
-    compile "lt.saltyjuice.dragas:chatty-irc:1.3.0"
+    compile "lt.saltyjuice.dragas:chatty-irc:1.3.1"
 }
 ```
 
@@ -45,7 +45,7 @@ And then in that controller's constructor
 router.add(router.builder().let {
     it.type(Command.PRIVMSG)
     it.testCallback("regex pattern to match")
-    it.callback(this::responseGenerator)
+    it.callback(controller::responseGenerator)
 })
 ```
 
