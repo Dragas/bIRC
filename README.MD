@@ -35,6 +35,6 @@ repositories {
 And then just list `chatty-core` as your dependency:
 ```groovy
 dependencies {
-    compile "lt.saltyjuice.dragas:chatty-core:1.3.2"
+    compile "lt.saltyjuice.dragas:chatty-core:1.3.3"
 }
 ```
