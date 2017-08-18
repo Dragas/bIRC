@@ -1,6 +1,9 @@
-## [1.0.0] 2017-08-17
+## [1.0.1] 2017-08-18
 
 This marks Chatty/WebSocket release and it means that it can be downloaded from sonatype repositories.
+### Changed
+
+- `Chatty/WebSocket` now depends on `chatty-core:1.3.3`
 
 ### Removed
 
