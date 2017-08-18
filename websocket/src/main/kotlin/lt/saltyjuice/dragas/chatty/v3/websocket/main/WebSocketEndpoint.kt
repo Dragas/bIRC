@@ -20,11 +20,6 @@ import javax.websocket.*
  * Websocket endpoint.
  *
  * This is a programmatically implemented endpoint, which is meant to simplify websocket implementations.
- *
- * Due to how Tyrus works, you may only add one handler per media type (be it text or byte buffer). Chatty/WebSocket Endpoint
- * implementation works around this by providing its own [addMessageHandler] method, which works much like Tyrus implementation
- * (permits adding only one callback per type) but extends on the fact that everything is routed through [onMessage], therefore requiring
- * that those multiple types would have some sort of base class, which is provided in [baseClass].
  */
 abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : Endpoint(), WebSocketInput<InputBlock, Request>, WebSocketOutput<Response, OutputBlock>
 {
@@ -74,12 +69,6 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
      * Note that you need to use respective methods to add middlewares instead of adding them directly here.
      */
     override val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
-
-    /**
-     * Holds references to all callbacks for this endpoint. This shouldn't be called directly under any circumstances.
-     */
-    @Deprecated("Should be handled by router")
-    private val callbackMap: MutableList<WebSocketCallback<*, *>> = mutableListOf()
 
     private var initialized = false
 
@@ -168,18 +157,11 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
         val failingMiddleware = beforeMiddlewares.find { !it.before(request) }
         if (failingMiddleware != null)
             return
-        val callable = callbackMap.find { it.canBeCalled(request as Any) } as? WebSocketCallback<Request, Any>
-                ?: callbackMap.find { it.canBeCalledPartially(request as Any) } as? WebSocketCallback<Request, Any>
-        if (callable == null)
+        onMessage(request)
+        launch(CommonPool)
         {
-            onMessage(request)
-            launch(CommonPool)
-            {
-                requests?.send(request)
-            }
-            return
+            requests?.send(request)
         }
-        callable.call(request)
     }
 
     /**
@@ -190,24 +172,6 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
      */
     abstract fun onMessage(request: Request)
 
-
-    /**
-     * Adds an explicit handler for particular message type. Using these means that [onMessage]
-     */
-    @Deprecated("Should be handled by router")
-    @Synchronized
-    fun <T> addMessageHandler(clazz: Class<T>, callback: ((T) -> Unit))
-    {
-        if (callbackMap.find { it.canBeCalled(clazz) } != null)
-        {
-            throw IllegalArgumentException("There's already a callback for ${clazz.name}")
-        }
-        if (initialized)
-        {
-            throw IllegalStateException("This endpoint is already initialized and it shouldn't be modified any further.")
-        }
-        callbackMap.add(WebSocketCallback(clazz, callback))
-    }
 
     fun addBeforeMiddleware(middleware: BeforeMiddleware<Request>)
     {

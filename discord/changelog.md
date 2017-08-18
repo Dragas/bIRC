@@ -17,6 +17,7 @@
 ### Changes
 
 - `WebSocketEndpoint` is now in `chatty.v3.discord.main` package
-- Deprecated `heartbeatJob` in `DiscordEndpoint`.
-- Deprecated `sequenceNumber` in `DiscordEndpoint`.
-- Deprecated several callbacks, that are added via deprecated `addMessageHandler` method in `WebSocketEndpoint`
+
+### Removed
+
+- Removed dependencies on deprecated APIs
