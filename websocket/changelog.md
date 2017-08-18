@@ -1,3 +1,11 @@
+## [1.0.0] 2017-08-17
+
+This marks Chatty/WebSocket release and it means that it can be downloaded from sonatype repositories.
+
+### Removed
+
+- Removed Deprecated APIs
+
 ## [Unreleased]
 
 ## [0.6] 2017-08-17

@@ -1,7 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.adapter
 
 import com.google.gson.Gson
-import com.google.gson.GsonBuilder
+import lt.saltyjuice.dragas.chatty.v3.discord.api.API
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.*
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.*
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
@@ -20,9 +20,7 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
     protected open val decodableOPCodes: Array<Int> = arrayOf(OPCode.DISPATCH, OPCode.HEARTBEAT_ACK, OPCode.HELLO, OPCode.INVALID_SESSION, OPCode.RECONNECT)
     protected open val gson: Gson by lazy()
     {
-        val gsonBuilder = GsonBuilder()
-        gsonBuilder.serializeNulls()
-        gsonBuilder.create()
+        API.gson
     }
     init
     {
@@ -52,7 +50,7 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
      */
     override fun init(config: EndpointConfig)
     {
-        //println("Am i initialized? $this")
+        gson
     }
 
     /**

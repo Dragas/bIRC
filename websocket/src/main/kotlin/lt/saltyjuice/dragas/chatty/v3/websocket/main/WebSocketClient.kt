@@ -45,6 +45,9 @@ abstract class WebSocketClient<InputBlock, Request, Response, OutputBlock> : Cli
      */
     protected open val cec: ClientEndpointConfig = ClientEndpointConfig.Builder.create().build()
 
+    /**
+     * Denotes whether or not the connection has been started.
+     */
     protected open var isStarted = false
 
 
