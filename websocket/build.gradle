@@ -45,4 +45,3 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 apply from: "../upload.gradle"
-uploadArchives.dependsOn test
