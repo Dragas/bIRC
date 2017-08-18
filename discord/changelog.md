@@ -1,5 +1,11 @@
 ## Unreleased
 
+## [0.1.1] 2017-08-18
+
+### Changes
+
+- Instead of depending on raw project, `chatty-discord` now depends on `chatty-websocket:1.0.1`
+
 ## [0.1] 2017-08-17
 
 ### Added
