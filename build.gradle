@@ -22,14 +22,6 @@ repositories {
     mavenCentral()
     jcenter()
 }
-dokka {
-    outputFormat = "gfm"
-    outputDirectory = "$buildDir/kdoc"
-    kotlinTasks {
-        defaultKotlinTasks() + [':core:compileKotlin']
-    }
-    skipDeprecated = true
-}
 
 dependencies {
     compile "org.jetbrains.kotlin:kotlin-stdlib-jre8:$kotlin_version"
@@ -43,18 +35,23 @@ compileTestKotlin {
 }
 
 subprojects {
-    task dokkaJavadoc(type: org.jetbrains.dokka.gradle.DokkaTask) {
-        outputFormat = 'gfm'
-        outputDirectory = "$buildDir/javadoc"
+    apply plugin: 'org.jetbrains.dokka'
+    buildscript {
+        ext.dokka_version = "0.9.15"
+        repositories {
+            mavenCentral()
+            jcenter()
+        }
+        dependencies {
+            classpath "org.jetbrains.dokka:dokka-gradle-plugin:${dokka_version}"
+        }
     }
-
-    task javadocJar(type: Jar, dependsOn: dokkaJavadoc) {
-        classifier = 'javadoc'
-        from javadoc.destinationDir
-    }
-
-    task sourcesJar(type: Jar) {
-        classifier = 'sources'
-        from sourceSets.main.allSource
+    dokka {
+        outputFormat = "javadoc"
+        outputDirectory = "$buildDir/kdoc"
+        kotlinTasks {
+            defaultKotlinTasks() + [':core:compileKotlin']
+        }
+        skipDeprecated = true
     }
 }
