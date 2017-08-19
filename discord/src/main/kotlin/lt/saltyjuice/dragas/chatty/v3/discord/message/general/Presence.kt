@@ -9,7 +9,7 @@ open class Presence
     var since: Int? = null
 
     @SerializedName("game")
-    var game: Game? = null
+    var game: Game = Game()
 
     @SerializedName("status")
     var status: Status = Status.ONLINE
