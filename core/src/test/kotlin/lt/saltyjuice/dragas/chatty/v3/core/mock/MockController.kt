@@ -17,11 +17,4 @@ class MockController(client: MockClient) : Controller<MockRequest, MockResponse>
     {
         return true
     }
-
-    @Callback
-    @TestedBy("anotherMethod")
-    fun notSoMockResponseGenerator(mockRequest: MockRequest): MockResponse
-    {
-        return MockResponse(mockRequest.fieldName, mockRequest.fieldValue)
-    }
 }

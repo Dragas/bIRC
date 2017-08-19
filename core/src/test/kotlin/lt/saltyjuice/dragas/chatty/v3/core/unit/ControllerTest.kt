@@ -2,6 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.unit
 
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockClient
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockController
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithoutTestMethod
 import lt.saltyjuice.dragas.chatty.v3.core.route.TestedBy
 import org.junit.Assert
 import org.junit.Test
@@ -30,7 +31,7 @@ class ControllerTest
     @Test
     fun controllerDoesntHaveSuchTestCallback()
     {
-        val callback = instance.methods()[1]
+        val callback = MockControllerWithoutTestMethod(MockClient()).methods()[0]
         val testCallbackName = callback.getAnnotation(TestedBy::class.java).value
         Assert.assertNull(instance.javaClass.methods.find { it.name == testCallbackName })
     }
