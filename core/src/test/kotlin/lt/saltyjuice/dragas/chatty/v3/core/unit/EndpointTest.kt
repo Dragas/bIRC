@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.core
+package lt.saltyjuice.dragas.chatty.v3.core.unit
 
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockEndpoint
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockResponse
