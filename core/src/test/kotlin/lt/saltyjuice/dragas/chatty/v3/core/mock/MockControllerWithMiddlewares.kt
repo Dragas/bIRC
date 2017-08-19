@@ -2,8 +2,6 @@ package lt.saltyjuice.dragas.chatty.v3.core.mock
 
 import lt.saltyjuice.dragas.chatty.v3.core.route.*
 
-@BeforeRequest(MockBeforeMiddleware::class)
-@AfterResponse(MockAfterMiddleware::class)
 class MockControllerWithMiddlewares(client: MockClient) : Controller<MockRequest, MockResponse>(client)
 {
     @Callback
