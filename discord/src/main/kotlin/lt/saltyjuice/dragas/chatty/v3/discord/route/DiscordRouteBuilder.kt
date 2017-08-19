@@ -7,6 +7,7 @@ import lt.saltyjuice.dragas.chatty.v3.websocket.route.WebSocketRouteBuilder
 
 open class DiscordRouteBuilder<Request : OPRequest<*>, Response : OPResponse<*>> : WebSocketRouteBuilder<Request, Response>()
 {
+    //private var typeChecker : (Any) -> Boolean = {true}
     override fun type(clazz: Class<*>): DiscordRouteBuilder<Request, Response>
     {
         return super.type(clazz) as DiscordRouteBuilder
@@ -32,15 +33,17 @@ open class DiscordRouteBuilder<Request : OPRequest<*>, Response : OPResponse<*>>
     {
         return object : DiscordRoute<Request, Response>()
         {
+            //override val typeChecker : (Any) -> Boolean = this@DiscordRouteBuilder.typeChecker
+            override var testCallback: (Request) -> Boolean = this@DiscordRouteBuilder.mTestCallback ?: throw NullPointerException("Required")
+                set(value)
+                {
+
+                }
             override var callback: (Request) -> Response? = this@DiscordRouteBuilder.mCallback ?: throw NullPointerException("Callback is necessary")
                 set(value)
                 {
                 }
             override var middlewares: List<Middleware<Request, Response>> = this@DiscordRouteBuilder.mMiddlewares as List<Middleware<Request, Response>>
-                set(value)
-                {
-                }
-            override var testCallback: (Request) -> Boolean = this@DiscordRouteBuilder.mTestCallback ?: throw NullPointerException("Test callback is necessary.")
                 set(value)
                 {
                 }
