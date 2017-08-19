@@ -1,8 +1,29 @@
-# Chatty ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=master)
+# Chatty 
+
+#### master ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=master)  websocket-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=websocket-dev) discord-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=discord-dev) biscord-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=biscord-dev) irc-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=irc-dev) birc-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=birc-dev) 
 
 Somewhat elegant Java/Kotlin chat bot framework.
 
-Includes both sources and implementation for IRCs
+Includes both sources and implementation for IRCs, WebSockets and others!
+
+## Adding Blackjack and Hookers
+
+By the power of Declarative programming and reflection magic, you may use these the following annotations to enhance your chat bot experience!
+
+- `@UsesControllers` - Marks that particular `Client` uses these `Controller` classes during runtime to 
+check requests and try to respond to them. Note: that they need to extend `core.route.Controller`
+- `@BeforeRequest` - Marks either `Controller`, a `@Callback` method or `Client` that they use `BeforeMiddleware` to test
+the request before using it. Note: Selected classes MUST implement `BeforeMiddleware` interface. There are 3 cases for this:
+  - When `Client` is marked with this annotation, it tests the requests before pushing them to `Router` pipeline.
+  - When `Controller` is marked with this annotation, it adds all mentioned middlewares to routes generated from it.
+  - When `@Callback` method is marked with this annotation, it adds mentioned middlewares to route generated from it.
+  - Note: You may only add particular middleware once to that route. So don't mention them twice in `@Callback` or `Controller`
+- `@AfterResponse` - Works the same as `@BeforeRequest`, BUT tests generated responses.
+- `@Callback` - marks a method in `Controller` that it can be used to generate responses. That method 
+should return either `null` or `Response` object that was specified by implementing `Controller`. Requires `@TestedBy` annotation.
+- `@TestedBy` - marks that a particular `@Callback` is tested with another method before it is used. That method
+needs to have a single parameter `Request` and return a `Boolean` value.
+- `@Description` - helps with router debugging. 
 
 ## Usage
 
@@ -35,6 +56,6 @@ repositories {
 And then just list `chatty-core` as your dependency:
 ```groovy
 dependencies {
-    compile "lt.saltyjuice.dragas:chatty-core:1.3.3"
+    compile "lt.saltyjuice.dragas:chatty-core:2.0.0"
 }
 ```
