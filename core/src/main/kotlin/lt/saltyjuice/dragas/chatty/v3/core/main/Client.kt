@@ -2,7 +2,13 @@ package lt.saltyjuice.dragas.chatty.v3.core.main
 
 import lt.saltyjuice.dragas.chatty.v3.core.io.Input
 import lt.saltyjuice.dragas.chatty.v3.core.io.Output
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.MiddlewareUtility
+import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
+import lt.saltyjuice.dragas.chatty.v3.core.route.Route
 import lt.saltyjuice.dragas.chatty.v3.core.route.Router
+import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
 import java.net.Socket
 
 /**
@@ -40,10 +46,56 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
     protected abstract val router: Router<Request, Response>
 
     /**
+     * Input middleware container.
+     *
+     * Contains all the middlewares that each request must be tested against before they're used in the application.
+     */
+    protected open val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
+
+    /**
+     * Output middleware container.
+     *
+     * Contains all the middlewares that each response must be tested against when
+     * they're supposed to be sent back to the server.
+     */
+    protected open val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
+
+
+    protected open val controllers: MutableCollection<Controller<Request, Response>> = mutableListOf()
+
+    /**
      * Implementations should handle how the client itself is initialized: for example routes,
      * client settings, thread pools, etc.
+     *
+     * Implementations must call super.initialize()
      */
-    abstract fun initialize()
+    open fun initialize()
+    {
+        this.javaClass.annotations.forEach()
+        {
+            when (it)
+            {
+                is UsesControllers ->
+                {
+                    it.value.forEach {
+                        val controller = it.java.constructors[0].newInstance(this)
+                        controllers.add(controller as Controller<Request, Response>)
+                        router.consume(controller)
+                    }
+                }
+            }
+        }
+        MiddlewareUtility.getBeforeMiddlewares(this).forEach()
+        {
+            val middleware = MiddlewareUtility.getBeforeMiddleware(it) as BeforeMiddleware<Request>
+            beforeMiddlewares.add(middleware)
+        }
+        MiddlewareUtility.getAfterMiddlewares(this).forEach()
+        {
+            val middleware = MiddlewareUtility.getAfterMiddleware(it) as AfterMiddleware<Response>
+            afterMiddlewares.add(middleware)
+        }
+    }
 
     /**
      * Implementations should handle how the client acts once socket has successfully connected
@@ -62,8 +114,15 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
     open fun run()
     {
         val request = sin.getRequest()
+        if (beforeMiddlewares.firstOrNull { !it.before(request) } != null) return
         val response = router.consume(request)
         response ?: return
+        writeResponse(response)
+    }
+
+    open fun writeResponse(response: Response)
+    {
+        if (afterMiddlewares.firstOrNull { !it.after(response) } != null) return
         sout.writeResponse(response)
     }
 
