@@ -1,5 +1,19 @@
 ## Unreleased
 
+## [0.1.2]
+
+### Changes
+
+- Now `chatty-discord` depends on `chatty-websocket:2.1.0-SNAPSHOT`
+
+### Added
+
+- Added `RateLimitInterceptor`. It's supposed to handle request rate limits for applications implenting this
+framework. You may set `RateLimitInterceptor.shouldWait` to true, if instead of throwing, you want to wait for
+request to go through instead. 
+- Added remaining API calls for channel resource.
+
+
 ## [0.1.1] 2017-08-18
 
 ### Changes
