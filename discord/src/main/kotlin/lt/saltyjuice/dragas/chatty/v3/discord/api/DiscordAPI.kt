@@ -283,7 +283,6 @@ interface DiscordAPI
      * Returns an [Invite] object.
      */
     @POST("channels/{channel-id}/invites")
-    @FormUrlEncoded
     fun createChannelInvite(@Path("channel-id") channelId: String, @Body creatableInvite: InviteBuilder): Call<Invite>
 
     /**
@@ -305,7 +304,7 @@ interface DiscordAPI
      * Returns a 204 empty response on success. Fires a Typing Start Gateway event.
      */
     @POST("channels/{channel-id}/typing")
-    fun triggerTypingIndicator(@Path("channel-id") channelId: String)
+    fun triggerTypingIndicator(@Path("channel-id") channelId: String): Call<Any>
 
     /**
      * Returns all pinned messages in the channel as an array of [Message] objects.
@@ -333,6 +332,7 @@ interface DiscordAPI
      * @param nickname nickname of the user being added
      */
     @PUT("channels/{channel-id}/recipients/{user-id}")
+    @FormUrlEncoded
     fun addGroupDMRecipient(@Path("channel-id") channelId: String, @Path("user-id") userId: String, @Field("access_token") accessToken: String, @Field("nick") nickname: String): Call<Any>
 
     /**
