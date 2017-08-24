@@ -1,10 +1,11 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord
 
+import lt.saltyjuice.dragas.chatty.v3.core.route.On
+import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
-import lt.saltyjuice.dragas.chatty.v3.discord.route.DiscordRouter
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
@@ -32,7 +33,9 @@ class ResponseController private constructor() : Callback<Message>
 
     }
 
-    private fun onMessage(request: EventMessageCreate): OPResponse<*>?
+    @On(EventMessageCreate::class)
+    @When("requestTest")
+    fun onMessage(request: EventMessageCreate): OPResponse<*>?
     {
         val response = "NO YOU"
         val message = request.data!!
@@ -40,21 +43,8 @@ class ResponseController private constructor() : Callback<Message>
         return null
     }
 
-    companion object
+    fun requestTest(request: EventMessageCreate): Boolean
     {
-        @JvmStatic
-        private val instance: ResponseController = ResponseController()
-
-        @JvmStatic
-        fun initialize(router: DiscordRouter)
-        {
-            router.add(router.discordBuilder<EventMessageCreate, OPResponse<*>>().apply {
-                this.type(EventMessageCreate::class.java)
-                this.callback(instance::onMessage)
-                this.testCallback {
-                    it.data?.content?.contains("?test") ?: false
-                }
-            })
-        }
+        return request.data!!.content.startsWith("?test")
     }
 }
