@@ -65,7 +65,7 @@ class RateLimitInterceptor : Interceptor
         val CHANNELS = "channels"
 
         @JvmStatic
-        val GUILD = "guild"
+        val GUILD = "guilds"
 
         @JvmStatic
         private val limitsPerGuild: ConcurrentHashMap<String, Limit> = ConcurrentHashMap()
