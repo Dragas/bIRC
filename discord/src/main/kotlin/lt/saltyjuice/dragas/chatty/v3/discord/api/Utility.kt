@@ -5,6 +5,7 @@ import com.google.gson.GsonBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.AuditLogChangeAdapter
 import lt.saltyjuice.dragas.chatty.v3.discord.api.interceptor.CommonInterceptor
+import lt.saltyjuice.dragas.chatty.v3.discord.api.interceptor.RateLimitInterceptor
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.AuditLogChange
 import okhttp3.OkHttpClient
 import okhttp3.logging.HttpLoggingInterceptor
@@ -102,6 +103,7 @@ object Utility
         {
             addInterceptor(CommonInterceptor())
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
+            addInterceptor(RateLimitInterceptor())
         }
     }
 
