@@ -6,12 +6,9 @@ import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import kotlinx.coroutines.experimental.selects.whileSelect
-import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
-import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
 import lt.saltyjuice.dragas.chatty.v3.websocket.adapter.WebSocketAdapter
 import lt.saltyjuice.dragas.chatty.v3.websocket.io.WebSocketInput
 import lt.saltyjuice.dragas.chatty.v3.websocket.io.WebSocketOutput
-import lt.saltyjuice.dragas.chatty.v3.websocket.route.WebSocketMiddleware
 import java.io.IOException
 import javax.websocket.*
 
@@ -59,16 +56,6 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
      * Declares base class for all requests that will be incoming through this endpoint implementation.
      */
     protected abstract val baseClass: Class<Request>
-    /**
-     * Implements global middlewares that test requests before they are sent to the lifecycle pipeline.
-     * Note that you need to use respective methods to add middlewares instead of adding them directly here.
-     */
-    override val beforeMiddlewares: MutableCollection<BeforeMiddleware<Request>> = mutableListOf()
-    /**
-     * Implements global middlewares that test responses before they are sent to the great beyond.
-     * Note that you need to use respective methods to add middlewares instead of adding them directly here.
-     */
-    override val afterMiddlewares: MutableCollection<AfterMiddleware<Response>> = mutableListOf()
 
     private var initialized = false
 
@@ -97,8 +84,7 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
         val channel = responses ?: throw IllegalStateException("Either the connection hasn't started yet or is already closed.")
         launch(CommonPool)
         {
-            if (afterMiddlewares.firstOrNull { !it.after(response) } == null)
-                channel.send(response)
+            channel.send(response)
         }
     }
 
@@ -154,9 +140,6 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
      */
     private fun handleMessage(request: Request)
     {
-        val failingMiddleware = beforeMiddlewares.find { !it.before(request) }
-        if (failingMiddleware != null)
-            return
         onMessage(request)
         launch(CommonPool)
         {
@@ -171,37 +154,4 @@ abstract class WebSocketEndpoint<InputBlock, Request, Response, OutputBlock> : E
      * but instead check the request for key values that might be used in keeping the session alive.
      */
     abstract fun onMessage(request: Request)
-
-
-    fun addBeforeMiddleware(middleware: BeforeMiddleware<Request>)
-    {
-        if (initialized)
-        {
-            throw IllegalStateException("This endpoint is already initialized and it shouldn't be modified any further.")
-        }
-        if (beforeMiddlewares.contains(middleware))
-        {
-            throw IllegalArgumentException("Endpoint already contains this particular `before` middleware")
-        }
-        beforeMiddlewares.add(middleware)
-    }
-
-    fun addAfterMiddleware(middleware: AfterMiddleware<Response>)
-    {
-        if (initialized)
-        {
-            throw IllegalStateException("This endpoint is already initialized and it shouldn't be modified any further.")
-        }
-        if (afterMiddlewares.contains(middleware))
-        {
-            throw IllegalArgumentException("Endpoint already contains this particular `after` middleware")
-        }
-        afterMiddlewares.add(middleware)
-    }
-
-    fun addMiddleware(middleware: WebSocketMiddleware<Request, Response>)
-    {
-        addBeforeMiddleware(middleware)
-        addAfterMiddleware(middleware)
-    }
 }

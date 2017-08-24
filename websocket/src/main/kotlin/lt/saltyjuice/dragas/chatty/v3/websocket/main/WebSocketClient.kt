@@ -51,11 +51,6 @@ abstract class WebSocketClient<InputBlock, Request, Response, OutputBlock> : Cli
     protected open var isStarted = false
 
 
-    override fun initialize()
-    {
-
-    }
-
     /**
      * Since websockets are technically servers, connect returns whether or not server managed to start successfully.
      */
