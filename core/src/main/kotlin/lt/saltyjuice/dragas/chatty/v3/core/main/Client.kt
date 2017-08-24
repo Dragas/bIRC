@@ -1,5 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.core.main
 
+import lt.saltyjuice.dragas.chatty.v3.core.exception.InitializeAlreadyCalledException
+import lt.saltyjuice.dragas.chatty.v3.core.exception.InitializeNotCalledException
 import lt.saltyjuice.dragas.chatty.v3.core.io.Input
 import lt.saltyjuice.dragas.chatty.v3.core.io.Output
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
@@ -9,6 +11,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
 import lt.saltyjuice.dragas.chatty.v3.core.route.Route
 import lt.saltyjuice.dragas.chatty.v3.core.route.Router
 import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
+import java.lang.Exception
 import java.net.Socket
 
 /**
@@ -63,6 +66,13 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
 
     protected open val controllers: MutableCollection<Controller<Request, Response>> = mutableListOf()
 
+    private var initialized = false
+
+    init
+    {
+        defaultIntance = this
+    }
+
     /**
      * Implementations should handle how the client itself is initialized: for example routes,
      * client settings, thread pools, etc.
@@ -71,6 +81,8 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
      */
     open fun initialize()
     {
+        if (initialized)
+            throw InitializeAlreadyCalledException()
         this.javaClass.annotations.forEach()
         {
             when (it)
@@ -78,9 +90,16 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
                 is UsesControllers ->
                 {
                     it.value.forEach {
-                        val controller = it.java.constructors[0].newInstance(this)
-                        controllers.add(controller as Controller<Request, Response>)
-                        router.consume(controller)
+                        val controller = it.java.constructors[0].newInstance()
+                        try
+                        {
+                            controllers.add(controller as Controller<Request, Response>)
+                            router.consume(controller)
+                        }
+                        catch (err: Exception)
+                        {
+                            throw Exception("for $controller", err)
+                        }
                     }
                 }
             }
@@ -95,6 +114,7 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
             val middleware = MiddlewareUtility.getAfterMiddleware(it) as AfterMiddleware<Response>
             afterMiddlewares.add(middleware)
         }
+        initialized = true
     }
 
     /**
@@ -113,6 +133,8 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
      */
     open fun run()
     {
+        if (!initialized)
+            throw InitializeNotCalledException()
         val request = sin.getRequest()
         if (beforeMiddlewares.firstOrNull { !it.before(request) } != null) return
         val response = router.consume(request)
@@ -137,4 +159,16 @@ abstract class Client<InputBlock, Request, Response, OutputBlock>
      * @return true, if the client is still connected
      */
     abstract fun isConnected(): Boolean
+
+    companion object
+    {
+        @JvmStatic
+        private lateinit var defaultIntance: Client<*, *, *, *>
+
+        @JvmStatic
+        fun getInstance(): Client<*, *, *, *>
+        {
+            return defaultIntance
+        }
+    }
 }
