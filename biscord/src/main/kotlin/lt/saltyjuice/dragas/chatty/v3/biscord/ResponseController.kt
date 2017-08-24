@@ -3,6 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.biscord
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
+import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
@@ -10,7 +11,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 
-class ResponseController private constructor() : Callback<Message>
+class ResponseController : DiscordController(), Callback<Message>
 {
     /**
      * Invoked when a network exception occurred talking to the server or when an unexpected
