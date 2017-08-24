@@ -76,23 +76,22 @@ class RateLimitInterceptor : Interceptor
         @JvmStatic
         private val globalLimits: ConcurrentHashMap<String, Limit> = ConcurrentHashMap()
 
+
+        /**
+         * Sets whether or not the application should wait for rate limits to pass before sending a request.
+         */
         @JvmStatic
-        private var shouldWait: Boolean = false
+        var shouldWait: Boolean = false
             @Synchronized
             get()
             {
                 return field
             }
-
-        /**
-         * Sets whether or not the application should wait for rate limits to pass before sending a request.
-         */
-        @Synchronized
-        @JvmStatic
-        fun waitForDelays(wait: Boolean)
-        {
-            shouldWait = wait
-        }
+            @Synchronized
+            set(value)
+            {
+                field = value
+            }
     }
 
     private class Limit(response: Response)
