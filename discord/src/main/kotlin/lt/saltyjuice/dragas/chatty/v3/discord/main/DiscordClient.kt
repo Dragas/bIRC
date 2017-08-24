@@ -1,5 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.main
 
+import lt.saltyjuice.dragas.chatty.v3.core.main.Client
+import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.CompressedDiscordAdapter
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.DiscordAdapter
@@ -14,6 +16,12 @@ import lt.saltyjuice.dragas.chatty.v3.websocket.main.WebSocketClient
 import java.net.URI
 import javax.websocket.ClientEndpointConfig
 
+/**
+ * Isn't any different from [WebSocketClient] besides having discord oriented calls for tyrus and chatty-websocket.
+ * @see WebSocketClient
+ * @see Client
+ */
+@UsesControllers(ConnectionController::class)
 open class DiscordClient(protected val initResponse: GatewayInit) : WebSocketClient<String, OPRequest<*>, OPResponse<*>, String>()
 {
     override val router: DiscordRouter = DiscordRouter()
@@ -33,12 +41,6 @@ open class DiscordClient(protected val initResponse: GatewayInit) : WebSocketCli
     override val sout: DiscordOutput by lazy()
     {
         DiscordEndpoint.instance
-    }
-
-    override fun initialize()
-    {
-        super.initialize()
-        ConnectionController.initialize(router, sout)
     }
 
     /**
