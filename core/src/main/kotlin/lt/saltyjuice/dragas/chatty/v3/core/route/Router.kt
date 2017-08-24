@@ -74,32 +74,28 @@ abstract class Router<Request, Response>
     open fun consumeMethod(builder: Route.Builder<Request, Response>, controller: Controller<Request, Response>, method: Method)
     {
         val annotations = method.annotations
+        val type = method.getAnnotation(On::class.java).clazz
+        builder.testCallback()
+        {
+            it as Any
+            type.java.isAssignableFrom(it.javaClass)
+        }
+        builder.description("${controller.javaClass.canonicalName}#${method.name}")
         annotations.forEach()
         {
             when (it)
             {
                 is When ->
                 {
-                    val testCallbackAnnotation = method.getAnnotation(When::class.java)
-                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation?.value }
-                    val type = method.getAnnotation(On::class.java).clazz
-                    if (testCallbackAnnotation != null)
+                    val testCallbackAnnotation = it.value
+                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation }
+                    testCallback ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
+                    builder.testCallback()
                     {
-                        testCallback ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
-                        builder.testCallback()
-                        {
-                            it as Any
-                            type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
-                        }
+                        it as Any
+                        type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
                     }
-                    else
-                    {
-                        builder.testCallback()
-                        {
-                            it as Any
-                            type.java.isAssignableFrom(it.javaClass)
-                        }
-                    }
+
                 }
                 is Before ->
                 {
@@ -123,9 +119,9 @@ abstract class Router<Request, Response>
             }
         }
         if (method.getAnnotation(Description::class.java) == null)
-            builder.description("${controller.javaClass.canonicalName}#${method.name}")
 
-        builder.callback()
+
+            builder.callback()
         { request ->
             method.invoke(controller, request) as Response?
         }
