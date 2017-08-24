@@ -1,7 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.main
 
 import lt.saltyjuice.dragas.chatty.v3.core.main.Client
-import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.CompressedDiscordAdapter
 import lt.saltyjuice.dragas.chatty.v3.discord.adapter.DiscordAdapter
@@ -21,7 +20,6 @@ import javax.websocket.ClientEndpointConfig
  * @see WebSocketClient
  * @see Client
  */
-@UsesControllers(ConnectionController::class)
 open class DiscordClient(protected val initResponse: GatewayInit) : WebSocketClient<String, OPRequest<*>, OPResponse<*>, String>()
 {
     override val router: DiscordRouter = DiscordRouter()
@@ -41,6 +39,17 @@ open class DiscordClient(protected val initResponse: GatewayInit) : WebSocketCli
     override val sout: DiscordOutput by lazy()
     {
         DiscordEndpoint.instance
+    }
+
+    override fun initialize()
+    {
+        super.initialize()
+        ConnectionController().apply()
+        {
+            controllers.add(this)
+            router.consume(this)
+        }
+
     }
 
     /**
