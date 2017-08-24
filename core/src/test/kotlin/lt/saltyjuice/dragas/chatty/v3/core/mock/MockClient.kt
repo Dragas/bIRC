@@ -3,13 +3,13 @@ package lt.saltyjuice.dragas.chatty.v3.core.mock
 import lt.saltyjuice.dragas.chatty.v3.core.main.Client
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
-import lt.saltyjuice.dragas.chatty.v3.core.route.AfterResponse
-import lt.saltyjuice.dragas.chatty.v3.core.route.BeforeRequest
+import lt.saltyjuice.dragas.chatty.v3.core.route.After
+import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
 
 
-@BeforeRequest(MockBeforeMiddleware::class)
-@AfterResponse(MockAfterMiddleware::class)
+@Before(MockBeforeMiddleware::class)
+@After(MockAfterMiddleware::class)
 @UsesControllers(MockController::class)
 class MockClient : Client<String, MockRequest, MockResponse, String>()
 {

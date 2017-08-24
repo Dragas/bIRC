@@ -1,6 +1,5 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
-import lt.saltyjuice.dragas.chatty.v3.core.mock.MockClient
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithoutTestMethod
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
 import org.junit.Assert
@@ -30,11 +29,11 @@ class RouterTestWithoutTestMethod
         {
             try
             {
-                router.consume(MockControllerWithoutTestMethod(MockClient()))
+                router.consume(MockControllerWithoutTestMethod())
             }
             catch (err: Throwable)
             {
-                println("nothing happened, carry on")
+                println("Carry on. This is intended.")
                 err.printStackTrace()
             }
         }

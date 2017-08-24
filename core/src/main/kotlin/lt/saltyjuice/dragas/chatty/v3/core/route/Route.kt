@@ -61,7 +61,7 @@ open class Route<Request, Response>
     {
         protected open val mBeforeMiddlewares: MutableList<BeforeMiddleware<Request>> = mutableListOf()
         protected open val mAfterMiddlewares: MutableList<AfterMiddleware<Response>> = mutableListOf()
-        protected open var mCallback: ((Request) -> Response?)? = null
+        protected open var mCallback: ((Request) -> Response?) = { null }
         protected open var mTestCallback: ((Request) -> Boolean) = { false }
         protected open var mDescription: String = ""
 
@@ -69,7 +69,7 @@ open class Route<Request, Response>
         {
             val middleware = MiddlewareUtility.getBeforeMiddleware(clazz as Class<BeforeMiddleware<*>>)
             if (mBeforeMiddlewares.contains(middleware))
-                throw DuplicateMiddlewareException()
+                throw DuplicateMiddlewareException("Particular middleware is already declared for this callback: $clazz")
             mBeforeMiddlewares.add(middleware as BeforeMiddleware<Request>)
             return this
         }
@@ -78,7 +78,7 @@ open class Route<Request, Response>
         {
             val middleware = MiddlewareUtility.getAfterMiddleware(clazz as Class<AfterMiddleware<*>>)
             if (mAfterMiddlewares.contains(middleware))
-                throw DuplicateMiddlewareException()
+                throw DuplicateMiddlewareException("Particular middleware is already declared for this callback: $clazz")
             mAfterMiddlewares.add(middleware as AfterMiddleware<Response>)
             return this
         }
@@ -119,7 +119,7 @@ open class Route<Request, Response>
         {
             route.beforeMiddlewares.addAll(mBeforeMiddlewares)
             route.afterMiddlewares.addAll(mAfterMiddlewares)
-            route.callback = mCallback!!
+            route.callback = mCallback
             route.testCallback = mTestCallback
             route.description = mDescription
             return route

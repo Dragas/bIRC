@@ -9,4 +9,4 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention()
-annotation class AfterResponse(vararg val value: KClass<*>)
+annotation class After(vararg val value: KClass<*>)

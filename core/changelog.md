@@ -1,3 +1,24 @@
+## [2.1.0-SNAPSHOT]
+
+### Changes
+
+- Renamed annotations to reflect their true purpose:
+    - `BeforeRequest` is now `Before`
+    - `AfterResponset` is now `After`
+    - `Callback` is now `On`. It also now takes a `clazz` parameter which is used to determine if particular request type can be
+     used. It needs to match in both test callback and the actual callback.
+- `Route` now throws clearer exceptions.
+- `Client.initialize()` now throws `InitializeAlreadyCalledException` upon calls beyond the first.
+- `Client.run()` now throws `InitializeNotCalledException` when `Client.initialize()` was not called.
+
+### Removed
+
+- Removed unnecessary `Controller` dependency on `Client`. Use `Client.getDefault()` instead.
+
+### Internal changes
+
+- `abstract Route`'s callback field is no longer nullable.
+
 ## [2.0.0] - 2017-08-19
 
 ### Breaking changes
