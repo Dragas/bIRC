@@ -4,8 +4,9 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
+import lt.saltyjuice.dragas.chatty.v3.core.route.On
+import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
-import lt.saltyjuice.dragas.chatty.v3.discord.io.DiscordOutput
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Identify
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayAck
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayHello
@@ -14,11 +15,12 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayReconnect
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.GatewayHeartbeat
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.GatewayIdentify
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
-import lt.saltyjuice.dragas.chatty.v3.discord.route.DiscordRouter
 import java.util.concurrent.atomic.AtomicLong
 
-open class ConnectionController private constructor(private val output: DiscordOutput)
+open class ConnectionController : DiscordController()
 {
+    @On(GatewayHello::class)
+    @When("onAllRequests")
     open fun onHello(request: GatewayHello): GatewayIdentify
     {
         val interval = request.data!!.heartBeatInterval
@@ -49,22 +51,33 @@ open class ConnectionController private constructor(private val output: DiscordO
         var sequenceNumber: Long? = sequenceNumber.get()
         if (sequenceNumber == -1L)
             sequenceNumber = null
-        output.writeResponse(GatewayHeartbeat(sequenceNumber))
+        writeResponse(GatewayHeartbeat(sequenceNumber))
     }
 
+    @On(GatewayAck::class)
+    @When("onAllRequests")
     fun onAck(request: GatewayAck): OPResponse<*>?
     {
         return null
     }
 
+    @On(GatewayInvalid::class)
+    @When("onAllRequests")
     fun onSessionInvalid(request: GatewayInvalid): OPResponse<*>?
     {
         return null
     }
 
+    @On(GatewayReconnect::class)
+    @When("onAllRequests")
     fun onReconnect(request: GatewayReconnect): OPResponse<*>?
     {
         return null
+    }
+
+    fun onAllRequests(request: Any): Boolean
+    {
+        return true
     }
 
 
@@ -75,31 +88,6 @@ open class ConnectionController private constructor(private val output: DiscordO
 
         @JvmStatic
         private var heartbeatJob: Job? = null
-
-        @JvmStatic
-        private lateinit var instance: ConnectionController
-
-        @JvmStatic
-        fun initialize(router: DiscordRouter, output: DiscordOutput)
-        {
-            instance = ConnectionController(output)
-            router.add(router.discordBuilder<GatewayHello, GatewayIdentify>().apply {
-                this.callback(instance::onHello)
-                this.type(GatewayHello::class.java)
-            })
-            router.add(router.discordBuilder<GatewayAck, OPResponse<*>>().apply {
-                this.callback(instance::onAck)
-                this.type(GatewayAck::class.java)
-            })
-            router.add(router.discordBuilder<GatewayInvalid, OPResponse<*>>().apply {
-                this.callback(instance::onSessionInvalid)
-                this.type(GatewayInvalid::class.java)
-            })
-            router.add(router.discordBuilder<GatewayReconnect, OPResponse<*>>().apply {
-                this.callback(instance::onReconnect)
-                this.type(GatewayReconnect::class.java)
-            })
-        }
 
         @JvmStatic
         fun setSequenceNumber(number: Long)
