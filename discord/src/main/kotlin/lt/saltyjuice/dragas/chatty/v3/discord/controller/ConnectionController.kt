@@ -5,9 +5,10 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.delay
 import kotlinx.coroutines.experimental.launch
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
-import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
+import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventReady
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Identify
+import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayAck
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayHello
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayInvalid
@@ -20,7 +21,6 @@ import java.util.concurrent.atomic.AtomicLong
 open class ConnectionController : DiscordController()
 {
     @On(GatewayHello::class)
-    @When("onAllRequests")
     open fun onHello(request: GatewayHello): GatewayIdentify
     {
         val interval = request.data!!.heartBeatInterval
@@ -55,29 +55,29 @@ open class ConnectionController : DiscordController()
     }
 
     @On(GatewayAck::class)
-    @When("onAllRequests")
     fun onAck(request: GatewayAck): OPResponse<*>?
     {
         return null
     }
 
     @On(GatewayInvalid::class)
-    @When("onAllRequests")
     fun onSessionInvalid(request: GatewayInvalid): OPResponse<*>?
     {
         return null
     }
 
     @On(GatewayReconnect::class)
-    @When("onAllRequests")
     fun onReconnect(request: GatewayReconnect): OPResponse<*>?
     {
         return null
     }
 
-    fun onAllRequests(request: Any): Boolean
+    @On(EventReady::class)
+    fun onReady(request: EventReady): OPResponse<*>?
     {
-        return true
+        readyEvent = request
+
+        return null
     }
 
 
@@ -100,6 +100,15 @@ open class ConnectionController : DiscordController()
         {
             heartbeatJob?.cancel()
             heartbeatJob = null
+        }
+
+        @JvmStatic
+        private lateinit var readyEvent: EventReady
+
+        @JvmStatic
+        public fun isMe(anotherUser: User): Boolean
+        {
+            return readyEvent.data!!.user!!.id == anotherUser.id
         }
     }
 }

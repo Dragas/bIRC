@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord
 
+import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
@@ -36,6 +37,7 @@ class ResponseController : DiscordController(), Callback<Message>
 
     @On(EventMessageCreate::class)
     @When("requestTest")
+    @Before(MentionsMe::class)
     fun onMessage(request: EventMessageCreate): OPResponse<*>?
     {
         val response = "NO YOU"
