@@ -10,7 +10,7 @@
 - `Route` now throws clearer exceptions.
 - `Client.initialize()` now throws `InitializeAlreadyCalledException` upon calls beyond the first.
 - `Client.run()` now throws `InitializeNotCalledException` when `Client.initialize()` was not called.
-
+- `Route` is now by default triggered on all requests.
 ### Removed
 
 - Removed unnecessary `Controller` dependency on `Client`. Use `Client.getDefault()` instead.

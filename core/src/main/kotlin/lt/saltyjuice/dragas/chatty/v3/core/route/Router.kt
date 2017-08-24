@@ -80,25 +80,39 @@ abstract class Router<Request, Response>
             {
                 is When ->
                 {
-                    val testCallbackAnnotation = method.getAnnotation(When::class.java)?.value
-                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation } ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
+                    val testCallbackAnnotation = method.getAnnotation(When::class.java)
+                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation?.value }
                     val type = method.getAnnotation(On::class.java).clazz
-                    builder.testCallback()
+                    if (testCallbackAnnotation != null)
                     {
-                        it as Any
-                        type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
+                        testCallback ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
+                        builder.testCallback()
+                        {
+                            it as Any
+                            type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
+                        }
+                    }
+                    else
+                    {
+                        builder.testCallback()
+                        {
+                            it as Any
+                            type.java.isAssignableFrom(it.javaClass)
+                        }
                     }
                 }
                 is Before ->
                 {
-                    it.value.forEach { clazz ->
+                    it.value.forEach()
+                    { clazz ->
                         builder.before(clazz.java as Class<BeforeMiddleware<Request>>)
                     }
 
                 }
                 is After ->
                 {
-                    it.value.forEach { clazz ->
+                    it.value.forEach()
+                    { clazz ->
                         builder.after(clazz.java as Class<AfterMiddleware<Response>>)
                     }
                 }
