@@ -1,13 +1,13 @@
 package lt.saltyjuice.dragas.chatty.v3.core.mock
 
-import lt.saltyjuice.dragas.chatty.v3.core.route.Callback
 import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
-import lt.saltyjuice.dragas.chatty.v3.core.route.TestedBy
+import lt.saltyjuice.dragas.chatty.v3.core.route.On
+import lt.saltyjuice.dragas.chatty.v3.core.route.When
 
-class MockControllerWithoutTestMethod(client: MockClient) : Controller<MockRequest, MockResponse>(client)
+class MockControllerWithoutTestMethod() : Controller<MockRequest, MockResponse>()
 {
-    @Callback
-    @TestedBy("anotherMethod")
+    @On(MockRequest::class)
+    @When("anotherMethod")
     fun notSoMockResponseGenerator(mockRequest: MockRequest): MockResponse
     {
         return MockResponse("", "")

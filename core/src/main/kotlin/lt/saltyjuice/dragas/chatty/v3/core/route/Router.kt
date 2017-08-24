@@ -55,7 +55,7 @@ abstract class Router<Request, Response>
     }
 
     /**
-     * Scraps particular controller for methods that have [Callback] annotation and then builds routes for them.
+     * Scraps particular controller for methods that have [On] annotation and then builds routes for them.
      */
     fun consume(controller: Controller<Request, Response>)
     {
@@ -78,23 +78,25 @@ abstract class Router<Request, Response>
         {
             when (it)
             {
-                is TestedBy ->
+                is When ->
                 {
-                    val testCallbackAnnotation = method.getAnnotation(TestedBy::class.java)?.value
-                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation }!!
+                    val testCallbackAnnotation = method.getAnnotation(When::class.java)?.value
+                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation } ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
+                    val type = method.getAnnotation(On::class.java).clazz
                     builder.testCallback()
                     {
-                        testCallback.invoke(controller, it) as Boolean
+                        it as Any
+                        type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
                     }
                 }
-                is BeforeRequest ->
+                is Before ->
                 {
                     it.value.forEach { clazz ->
                         builder.before(clazz.java as Class<BeforeMiddleware<Request>>)
                     }
 
                 }
-                is AfterResponse ->
+                is After ->
                 {
                     it.value.forEach { clazz ->
                         builder.after(clazz.java as Class<AfterMiddleware<Response>>)

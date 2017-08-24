@@ -1,6 +1,5 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
-import lt.saltyjuice.dragas.chatty.v3.core.mock.MockClient
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithGlobalMiddlewares
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRoute
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
@@ -37,7 +36,7 @@ class RouterTestWithControllerMiddlewares
         @BeforeClass
         fun init()
         {
-            router.consume(MockControllerWithGlobalMiddlewares(MockClient()))
+            router.consume(MockControllerWithGlobalMiddlewares())
         }
 
         fun getRoute(): MockRoute

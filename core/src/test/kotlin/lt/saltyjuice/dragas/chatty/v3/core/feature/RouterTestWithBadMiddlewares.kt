@@ -1,7 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
-import lt.saltyjuice.dragas.chatty.v3.core.mock.MockClient
-import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithMiddlewares
+import lt.saltyjuice.dragas.chatty.v3.core.exception.DuplicateMiddlewareException
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithBadMiddlewares
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
 import org.junit.Assert
 import org.junit.BeforeClass
@@ -10,21 +10,21 @@ import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
 
 @RunWith(JUnit4::class)
-class RouterTestWithMiddlewares
+class RouterTestWithBadMiddlewares
 {
     @Test
     fun routeHasBeforeMiddleware()
     {
-        val route = router.getRoutess()[0]
-        Assert.assertTrue(route.getBeforeMiddlewaress().count() > 0)
+        val route = router.getRoutess()
+        Assert.assertTrue(route.isEmpty())
     }
 
-    @Test
+    /*@Test
     fun routeHasAfterMiddleware()
     {
         val route = router.getRoutess()[0]
         Assert.assertTrue(route.getAftereMiddlewaress().count() > 0)
-    }
+    }*/
 
     companion object
     {
@@ -32,13 +32,21 @@ class RouterTestWithMiddlewares
         val router = MockRouter()
 
         @JvmStatic
-        val controller = MockControllerWithMiddlewares(MockClient())
+        val controller = MockControllerWithBadMiddlewares()
 
         @JvmStatic
         @BeforeClass
         fun init()
         {
-            router.consume(controller)
+            try
+            {
+                router.consume(controller)
+            }
+            catch (err: DuplicateMiddlewareException)
+            {
+                println("Carry on. this is intented")
+                err.printStackTrace()
+            }
         }
     }
 }

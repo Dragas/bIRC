@@ -1,6 +1,9 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
-import lt.saltyjuice.dragas.chatty.v3.core.mock.*
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockController
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRequest
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRoute
+import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
 import org.junit.Assert
 import org.junit.BeforeClass
 import org.junit.Test
@@ -46,7 +49,7 @@ class RouterTest
         val router = MockRouter()
 
         @JvmStatic
-        val controller = MockController(MockClient())
+        val controller = MockController()
 
         @JvmStatic
         @BeforeClass

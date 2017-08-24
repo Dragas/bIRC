@@ -8,4 +8,4 @@ import kotlin.reflect.KClass
 @MustBeDocumented
 @Target(AnnotationTarget.CLASS, AnnotationTarget.FUNCTION)
 @Retention()
-annotation class BeforeRequest(vararg val value: KClass<*>)
+annotation class Before(vararg val value: KClass<*>)

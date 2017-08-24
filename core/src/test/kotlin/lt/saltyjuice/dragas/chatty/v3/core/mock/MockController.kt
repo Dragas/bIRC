@@ -1,13 +1,13 @@
 package lt.saltyjuice.dragas.chatty.v3.core.mock
 
-import lt.saltyjuice.dragas.chatty.v3.core.route.Callback
 import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
-import lt.saltyjuice.dragas.chatty.v3.core.route.TestedBy
+import lt.saltyjuice.dragas.chatty.v3.core.route.On
+import lt.saltyjuice.dragas.chatty.v3.core.route.When
 
-class MockController(client: MockClient) : Controller<MockRequest, MockResponse>(client)
+class MockController() : Controller<MockRequest, MockResponse>()
 {
-    @Callback
-    @TestedBy("mockTest")
+    @On(MockRequest::class)
+    @When("mockTest")
     fun mockResponseGenerator(mockRequest: MockRequest): MockResponse
     {
         return MockResponse(mockRequest.fieldValue, mockRequest.fieldName)

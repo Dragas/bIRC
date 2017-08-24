@@ -7,4 +7,4 @@ package lt.saltyjuice.dragas.chatty.v3.core.route
 @Retention
 @MustBeDocumented
 @Target(AnnotationTarget.FUNCTION)
-annotation class TestedBy(val value: String)
+annotation class When(val value: String)

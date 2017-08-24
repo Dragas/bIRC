@@ -2,12 +2,12 @@ package lt.saltyjuice.dragas.chatty.v3.core.mock
 
 import lt.saltyjuice.dragas.chatty.v3.core.route.*
 
-@BeforeRequest(MockBeforeMiddleware::class)
-@AfterResponse(MockAfterMiddleware::class)
-class MockControllerWithGlobalMiddlewares(client: MockClient) : Controller<MockRequest, MockResponse>(client)
+@Before(MockBeforeMiddleware::class)
+@After(MockAfterMiddleware::class)
+class MockControllerWithGlobalMiddlewares : Controller<MockRequest, MockResponse>()
 {
-    @Callback
-    @TestedBy("mockTest")
+    @On(MockRequest::class)
+    @When("mockTest")
     fun mockResponseGenerator(mockRequest: MockRequest): MockResponse
     {
         return MockResponse(mockRequest.fieldValue, mockRequest.fieldName)
