@@ -17,7 +17,7 @@ open class Route<Request, Response>
 {
     protected open val beforeMiddlewares: MutableList<BeforeMiddleware<Request>> = mutableListOf()
     protected open val afterMiddlewares: MutableList<AfterMiddleware<Response>> = mutableListOf()
-    protected open var testCallback: (Request) -> Boolean = { false }
+    protected open var testCallback: (Request) -> Boolean = { true }
     protected open var callback: (Request) -> Response? = { null }
     protected open var description: String = ""
 

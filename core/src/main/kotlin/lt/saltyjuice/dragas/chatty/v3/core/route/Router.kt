@@ -74,31 +74,41 @@ abstract class Router<Request, Response>
     open fun consumeMethod(builder: Route.Builder<Request, Response>, controller: Controller<Request, Response>, method: Method)
     {
         val annotations = method.annotations
+        val type = method.getAnnotation(On::class.java).clazz
+        builder.testCallback()
+        {
+            it as Any
+            type.java.isAssignableFrom(it.javaClass)
+        }
+        builder.description("${controller.javaClass.canonicalName}#${method.name}")
         annotations.forEach()
         {
             when (it)
             {
                 is When ->
                 {
-                    val testCallbackAnnotation = method.getAnnotation(When::class.java)?.value
-                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation } ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
-                    val type = method.getAnnotation(On::class.java).clazz
+                    val testCallbackAnnotation = it.value
+                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation }
+                    testCallback ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
                     builder.testCallback()
                     {
                         it as Any
                         type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
                     }
+
                 }
                 is Before ->
                 {
-                    it.value.forEach { clazz ->
+                    it.value.forEach()
+                    { clazz ->
                         builder.before(clazz.java as Class<BeforeMiddleware<Request>>)
                     }
 
                 }
                 is After ->
                 {
-                    it.value.forEach { clazz ->
+                    it.value.forEach()
+                    { clazz ->
                         builder.after(clazz.java as Class<AfterMiddleware<Response>>)
                     }
                 }
@@ -109,9 +119,9 @@ abstract class Router<Request, Response>
             }
         }
         if (method.getAnnotation(Description::class.java) == null)
-            builder.description("${controller.javaClass.canonicalName}#${method.name}")
 
-        builder.callback()
+
+            builder.callback()
         { request ->
             method.invoke(controller, request) as Response?
         }
