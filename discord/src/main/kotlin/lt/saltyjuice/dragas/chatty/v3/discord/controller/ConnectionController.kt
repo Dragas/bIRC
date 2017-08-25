@@ -108,7 +108,19 @@ open class ConnectionController : DiscordController()
         @JvmStatic
         public fun isMe(anotherUser: User): Boolean
         {
-            return readyEvent.data!!.user!!.id == anotherUser.id
+            return getCurrentUserId() == anotherUser.id
+        }
+
+        @JvmStatic
+        public fun getCurrentUserId(): String
+        {
+            return getCurrentUser().id
+        }
+
+        @JvmStatic
+        public fun getCurrentUser(): User
+        {
+            return readyEvent.data!!.user!!
         }
     }
 }

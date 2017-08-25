@@ -43,9 +43,13 @@ class RateLimitInterceptor : Interceptor
         val response = chain.proceed(request)
         if (response.code() != 429)
         {
+
             val newLimit = Limit(response)
-            map[requestUrl[1]] = newLimit
-            newLimit.queueRemoval()
+            if (newLimit.reset != null)
+            {
+                map[requestUrl[1]] = newLimit
+                newLimit.queueRemoval()
+            }
         }
         return response
     }

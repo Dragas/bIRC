@@ -4,7 +4,7 @@
 
 ### Changes
 
-- Now `chatty-discord` depends on `chatty-websocket:2.1.0-SNAPSHOT`
+- Now `chatty-discord` depends on `chatty-websocket:2.2.0`
 
 ### Added
 

@@ -153,6 +153,17 @@ interface DiscordAPI
      */
     @POST("channels/{channel-id}/messages")
     @FormUrlEncoded
+    fun createMessage(@Path("channel-id") channelId: String, @Field("content") message: String, @Field("embed") embed: Embed): Call<Message>
+
+    /**
+     * Post a message to a guild text or DM channel. If operating on a guild channel, this endpoint requires the
+     * 'SEND_MESSAGES' permission to be present on the current user.
+     *
+     * Returns a message object. Fires a Message Create Gateway event. See [message formatting](https://discordapp.com/developers/docs/reference#message-formatting) for more information
+     * on how to properly format messages.
+     */
+    @POST("channels/{channel-id}/messages")
+    @FormUrlEncoded
     fun createMessage(@Path("channel-id") channelId: String, @Field("content") message: String, @FieldMap map: Map<String, String>): Call<Message>
 
 
