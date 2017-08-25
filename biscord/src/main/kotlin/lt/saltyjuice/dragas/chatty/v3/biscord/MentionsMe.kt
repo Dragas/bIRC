@@ -10,7 +10,16 @@ class MentionsMe : DiscordMiddleware()
 {
     override fun before(request: OPRequest<*>): Boolean
     {
-        return request is EventMessageCreate && request.data!!.mentionsMe()
+        if (request is EventMessageCreate)
+        {
+            val content = request.data!!
+            return content.mentionsMe() &&
+                    content.content.startsWith("<@${ConnectionController.getCurrentUserId()}>").apply()
+                    {
+                        content.content = content.content.replace("<@${ConnectionController.getCurrentUserId()}> ", "")
+                    }
+        }
+        return false
     }
 }
 
