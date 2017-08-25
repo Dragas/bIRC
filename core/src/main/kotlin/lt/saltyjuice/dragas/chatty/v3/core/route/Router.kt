@@ -73,15 +73,30 @@ abstract class Router<Request, Response>
      */
     open fun consumeMethod(builder: Route.Builder<Request, Response>, controller: Controller<Request, Response>, method: Method)
     {
-        val annotations = method.annotations
         val type = method.getAnnotation(On::class.java).clazz
-        builder.testCallback()
+        builder.apply()
         {
-            it as Any
-            type.java.isAssignableFrom(it.javaClass)
+            description("${controller.javaClass.canonicalName}#${method.name}")
+            callback()
+            { request ->
+                method.invoke(controller, request) as Response?
+            }
+            testCallback()
+            {
+                it as Any
+                type.java.isAssignableFrom(it.javaClass)
+            }
+            MiddlewareUtility.getBeforeMiddlewares(controller).forEach()
+            {
+                before(it as Class<BeforeMiddleware<Request>>)
+            }
+            MiddlewareUtility.getAfterMiddlewares(controller).forEach()
+            {
+                after(it as Class<AfterMiddleware<Response>>)
+            }
         }
-        builder.description("${controller.javaClass.canonicalName}#${method.name}")
-        annotations.forEach()
+
+        method.annotations.forEach()
         {
             when (it)
             {
@@ -117,22 +132,6 @@ abstract class Router<Request, Response>
                     builder.description(it.value)
                 }
             }
-        }
-        if (method.getAnnotation(Description::class.java) == null)
-
-
-            builder.callback()
-        { request ->
-            method.invoke(controller, request) as Response?
-        }
-
-        MiddlewareUtility.getBeforeMiddlewares(controller).forEach()
-        {
-            builder.before(it as Class<BeforeMiddleware<Request>>)
-        }
-        MiddlewareUtility.getAfterMiddlewares(controller).forEach()
-        {
-            builder.after(it as Class<AfterMiddleware<Response>>)
         }
     }
 }

@@ -1,3 +1,13 @@
+## [2.2.0] 2017-08-25
+
+## Breaking change
+
+- Core now depends on Kotlin 1.1.4-2
+
+### Changes
+
+- Refactored `Router.consume(Controller)` method.
+
 ## [2.1.0-SNAPSHOT]
 
 ### Changes
