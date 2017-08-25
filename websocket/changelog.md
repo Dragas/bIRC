@@ -1,3 +1,15 @@
+## [2.2.0] 2017-08-25
+
+## Breaking changes
+
+- `chatty-websocket` now depends on Kotlin 1.1.4-2
+
+## Changes
+
+- `chatty-websocket` now depends on `chatty-core:2.2.0`
+- Some return types in `WebSocketRouteBuilder`. This is a minor change and doesn't 
+really affect anything other than autocompletion for your IDE.
+
 ## [1.0.1] 2017-08-18
 
 This marks Chatty/WebSocket release and it means that it can be downloaded from sonatype repositories.
