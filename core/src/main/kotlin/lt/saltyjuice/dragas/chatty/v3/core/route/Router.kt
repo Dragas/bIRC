@@ -1,6 +1,10 @@
 package lt.saltyjuice.dragas.chatty.v3.core.route
 
 import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
+import lt.saltyjuice.dragas.chatty.v3.core.middleware.MiddlewareUtility
+import java.lang.reflect.Method
 
 
 /**
@@ -12,12 +16,10 @@ import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
 abstract class Router<Request, Response>
 {
     protected open val routes: MutableList<Route<Request, Response>> = ArrayList()
-
-    protected open val middlewares: MutableList<Middleware<Request, Response>> = ArrayList()
     /**
      * Returns a route builder, which handles assigning middlewares, callback and test callback
      */
-    abstract fun builder(): RouteBuilder<Request, Response>
+    abstract fun builder(): Route.Builder<Request, Response>
 
     /**
      * Adds a route to router, which is later used to test requests
@@ -31,29 +33,11 @@ abstract class Router<Request, Response>
     /**
      * a shorthand to build and add a route.
      */
-    open fun add(route: RouteBuilder<Request, Response>)
+    open fun add(route: Route.Builder<Request, Response>)
     {
         add(route.build())
     }
 
-    /**
-     * Adds global middleware to router.
-     */
-    @Deprecated("Router shouldn't have middlewares in it. Instead input/output objects should have it.")
-    open fun add(middleware: Middleware<Request, Response>)
-    {
-        if (!middlewares.contains(middleware))
-            middlewares.add(middleware)
-    }
-
-    /**
-     * A shorthand to get middleware singleton from cache and add it as global middleware.
-     */
-    @Deprecated("Router shouldn't have middlewares in it. Instead input/output objects should have it.")
-    open fun add(title: String)
-    {
-        add(Middleware.getMiddleware(title) as Middleware<Request, Response>)
-    }
 
     /**
      * Attempts consuming provided [request] request. Returns null on failure.
@@ -62,13 +46,83 @@ abstract class Router<Request, Response>
      */
     open fun consume(request: Request): Response?
     {
-        if (middlewares.firstOrNull { !it.before(request) } != null)
-            return null
         routes.forEach {
             val result = it.attemptTrigger(request)
-            if (result != null && middlewares.firstOrNull { !it.after(result) } == null)
+            if (result != null)
                 return result
         }
         return null
+    }
+
+    /**
+     * Scraps particular controller for methods that have [On] annotation and then builds routes for them.
+     */
+    fun consume(controller: Controller<Request, Response>)
+    {
+        controller.methods().forEach()
+        { it ->
+            val builder = builder()
+            consumeMethod(builder, controller, it)
+            add(builder)
+        }
+    }
+
+    /**
+     * Should any additional annotations be added later in core or protocol implementations, they should be scrapped here.
+     * Calling super is mandatory.
+     */
+    open fun consumeMethod(builder: Route.Builder<Request, Response>, controller: Controller<Request, Response>, method: Method)
+    {
+        val annotations = method.annotations
+        annotations.forEach()
+        {
+            when (it)
+            {
+                is When ->
+                {
+                    val testCallbackAnnotation = method.getAnnotation(When::class.java)?.value
+                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation } ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
+                    val type = method.getAnnotation(On::class.java).clazz
+                    builder.testCallback()
+                    {
+                        it as Any
+                        type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
+                    }
+                }
+                is Before ->
+                {
+                    it.value.forEach { clazz ->
+                        builder.before(clazz.java as Class<BeforeMiddleware<Request>>)
+                    }
+
+                }
+                is After ->
+                {
+                    it.value.forEach { clazz ->
+                        builder.after(clazz.java as Class<AfterMiddleware<Response>>)
+                    }
+                }
+                is Description ->
+                {
+                    builder.description(it.value)
+                }
+            }
+        }
+        if (method.getAnnotation(Description::class.java) == null)
+            builder.description("${controller.javaClass.canonicalName}#${method.name}")
+
+        builder.callback()
+        { request ->
+            method.invoke(controller, request) as Response?
+        }
+
+        MiddlewareUtility.getBeforeMiddlewares(controller).forEach()
+        {
+            builder.before(it as Class<BeforeMiddleware<Request>>)
+        }
+        MiddlewareUtility.getAfterMiddlewares(controller).forEach()
+        {
+            builder.after(it as Class<AfterMiddleware<Response>>)
+        }
     }
 }

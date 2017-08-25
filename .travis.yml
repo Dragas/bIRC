@@ -9,6 +9,4 @@ cache:
     - $HOME/.gradle/caches/
     - $HOME/.gradle/wrapper/
 script:
-  - ./gradlew :core:test
-  - ./gradlew :irc:test
-  - ./gradlew :birc:test
+  - ./gradlew test
