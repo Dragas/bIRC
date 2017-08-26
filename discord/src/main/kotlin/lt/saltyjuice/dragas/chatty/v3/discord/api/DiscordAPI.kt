@@ -1,6 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.api
 
 import lt.saltyjuice.dragas.chatty.v3.discord.enumerated.Parameter
+import lt.saltyjuice.dragas.chatty.v3.discord.message.EmbedMessage
 import lt.saltyjuice.dragas.chatty.v3.discord.message.api.AuditLog
 import lt.saltyjuice.dragas.chatty.v3.discord.message.api.Invite
 import lt.saltyjuice.dragas.chatty.v3.discord.message.api.InviteBuilder
@@ -141,19 +142,7 @@ interface DiscordAPI
      * on how to properly format messages.
      */
     @POST("channels/{channel-id}/messages")
-    @FormUrlEncoded
-    fun createMessage(@Path("channel-id") channelId: String, @Field("content") message: String, @Field("embed") embed: Embed, @FieldMap map: Map<String, String>): Call<Message>
-
-    /**
-     * Post a message to a guild text or DM channel. If operating on a guild channel, this endpoint requires the
-     * 'SEND_MESSAGES' permission to be present on the current user.
-     *
-     * Returns a message object. Fires a Message Create Gateway event. See [message formatting](https://discordapp.com/developers/docs/reference#message-formatting) for more information
-     * on how to properly format messages.
-     */
-    @POST("channels/{channel-id}/messages")
-    @FormUrlEncoded
-    fun createMessage(@Path("channel-id") channelId: String, @Field("content") message: String, @Field("embed") embed: Embed): Call<Message>
+    fun createMessage(@Path("channel-id") channelId: String, @Body message: EmbedMessage): Call<Message>
 
     /**
      * Post a message to a guild text or DM channel. If operating on a guild channel, this endpoint requires the
