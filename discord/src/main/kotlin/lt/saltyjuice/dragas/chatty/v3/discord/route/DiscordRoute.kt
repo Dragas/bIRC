@@ -8,6 +8,12 @@ import lt.saltyjuice.dragas.chatty.v3.websocket.route.WebSocketRoute
 
 open class DiscordRoute<Request : OPRequest<*>, Response : OPResponse<*>> : WebSocketRoute<Request, Response>()
 {
+    override fun attemptTrigger(request: Request): Response?
+    {
+        val cloned = if (request is Cloneable) request.javaClass.getMethod("clone").invoke(request) as Request else request
+        return super.attemptTrigger(cloned)
+    }
+
     open class DiscordRouteBuilder<Request : OPRequest<*>, Response : OPResponse<*>> : WebSocketRouteBuilder<Request, Response>()
     {
         override fun testCallback(callback: (Request) -> Boolean): DiscordRouteBuilder<Request, Response>
