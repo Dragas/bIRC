@@ -1,6 +1,10 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.api.interceptor
 
-import kotlinx.coroutines.experimental.*
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.delay
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.discord.exception.RateLimitException
 import okhttp3.Interceptor
 import okhttp3.Response
@@ -14,7 +18,9 @@ class RateLimitInterceptor : Interceptor
     {
         val request = chain.request()
         val requestUrl = request.url().encodedPathSegments()
-        val map = when (requestUrl[0])
+        val type = requestUrl[2]
+        val identifier = requestUrl[3]
+        val map = when (type)
         {
             GUILD ->
             {
@@ -29,29 +35,39 @@ class RateLimitInterceptor : Interceptor
                 globalLimits
             }
         }
-        val limit = map.remove(requestUrl[1])
-        if (limit != null)
+        var limit = map[identifier]
+        if (limit == null)
         {
-            if (limit.limit == 0)
-            {
-                if (shouldWait)
-                    limit.delayUntilReset()
-                else
-                    throw RateLimitException()
-            }
+            limit = Channel(Channel.UNLIMITED)
+            map[identifier] = limit
         }
-        val response = chain.proceed(request)
-        if (response.code() != 429)
+        else
         {
+            val actualLimit = runBlocking<Limit> { limit!!.receive() }
+            if (actualLimit.remaining == 0)
+                waitForLimit(actualLimit)
+        }
 
-            val newLimit = Limit(response)
-            if (newLimit.reset != null)
-            {
-                map[requestUrl[1]] = newLimit
-                newLimit.queueRemoval()
-            }
+        val response = chain.proceed(request)
+        val responseLimit = Limit(response)
+        if (responseLimit.reset == null)
+        {
+            responseLimit.reset = 0
+        }
+        launch(CommonPool) { limit!!.send(responseLimit) }
+        if (response.code() == 429)
+        {
+            return intercept(chain)
         }
         return response
+    }
+
+    private fun waitForLimit(limit: Limit)
+    {
+        if (shouldWait)
+            limit.delayUntilReset()
+        else
+            throw RateLimitException()
     }
 
     companion object
@@ -72,13 +88,13 @@ class RateLimitInterceptor : Interceptor
         val GUILD = "guilds"
 
         @JvmStatic
-        private val limitsPerGuild: ConcurrentHashMap<String, Limit> = ConcurrentHashMap()
+        private val limitsPerGuild: ConcurrentHashMap<String, Channel<Limit>> = ConcurrentHashMap()
 
         @JvmStatic
-        private val limitsPerChannel: ConcurrentHashMap<String, Limit> = ConcurrentHashMap()
+        private val limitsPerChannel: ConcurrentHashMap<String, Channel<Limit>> = ConcurrentHashMap()
 
         @JvmStatic
-        private val globalLimits: ConcurrentHashMap<String, Limit> = ConcurrentHashMap()
+        private val globalLimits: ConcurrentHashMap<String, Channel<Limit>> = ConcurrentHashMap()
 
 
         /**
@@ -103,14 +119,12 @@ class RateLimitInterceptor : Interceptor
         val global: Boolean? = response.header(X_RATELIMIT_GLOBAL)?.toBoolean()
         val limit: Int? = response.header(X_RATELIMIT_LIMIT)?.toInt()
         val remaining: Int? = response.header(X_RATELIMIT_REMAINING)?.toInt()
-        val reset: Long? = response.header(X_RATELIMIT_RESET)?.toLong()
-
-        var removalJob: Job? = null
+        var reset: Long? = response.header(X_RATELIMIT_RESET)?.toLong()
 
         fun getDelay(): Long
         {
             val reset = this@Limit.reset ?: throw NullPointerException("Reset epoch was not specified")
-            val time = Date().time - reset
+            val time = Date().time / 1000 - reset
             return time
         }
 
@@ -119,30 +133,6 @@ class RateLimitInterceptor : Interceptor
             val time = getDelay()
             if (time > 0)
                 delay(time)
-        }
-
-        fun queueRemoval()
-        {
-            removalJob = launch(CommonPool)
-            {
-                val time = getDelay()
-                if (time > 0)
-                    delay(time)
-                val map: ConcurrentHashMap<String, Limit> = when
-                {
-                    limitsPerChannel.containsValue(this@Limit) -> limitsPerChannel
-                    limitsPerGuild.containsValue(this@Limit) -> limitsPerGuild
-                    else -> globalLimits
-                }
-                for (entry in map.iterator())
-                {
-                    if (entry.value == this@Limit)
-                    {
-                        map.remove(entry.key)
-                        break
-                    }
-                }
-            }
         }
     }
 }
