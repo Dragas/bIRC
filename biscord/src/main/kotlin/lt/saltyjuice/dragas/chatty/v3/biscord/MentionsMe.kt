@@ -13,11 +13,9 @@ class MentionsMe : DiscordMiddleware()
         if (request is EventMessageCreate)
         {
             val content = request.data!!
-            return content.mentionsMe() &&
-                    content.content.startsWith("<@${ConnectionController.getCurrentUserId()}>").apply()
-                    {
-                        content.content = content.content.replace("<@${ConnectionController.getCurrentUserId()}> ", "")
-                    }
+            val doesMentionMe = content.mentionsMe()
+            val startsWithMe = content.content.startsWith("<@${ConnectionController.getCurrentUserId()}>")
+            return doesMentionMe && startsWithMe
         }
         return false
     }
