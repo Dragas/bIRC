@@ -4,5 +4,5 @@ include ":irc"
 include ':birc'
 include ":websocket"
 include ':discord'
-include 'biscord'
+include ':biscord'
 
