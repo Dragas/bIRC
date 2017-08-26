@@ -5,7 +5,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.main.DiscordClient
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayInit
 
 
-@UsesControllers(ResponseController::class)
+@UsesControllers(CardController::class)
 class BiscordClient(gatewayInit: GatewayInit) : DiscordClient(gatewayInit)
 {
 
