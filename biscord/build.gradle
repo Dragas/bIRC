@@ -2,7 +2,7 @@ group 'lt.saltyjuice.dragas'
 version '0.0.1-UNSTABLE'
 
 buildscript {
-    ext.kotlin_version = '1.1.4'
+    ext.kotlin_version = '1.1.4-2'
 
     repositories {
         mavenCentral()
