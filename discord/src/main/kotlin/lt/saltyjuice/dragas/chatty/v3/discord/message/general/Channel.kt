@@ -33,7 +33,7 @@ open class Channel
     var userLimit: Int? = null
 
     @SerializedName("recipients")
-    var users: ArrayList<User>? = null
+    var users: ArrayList<User> = ArrayList()
 
     @SerializedName("icon")
     var icon: String? = null

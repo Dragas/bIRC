@@ -19,28 +19,28 @@ open class Embed
     var url: String = ""
 
     @SerializedName("timestamp")
-    var timestamp: Date = Date()
+    var timestamp: Date? = null
 
     @SerializedName("color")
     var color: Int = 0
 
     @SerializedName("footer")
-    var footer: Footer = Footer()
+    var footer: Footer? = null
 
     @SerializedName("image")
-    var image: Image = Image()
+    var image: Image? = null
 
     @SerializedName("thumbnail")
-    var thumbnail: Thumbnail = Thumbnail()
+    var thumbnail: Thumbnail? = null
 
     @SerializedName("video")
-    var video: Video = Video()
+    var video: Video? = null
 
     @SerializedName("provider")
-    var provider: Provider = Provider()
+    var provider: Provider? = null
 
     @SerializedName("author")
-    var author: Author = Author()
+    var author: Author? = null
 
     @SerializedName("fields")
     var fields: ArrayList<Field> = ArrayList()
