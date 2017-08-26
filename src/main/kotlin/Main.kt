@@ -1,7 +1,4 @@
-import java.io.File
-import java.io.PrintWriter
-import java.util.*
-
+/*
 fun main(args: Array<String>)
 {
     val file = File("../../../aa")
@@ -18,14 +15,18 @@ fun main(args: Array<String>)
         val description = line[3]
         val sb = StringBuilder(template)
         sb.replace(Regex.fromLiteral("{clazz}"), what.capitalize())
-        /*sb.replace(Regex.fromLiteral("{description}"), description)
+        */
+/*sb.replace(Regex.fromLiteral("{description}"), description)
         sb.replace(Regex.fromLiteral("{affects}"), type)
         sb.replace(Regex.fromLiteral("{type}"), what)
 
-        sb.replace(Regex.fromLiteral("{value}"), name)*/
+        sb.replace(Regex.fromLiteral("{value}"), name)*//*
+
         sb.replace(Regex.fromLiteral("{name}"), name.toUpperCase())
-        /*if(fin.hasNextLine())
-            sb.append(",")*/
+        */
+/*if(fin.hasNextLine())
+            sb.append(",")*//*
+
         sb.appendln()
         sb.appendln()
         fout.print(sb.toString())
@@ -58,4 +59,11 @@ class Enum()
     var type: String = ""
     var what: String = ""
     var description: String = ""
+}*/
+
+
+fun main(args: Array<String>)
+{
+    val arguments = "Leeroy Jenkins --verbose --gold -n"
+    println(arguments.split(Regex("-{1,2}")))
 }
