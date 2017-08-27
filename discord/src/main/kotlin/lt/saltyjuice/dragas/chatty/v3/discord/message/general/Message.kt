@@ -34,7 +34,7 @@ open class Message
     var mentionedUsers: ArrayList<User> = ArrayList()
 
     @SerializedName("mention_roles")
-    var mentionedRoles: ArrayList<Role> = ArrayList()
+    var mentionedRoles: ArrayList<String> = ArrayList()
 
     @SerializedName("attachments")
     var attachments: ArrayList<Attachment> = ArrayList()
