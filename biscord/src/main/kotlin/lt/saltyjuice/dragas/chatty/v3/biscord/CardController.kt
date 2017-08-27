@@ -19,7 +19,7 @@ class CardController : DiscordController()
     private var arguments = Array(1, { "" })
     private var shouldBeGold = false
     private var shouldBeVerbose = false
-    private var shouldBeSingle = false
+    private var shouldBeMany = false
     private val messageCallback: Callback<Message> = object : Callback<Message>
     {
         override fun onFailure(call: Call<Message>, t: Throwable)
@@ -44,7 +44,8 @@ class CardController : DiscordController()
         val cardRequest = CardRequest(content, messageCallback)
         cardRequest.shouldBeGold = shouldBeGold
         cardRequest.shouldBeVerbose = shouldBeVerbose
-        val call = if (shouldBeSingle) BiscordUtility.API.getSingleCard(arguments[0]) else BiscordUtility.API.getCards(arguments[0])
+        cardRequest.shouldBeMany = shouldBeMany
+        val call = if (!shouldBeMany) BiscordUtility.API.getSingleCard(arguments[0]) else BiscordUtility.API.getCards(arguments[0])
         call.enqueue(cardRequest)
         return null
     }
@@ -70,7 +71,7 @@ class CardController : DiscordController()
         arguments = parseArguments(request.data!!.content)
         shouldBeGold = containsArgument(Param.GOLD.values)
         shouldBeVerbose = containsArgument(Param.VERBOSE.values)
-        shouldBeSingle = containsArgument(Param.SINGLE.values)
+        shouldBeMany = containsArgument(Param.MANY.values)
     }
 
     private fun containsArgument(param: Array<out String>): Boolean
@@ -88,7 +89,7 @@ class CardController : DiscordController()
     private enum class Param(vararg val values: String)
     {
         CARD("card"),
-        SINGLE("single", "s"),
+        MANY("many", "m"),
         VERBOSE("verbose", "v"),
         GOLD("gold", "g");
     }
@@ -97,7 +98,8 @@ class CardController : DiscordController()
     {
         var shouldBeVerbose: Boolean = false
         var shouldBeGold: Boolean = false
-
+        var shouldBeMany: Boolean = false
+        var retried: Boolean = false
         override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
         {
             val content = content
@@ -132,7 +134,13 @@ class CardController : DiscordController()
             }
             else
             {
-                Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> please try again later. Error code: ${response.code()}").enqueue(messageCallback)
+                val argument = call.request().url().encodedPathSegments().last()
+                if (shouldBeMany && !retried) {
+                    retried = true
+                    BiscordUtility.API.getCards(argument).enqueue(this)
+                } else {
+                    Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Unable to find $argument. Error code: ${response.code()}").enqueue(messageCallback)
+                }
             }
             BiscordUtility.cancelTyping(content.channelId)
         }
