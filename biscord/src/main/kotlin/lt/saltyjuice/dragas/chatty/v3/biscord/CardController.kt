@@ -20,18 +20,6 @@ class CardController : DiscordController()
     private var shouldBeGold = false
     private var shouldBeVerbose = false
     private var shouldBeMany = false
-    private val messageCallback: Callback<Message> = object : Callback<Message>
-    {
-        override fun onFailure(call: Call<Message>, t: Throwable)
-        {
-            t.printStackTrace(System.err)
-        }
-
-        override fun onResponse(call: Call<Message>, response: Response<Message>)
-        {
-            println("message response: ${call.request().method()} --> ${response.code()} ")
-        }
-    }
 
 
     @On(EventMessageCreate::class)
@@ -45,7 +33,7 @@ class CardController : DiscordController()
         cardRequest.shouldBeGold = shouldBeGold
         cardRequest.shouldBeVerbose = shouldBeVerbose
         cardRequest.shouldBeMany = shouldBeMany
-        val call = if (!shouldBeMany) BiscordUtility.API.getSingleCard(arguments[0]) else BiscordUtility.API.getCards(arguments[0])
+        val call = if (shouldBeMany) BiscordUtility.API.getCards(arguments[0]) else BiscordUtility.API.getSingleCard(arguments[0])
         call.enqueue(cardRequest)
         return null
     }
@@ -135,10 +123,14 @@ class CardController : DiscordController()
             else
             {
                 val argument = call.request().url().encodedPathSegments().last()
-                if (shouldBeMany && !retried) {
+                if (!(shouldBeMany || retried))
+                {
                     retried = true
+                    Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Falling back to --many")
                     BiscordUtility.API.getCards(argument).enqueue(this)
-                } else {
+                }
+                else
+                {
                     Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Unable to find $argument. Error code: ${response.code()}").enqueue(messageCallback)
                 }
             }
