@@ -64,7 +64,7 @@ open class Card
     var playerClass: PlayerClass? = PlayerClass.Neutral
     @Expose
     @SerializedName("img")
-    var img: String = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/$cardId"
+    var img: String = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/$cardId.png"
     @Expose
     @SerializedName("imgGold")
     var imgGold: String = ""
