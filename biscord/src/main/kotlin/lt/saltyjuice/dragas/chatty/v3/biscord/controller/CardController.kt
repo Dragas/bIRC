@@ -41,6 +41,9 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             field = value
         }
     private lateinit var content: Message
+    private val exceptionMap: HashMap<String, String> = hashMapOf(
+            Pair("Pot of Greed", "Arcane Intellect")
+    )
     init
     {
         BiscordUtility.API.getCards().apply()
@@ -78,7 +81,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     {
         content = request.data!!
         beforeRequest(request)
-
+        messageBuilder = MessageBuilder()
         if (shouldBeGold)
         {
             MessageBuilder().append("Due to changes in how cards are obtained, GOLDEN versions are unavailable. Just omit the -g/--gold modifier").send(content.channelId)
@@ -91,8 +94,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             }
             else
             {
-                if (filterForSingle(it))
-                    filterForMany(it)
+                filterForSingle(it)
             }
         }
 
@@ -147,7 +149,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                 {
                     messageBuilder
                             .mention(content.author)
-                            .appendLine(": can't find ${arguments[0]}. Falling back to wide filter")
+                            .appendLine(": can't find ${arguments[0]}.")
                             .send(content.channelId)
                     Card()
                 }.dbfId == -1
@@ -193,6 +195,9 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     private fun beforeRequest(request: EventMessageCreate)
     {
         arguments = parseArguments(request.data!!.content)
+        val exception = exceptionMap.keys.find { it.toLowerCase() == arguments[0].toLowerCase() }
+        if (exception != null)
+            arguments[0] = exceptionMap[exception]!!
         shouldBeGold = containsArgument(Param.GOLD.values)
         shouldBeVerbose = containsArgument(Param.VERBOSE.values)
         shouldBeMany = containsArgument(Param.MANY.values)
