@@ -6,7 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
-import lt.saltyjuice.dragas.chatty.v3.discord.message.EmbedMessage
+import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
@@ -91,6 +91,7 @@ class CardController : DiscordController()
         override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
         {
             val content = content
+            var embedMessage = MessageBuilder()
             if (response.isSuccessful)
             {
                 val data = response.body()!!
@@ -101,32 +102,29 @@ class CardController : DiscordController()
                         it.toEmbed(shouldBeGold)
                     }.forEachIndexed()
                     { index, value ->
-                        val embedMessage = EmbedMessage()
-                        embedMessage.content = "Card ${index + 1}/${data.size}"
-                        embedMessage.embed = value
+                        embedMessage.append("Card ${index + 1}/${data.size}")
+                        embedMessage.embed(value)
                         embedMessage.send(content.channelId, messageCallback)
+                        embedMessage = MessageBuilder()
                     }
                 }
                 else
                 {
-                    val embedMessage = EmbedMessage()
-                    val sb = StringBuilder()
                     data.forEach {
                         val image = if (shouldBeGold) it.imgGold else it.img
-                        sb.append(image)
-                        sb.appendln()
+                        embedMessage.appendLine(image)
                     }
-                    embedMessage.content = sb.toString()
                     embedMessage.send(content.channelId, messageCallback)
                 }
             }
             else
             {
-                val argument = call.request().url().encodedPathSegments().last()
+                val argument = call.request().url().pathSegments().last()
                 if (!(shouldBeMany || retried))
                 {
                     retried = true
-                    Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Falling back to --many")
+                    embedMessage.mention(content.author).append("Falling back to --many.").send(content.channelId, messageCallback)
+                    //Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Falling back to --many")
                     BiscordUtility.API.getCards(argument).enqueue(this)
                 }
                 else
