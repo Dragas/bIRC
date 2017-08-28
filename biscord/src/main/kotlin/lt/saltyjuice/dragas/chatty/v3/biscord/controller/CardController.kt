@@ -21,6 +21,7 @@ import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
 import java.util.concurrent.ConcurrentSkipListSet
+import java.util.stream.Stream
 
 class CardController : DiscordController(), Callback<ArrayList<Card>>
 {
@@ -28,7 +29,18 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     private var shouldBeGold = false
     private var shouldBeVerbose = false
     private var shouldBeMany = false
-
+    private var messageBuilder = MessageBuilder()
+        @Synchronized
+        get()
+        {
+            return field
+        }
+        @Synchronized
+        set(value)
+        {
+            field = value
+        }
+    private lateinit var content: Message
     init
     {
         BiscordUtility.API.getCards().apply()
@@ -64,9 +76,9 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     @Before(MentionsMe::class)
     fun onCardRequest(request: EventMessageCreate): OPResponse<*>?
     {
-        val content = request.data!!
+        content = request.data!!
         beforeRequest(request)
-        var messageBuilder = MessageBuilder()
+
         if (shouldBeGold)
         {
             MessageBuilder().append("Due to changes in how cards are obtained, GOLDEN versions are unavailable. Just omit the -g/--gold modifier").send(content.channelId)
@@ -75,60 +87,13 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         getCards().parallelStream().use {
             if (shouldBeMany)
             {
-                it.filter(this::cardFilter)
-                if (shouldBeVerbose)
-                {
-                    it.forEach()
-                    {
-                        messageBuilder
-                                .mention(content.author)
-                                .embed(it.toEmbed(shouldBeGold))
-                                .send(content.channelId)
-                        messageBuilder = MessageBuilder()
-                    }
-                }
-                else
-                {
-
-                    it.forEach()
-                    {
-                        try
-                        {
-                            val image = if (shouldBeGold) it.imgGold else it.img
-                            messageBuilder.appendLine(image)
-                        }
-                        catch (err: MessageBuilderException)
-                        {
-                            messageBuilder.send(request.data!!.channelId)
-                            messageBuilder = MessageBuilder()
-                        }
-                    }
-                    messageBuilder.send(content.channelId)
-                }
+                filterForMany(it)
             }
             else
             {
-                it.findFirst()
-                        .filter(this::cardFilter)
-                        .flatMap<Card>()
-                        {
-                            val image = if (shouldBeGold) it.imgGold else it.img
-                            messageBuilder
-                                    .mention(content.author)
-                                    .appendLine(image)
-                                    .send(content.channelId)
-                            Optional.of(it)
-                        }
-                        .orElseGet()
-                        {
-                            messageBuilder
-                                    .mention(content.author)
-                                    .appendLine(": can't find ${arguments[0]}.")
-                                    .send(content.channelId)
-                            Card()
-                        }
+                if (filterForSingle(it))
+                    filterForMany(it)
             }
-
         }
 
         return null
@@ -137,14 +102,84 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     fun cardFilter(card: Card): Boolean
     {
         return card.dbfId.toString() == arguments[0]
-                || card.name.contains(arguments[0], true)
                 || card.cardId.toLowerCase() == arguments[0]
+    }
+
+    fun cardFilterSingle(card: Card): Boolean
+    {
+        return cardFilter(card) || card.name.toLowerCase() == arguments[0].toLowerCase()
+    }
+
+    fun cardFilterMany(card: Card): Boolean
+    {
+        return cardFilter(card) || card.name.contains(arguments[0], true)
+    }
+
+    private fun filterForMany(it: Stream<Card>)
+    {
+        val it = it.filter(this::cardFilterMany)
+        if (shouldBeVerbose)
+        {
+            it.forEach(this::buildVerbose)
+        }
+        else
+        {
+            it.forEach(this::buildSimple)
+            messageBuilder.send(content.channelId)
+        }
+    }
+
+    private fun filterForSingle(it: Stream<Card>): Boolean
+    {
+        return it
+                .filter(this::cardFilterSingle)
+                .findFirst()
+                .flatMap<Card>()
+                {
+                    if (shouldBeVerbose)
+                        buildVerbose(it)
+                    else
+                        buildSimple(it)
+                    messageBuilder.send(content.channelId)
+                    Optional.of(it)
+                }
+                .orElseGet()
+                {
+                    messageBuilder
+                            .mention(content.author)
+                            .appendLine(": can't find ${arguments[0]}. Falling back to wide filter")
+                            .send(content.channelId)
+                    Card()
+                }.dbfId == -1
     }
 
     fun isCardRequest(request: EventMessageCreate): Boolean
     {
         val content = request.data!!
         return containsArgument(content, Param.CARD.values[0])
+    }
+
+    private fun buildVerbose(card: Card)
+    {
+        messageBuilder
+                .mention(content.author)
+                .embed(card.toEmbed(shouldBeGold))
+                .send(content.channelId)
+        messageBuilder = MessageBuilder()
+    }
+
+    private fun buildSimple(card: Card)
+    {
+        try
+        {
+            val image = if (shouldBeGold) card.imgGold else card.img
+            messageBuilder.appendLine(image)
+        }
+        catch (err: MessageBuilderException)
+        {
+            messageBuilder.send(content.channelId)
+            messageBuilder = MessageBuilder()
+        }
     }
 
     private fun containsArgument(request: Message, param: String): Boolean

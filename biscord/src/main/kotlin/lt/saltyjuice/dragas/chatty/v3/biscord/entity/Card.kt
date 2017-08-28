@@ -19,11 +19,11 @@ open class Card : Comparable<Card>
     }
 
     @Expose
-    @SerializedName("cardId")
+    @SerializedName("id")
     var cardId: String = ""
     @Expose
     @SerializedName("dbfId")
-    var dbfId: Int = 0
+    var dbfId: Int = -1
     @Expose
     @SerializedName("name")
     var name: String = ""
@@ -74,7 +74,11 @@ open class Card : Comparable<Card>
     var playerClass: PlayerClass? = PlayerClass.Neutral
     @Expose
     @SerializedName("img")
-    var img: String = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/$cardId.png"
+    var img: String = ""
+        get()
+        {
+            return "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/$cardId.png"
+        }
     @Expose
     @SerializedName("imgGold")
     var imgGold: String = ""
