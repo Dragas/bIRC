@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.api
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.AuditLogEntry
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
@@ -16,12 +17,14 @@ open class AuditLog
     /**
      * 	list of webhooks found in the audit log
      */
+    @Expose
     @SerializedName("webhooks")
     var webhooks: ArrayList<WebHook> = ArrayList()
 
     /**
      * list of users found in the audit log
      */
+    @Expose
     @SerializedName("users")
     var users: ArrayList<User> = ArrayList()
 
@@ -29,6 +32,7 @@ open class AuditLog
     /**
      * 	list of audit log entires
      */
+    @Expose
     @SerializedName("audit_log_entries")
     var logEntries: ArrayList<AuditLogEntry> = ArrayList()
 }

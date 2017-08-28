@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.response
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -12,7 +13,7 @@ import com.google.gson.annotations.SerializedName
  * If none has yet been received you should send null
  * (you cannot send a heartbeat before authenticating, however).
  */
-open class GatewayHeartbeat(@SerializedName("d") override var data: Long?) : OPResponse<Long?>()
+open class GatewayHeartbeat(@Expose @SerializedName("d") override var data: Long?) : OPResponse<Long?>()
 {
     override val op: Int = 1
 }

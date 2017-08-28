@@ -1,18 +1,23 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.api
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 open class InviteBuilder
 {
+    @Expose
     @SerializedName("max_age")
     protected var maxAge: Int? = null
 
+    @Expose
     @SerializedName("max_uses")
     protected var maxUses: Int? = null
 
+    @Expose
     @SerializedName("temporary")
     protected var temporary: Boolean? = null
 
+    @Expose
     @SerializedName("unique")
     protected var unique: Boolean? = null
 
