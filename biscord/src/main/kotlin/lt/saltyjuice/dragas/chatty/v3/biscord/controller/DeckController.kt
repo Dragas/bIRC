@@ -71,6 +71,8 @@ open class DeckController : DiscordController()
             this.hash = hash
             if (initialByte)
                 decoder = initializeDecoder()
+            else
+                offset = 0
             return initialByte
         }
         catch (err: Throwable)
@@ -82,6 +84,7 @@ open class DeckController : DiscordController()
     fun decodeAsDeck() = runBlocking<Unit>
     {
         val decoder = decoder!!
+        deck = HashMap<Card, Int>()
         version = decoder.receive()
         format = Format.values()[decoder.receive()]
         numberOfHeroes = decoder.receive()
@@ -173,14 +176,14 @@ open class DeckController : DiscordController()
     @When("decodeTest")
     fun onDecodeRequest(eventMessageCreate: EventMessageCreate): OPResponse<*>?
     {
-        decoder = initializeDecoder()
+        //decoder = initializeDecoder()
         decodeAsDeck()
         val messageBuilder = MessageBuilder()
         messageBuilder.appendLine("# Class: ${this.heroClass.name}")
         messageBuilder.appendLine("# Format: ${this.format.name}")
-        deck.forEach()
-        {
-            messageBuilder.appendLine("# ${it.value}x (${it.key.cost}) ${it.key}")
+        deck.toList().sortedWith(Comparator { it1, it2 -> it1.first.cost - it2.first.cost }).forEach()
+        { (card, count) ->
+            messageBuilder.appendLine("# ${count}x (${card.cost}) ${card.name}")
         }
         messageBuilder.send(eventMessageCreate.data!!.channelId, messageCallback)
         return null

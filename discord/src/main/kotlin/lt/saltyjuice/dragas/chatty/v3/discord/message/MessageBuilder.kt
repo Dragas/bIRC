@@ -112,11 +112,10 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return message(messageBuilder.toString())
     }
 
-    @JvmOverloads
     @Synchronized
-    fun mention(user: User, nickname: Boolean = false): MessageBuilder
+    fun mention(user: User): MessageBuilder
     {
-        mentionStart(MentionType.USER_NICKNAME)
+        mentionStart(MentionType.USER)
         mentionId(user.id)
         return mentionEnd()
     }
@@ -125,7 +124,7 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     fun mentionStart(mentionType: MentionType): MessageBuilder
     {
         isBuildingMention = true
-        messageBuilder.append("<$mentionType")
+        messageBuilder.append("<${mentionType.value}")
         return this
     }
 
@@ -160,7 +159,7 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     {
         if (isBuildingMention)
             throw MessageBuilderException("You can't append lines while building mentions.")
-        return append("$text\r\n")
+        return append("$text \r\n")
     }
 
     @Synchronized
@@ -313,15 +312,16 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     private fun validate(regex: String, starting: Boolean)
     {
         val characterToAppend = if (starting) "<" else ">"
+        val characterToLookFor = if (starting) ">" else "<"
         val actualRegex = if (starting) characterToAppend + regex else regex + characterToAppend
         val incorrectRegex = Regex(actualRegex)
         val message = messageBuilder.toString()
         incorrectRegex.findAll(message).forEach()
         {
             val index = if (starting) it.range.last + 1 else it.range.first - 1
-            if (message.getOrNull(index)?.toString() != characterToAppend)
+            if (message.getOrNull(index)?.toString() != characterToLookFor)
             {
-                throw MessageBuilderException("Incorrectly built mention at index ${index + 1}. Missing required character: $characterToAppend: \r\n $message \r\n ${"^here".padStart(index)}")
+                throw MessageBuilderException("Incorrectly built mention at index ${index + 1}. Missing required character: $characterToLookFor: \r\n $message \r\n ${"^here".padStart(index)}")
             }
         }
     }
