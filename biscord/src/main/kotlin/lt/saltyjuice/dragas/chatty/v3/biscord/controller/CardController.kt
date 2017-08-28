@@ -20,6 +20,7 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
+import java.util.concurrent.ConcurrentSkipListSet
 
 class CardController : DiscordController(), Callback<ArrayList<Card>>
 {
@@ -47,7 +48,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
     {
         if (response.isSuccessful)
-            cardss = response.body()!!
+            cardss = ConcurrentSkipListSet(response.body()!!.toSet())
         else
             throw IllegalStateException("Failed to get cards from API")
     }
@@ -185,10 +186,10 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     companion object
     {
         @JvmStatic
-        private var cardss = ArrayList<Card>()
+        private var cardss = ConcurrentSkipListSet<Card>()
 
         @JvmStatic
-        fun getCards(): List<Card>
+        fun getCards(): Set<Card>
         {
             return cardss
         }

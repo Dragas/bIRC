@@ -73,7 +73,7 @@ open class DeckController : DiscordController()
                 decoder = initializeDecoder()
             return initialByte
         }
-        catch (err: IllegalArgumentException)
+        catch (err: Throwable)
         {
             return false
         }
