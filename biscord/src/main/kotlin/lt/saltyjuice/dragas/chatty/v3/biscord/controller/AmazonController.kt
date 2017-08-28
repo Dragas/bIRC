@@ -24,7 +24,7 @@ class AmazonController : DiscordController()
                 val reducedPrice = reducedPriceNode.text()
                 try
                 {
-                    val actualPrice = reducedPriceNode.parent().firstElementSibling().child(1).child(0).text()
+                    val actualPrice = reducedPriceNode.parent().parent().firstElementSibling().child(1).child(0).text()
                     builder
                             .appendLine("Default price: $actualPrice")
                             .appendLine("Current price: $reducedPrice")
