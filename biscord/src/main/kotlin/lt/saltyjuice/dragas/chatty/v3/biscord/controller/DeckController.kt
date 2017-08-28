@@ -30,6 +30,31 @@ open class DeckController : DiscordController()
     private var offset = 0
     private var decoder: ProducerJob<Int>? = null
 
+    fun obtainFormat(): Format
+    {
+        return format
+    }
+
+    fun obtainVersion(): Int
+    {
+        return version
+    }
+
+    fun obtainNumberOfHeroes(): Int
+    {
+        return numberOfHeroes
+    }
+
+    fun obtainHeroClass(): PlayerClass
+    {
+        return heroClass
+    }
+
+    fun obtainDeck(): HashMap<Card, Int>
+    {
+        return deck
+    }
+
     @Throws(IllegalArgumentException::class)
     fun getByteArray(hash: String): ByteArray
     {
@@ -139,6 +164,7 @@ open class DeckController : DiscordController()
 
     fun initializeDecoder() = produce<Int>(CommonPool, Channel.UNLIMITED)
     {
+        offset = 0
         while (offset < byteArray!!.size)
             send(readInt())
     }

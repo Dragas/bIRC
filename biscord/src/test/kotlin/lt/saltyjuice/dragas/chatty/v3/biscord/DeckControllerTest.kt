@@ -16,7 +16,7 @@ class DeckControllerTest
     fun canDecodeCards()
     {
         var count = 0
-        dc.deck.forEach {
+        dc.obtainDeck().forEach {
             count += it.value
         }
         Assert.assertEquals(30, count)
@@ -25,25 +25,25 @@ class DeckControllerTest
     @Test
     fun canDecodeClass()
     {
-        Assert.assertEquals("${dc.heroId}", PlayerClass.Druid, dc.heroClass)
+        Assert.assertEquals(PlayerClass.Druid, dc.obtainHeroClass())
     }
 
     @Test
     fun canDecodeVersion()
     {
-        Assert.assertEquals(1, dc.version)
+        Assert.assertEquals(1, dc.obtainVersion())
     }
 
     @Test
     fun canDecodeFormat()
     {
-        Assert.assertEquals(DeckController.Format.Standard, dc.format)
+        Assert.assertEquals(DeckController.Format.Standard, dc.obtainFormat())
     }
 
     @Test
     fun canDecodeNumberOfHeroes()
     {
-        Assert.assertEquals(1, dc.numberOfHeroes)
+        Assert.assertEquals(1, dc.obtainNumberOfHeroes())
     }
 
     companion object
