@@ -17,7 +17,8 @@ class MentionsMe : DiscordMiddleware()
             if (startsWithMe)
             {
                 content.content = content.content.replaceFirst("<@${ConnectionController.getCurrentUserId()}>", "")
-                content.content = content.content.replaceFirst(" ", "")
+                if (content.content.startsWith(" "))
+                    content.content = content.content.replaceFirst(" ", "")
             }
             return doesMentionMe && startsWithMe
         }
