@@ -13,7 +13,7 @@ open class Card
     var cardId: String = ""
     @Expose
     @SerializedName("dbfId")
-    var dbfId: String = ""
+    var dbfId: Int = 0
     @Expose
     @SerializedName("name")
     var name: String = ""

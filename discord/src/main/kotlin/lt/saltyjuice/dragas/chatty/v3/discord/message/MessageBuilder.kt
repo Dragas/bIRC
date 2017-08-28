@@ -5,19 +5,29 @@ import com.google.gson.annotations.SerializedName
 import lt.saltyjuice.dragas.chatty.v3.discord.Settings
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.exception.MessageBuilderException
+import lt.saltyjuice.dragas.chatty.v3.discord.main.DiscordEndpoint
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.*
+import retrofit2.Call
 import retrofit2.Callback
+import retrofit2.Response
 import java.io.File
 import java.util.*
 
-open class MessageBuilder
+/**
+ * Message Builder for discord messages.
+ *
+ * Contains various helpers and builder methods to easily build a message of various flavors.
+ */
+open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typingCallback: Callback<Any> = DiscordEndpoint.emptyCallback) : Callback<Message>
 {
     @Expose
     @SerializedName("embed")
     private var embed: Embed? = null
+
     @Expose
     @SerializedName("content")
     private var content: String = ""
+
     @Expose
     @SerializedName("attachment")
     private var attachment: File? = null
@@ -28,13 +38,20 @@ open class MessageBuilder
 
     private var isBuildingMention: Boolean = false
 
-    open fun send(channelId: String, callback: Callback<Message>)
+    init
+    {
+        if (channelId != "")
+            DiscordEndpoint.startTyping(channelId, typingCallback)
+    }
+
+    @JvmOverloads
+    open fun send(channelId: String, callback: Callback<Message> = this)
     {
         buildMessage()
         if (attachment == null)
             Utility.discordAPI.createMessage(channelId, this, queryParamas).enqueue(callback)
         else
-            Utility.discordAPI.createMessage(channelId, content, attachment!!, queryParamas)
+            Utility.discordAPI.createMessage(channelId, content, attachment!!, queryParamas).enqueue(callback)
     }
 
     /**
@@ -312,6 +329,16 @@ open class MessageBuilder
 
     @Synchronized
     private fun getEmbedOrCreate() = this.embed ?: Embed()
+
+    override fun onResponse(call: Call<Message>, response: Response<Message>)
+    {
+
+    }
+
+    override fun onFailure(call: Call<Message>, t: Throwable)
+    {
+        t.printStackTrace(System.err)
+    }
 
     enum class MentionType(val value: String)
     {
