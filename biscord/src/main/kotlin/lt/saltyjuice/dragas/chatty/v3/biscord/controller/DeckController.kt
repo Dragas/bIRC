@@ -7,7 +7,6 @@ import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.PlayerClass
-import lt.saltyjuice.dragas.chatty.v3.biscord.utility.DeckParsingException
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
@@ -90,9 +89,10 @@ open class DeckController : DiscordController()
         heroClass = PlayerClass.getById(heroId)
         if (version != 1 || format == Format.Invalid || numberOfHeroes != 1 || heroClass == PlayerClass.Neutral)
         {
+            offset = 0
             decoder.cancel()
             this@DeckController.decoder = null
-            throw DeckParsingException("invalid deck")
+            //throw DeckParsingException("invalid deck")
         }
         val deck = Channel<Card>(Channel.UNLIMITED)
         var cardCount = 0
@@ -164,9 +164,9 @@ open class DeckController : DiscordController()
 
     fun initializeDecoder() = produce<Int>(CommonPool, Channel.UNLIMITED)
     {
-        offset = 0
         while (offset < byteArray!!.size)
             send(readInt())
+        offset = 0
     }
 
     @On(EventMessageCreate::class)
