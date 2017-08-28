@@ -22,3 +22,10 @@ fun main(args: Array<String>) = runBlocking<Unit>
     discordClient.disconnect()
     discordClient.onDisconnect()
 }
+
+inline fun Boolean.doIf(predicate: () -> Unit): Boolean
+{
+    if (this)
+        predicate.invoke()
+    return this
+}

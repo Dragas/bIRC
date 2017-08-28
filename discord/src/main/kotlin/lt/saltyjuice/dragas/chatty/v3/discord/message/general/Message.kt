@@ -2,6 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.general
 
 import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
+import lt.saltyjuice.dragas.chatty.v3.discord.controller.ConnectionController
 import java.util.*
 import kotlin.collections.ArrayList
 
@@ -56,4 +57,8 @@ open class Message
     var embeds: ArrayList<Embed> = ArrayList()
 
 
+    open fun mentionsMe(): Boolean
+    {
+        return this.mentionedUsers.find { ConnectionController.isMe(it) } != null
+    }
 }

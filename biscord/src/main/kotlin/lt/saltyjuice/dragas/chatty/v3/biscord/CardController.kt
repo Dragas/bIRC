@@ -141,10 +141,3 @@ class CardController : DiscordController()
         }
     }
 }
-
-private inline fun Boolean.doIf(predicate: () -> Unit): Boolean
-{
-    if (this)
-        predicate.invoke()
-    return this
-}
