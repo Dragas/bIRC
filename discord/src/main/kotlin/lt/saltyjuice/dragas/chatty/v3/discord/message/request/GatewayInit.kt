@@ -1,5 +1,8 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.request
 
+import com.google.gson.annotations.Expose
+import com.google.gson.annotations.SerializedName
+
 /**
  * Get Gateway Bot
  *
@@ -16,9 +19,15 @@ package lt.saltyjuice.dragas.chatty.v3.discord.message.request
  * joins/leaves guilds.
  *
  * Since this is not a request that should be used later in the application's lifecycle, it should only be used
+ * while initializing the bot.
  */
 open class GatewayInit
 {
+    @Expose
+    @SerializedName("url")
     var url: String = ""
+
+    @Expose
+    @SerializedName("shards")
     var shards: Int = 0
 }
