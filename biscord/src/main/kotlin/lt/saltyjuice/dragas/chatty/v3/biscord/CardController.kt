@@ -1,25 +1,47 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord
 
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.launch
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
-import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
-import lt.saltyjuice.dragas.chatty.v3.discord.message.EmbedMessage
+import lt.saltyjuice.dragas.chatty.v3.discord.exception.MessageBuilderException
+import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.util.*
 
-class CardController : DiscordController()
+class CardController : DiscordController(), Callback<ArrayList<Card>>
 {
     private var arguments = Array(1, { "" })
     private var shouldBeGold = false
     private var shouldBeVerbose = false
     private var shouldBeMany = false
+
+    init
+    {
+        BiscordUtility.API.getCards().enqueue(this)
+    }
+
+    override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
+    {
+        if (response.isSuccessful)
+            cardss = response.body()!!
+        else
+            throw IllegalStateException("Failed to get cards from API")
+    }
+
+    override fun onFailure(call: Call<ArrayList<Card>>, up: Throwable)
+    {
+        throw up
+    }
 
 
     @On(EventMessageCreate::class)
@@ -29,13 +51,79 @@ class CardController : DiscordController()
     {
         val content = request.data!!
         beforeRequest(request)
-        val cardRequest = CardRequest(content, messageCallback)
-        cardRequest.shouldBeGold = shouldBeGold
-        cardRequest.shouldBeVerbose = shouldBeVerbose
-        cardRequest.shouldBeMany = shouldBeMany
-        val call = if (shouldBeMany) BiscordUtility.API.getCards(arguments[0]) else BiscordUtility.API.getSingleCard(arguments[0])
-        call.enqueue(cardRequest)
+        var messageBuilder = MessageBuilder()
+        if (shouldBeGold)
+        {
+            MessageBuilder().append("Due to changes in how cards are obtained, GOLDEN versions are unavailable. Just omit the -g/--gold modifier").send(content.channelId)
+            return null
+        }
+        getCards().parallelStream().use {
+            if (shouldBeMany)
+            {
+                it.filter(this::cardFilter)
+                if (shouldBeVerbose)
+                {
+                    it.forEach()
+                    {
+                        messageBuilder
+                                .mention(content.author)
+                                .embed(it.toEmbed(shouldBeGold))
+                                .send(content.channelId)
+                        messageBuilder = MessageBuilder()
+                    }
+                }
+                else
+                {
+
+                    it.forEach()
+                    {
+                        try
+                        {
+                            val image = if (shouldBeGold) it.imgGold else it.img
+                            messageBuilder.appendLine(image)
+                        }
+                        catch (err: MessageBuilderException)
+                        {
+                            messageBuilder.send(request.data!!.channelId)
+                            messageBuilder = MessageBuilder()
+                        }
+                    }
+                    messageBuilder.send(content.channelId)
+                }
+            }
+            else
+            {
+                it.findFirst()
+                        .filter(this::cardFilter)
+                        .flatMap<Card>()
+                        {
+                            val image = if (shouldBeGold) it.imgGold else it.img
+                            messageBuilder
+                                    .mention(content.author)
+                                    .appendLine(image)
+                                    .send(content.channelId)
+                            Optional.of(it)
+                        }
+                        .orElseGet()
+                        {
+                            messageBuilder
+                                    .mention(content.author)
+                                    .appendLine(": can't find ${arguments[0]}.")
+                                    .send(content.channelId)
+                            Card()
+                        }
+            }
+
+        }
+
         return null
+    }
+
+    fun cardFilter(card: Card): Boolean
+    {
+        return card.dbfId.toString() == arguments[0]
+                || card.name.contains(arguments[0], true)
+                || card.cardId.toLowerCase() == arguments[0]
     }
 
     fun isCardRequest(request: EventMessageCreate): Boolean
@@ -54,8 +142,6 @@ class CardController : DiscordController()
 
     private fun beforeRequest(request: EventMessageCreate)
     {
-        val content = request.data!!
-        BiscordUtility.keepTyping(content.channelId)
         arguments = parseArguments(request.data!!.content)
         shouldBeGold = containsArgument(Param.GOLD.values)
         shouldBeVerbose = containsArgument(Param.VERBOSE.values)
@@ -82,71 +168,23 @@ class CardController : DiscordController()
         GOLD("gold", "g");
     }
 
-    private class CardRequest(val content: Message, val messageCallback: Callback<Message>) : Callback<ArrayList<Card>>
+    companion object
     {
-        var shouldBeVerbose: Boolean = false
-        var shouldBeGold: Boolean = false
-        var shouldBeMany: Boolean = false
-        var retried: Boolean = false
-        override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
+        @JvmStatic
+        private var cardss = ArrayList<Card>()
+
+        @JvmStatic
+        fun getCards(): List<Card>
         {
-            val content = content
-            if (response.isSuccessful)
-            {
-                val data = response.body()!!
-                if (shouldBeVerbose)
-                {
-                    data.map()
-                    {
-                        it.toEmbed(shouldBeGold)
-                    }.forEachIndexed()
-                    { index, value ->
-                        val embedMessage = EmbedMessage()
-                        embedMessage.content = "Card ${index + 1}/${data.size}"
-                        embedMessage.embed = value
-                        embedMessage.send(content.channelId, messageCallback)
-                    }
-                }
-                else
-                {
-                    val embedMessage = EmbedMessage()
-                    val sb = StringBuilder()
-                    data.forEach {
-                        val image = if (shouldBeGold) it.imgGold else it.img
-                        sb.append(image)
-                        sb.appendln()
-                    }
-                    embedMessage.content = sb.toString()
-                    embedMessage.send(content.channelId, messageCallback)
-                }
-            }
-            else
-            {
-                val argument = call.request().url().encodedPathSegments().last()
-                if (!(shouldBeMany || retried))
-                {
-                    retried = true
-                    Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Falling back to --many")
-                    BiscordUtility.API.getCards(argument).enqueue(this)
-                }
-                else
-                {
-                    Utility.discordAPI.createMessage(content.channelId, "<@${content.author.id}> Unable to find $argument. Error code: ${response.code()}").enqueue(messageCallback)
-                }
-            }
-            BiscordUtility.cancelTyping(content.channelId)
+            return cardss
         }
 
-        override fun onFailure(call: Call<ArrayList<Card>>, t: Throwable)
+        @JvmStatic
+        fun getCardById(dbfId: Int, channel: Channel<Card>) = launch(CommonPool)
         {
-            t.printStackTrace(System.err)
+            val cards = getCards()
+            val card = cards.parallelStream().findFirst().filter { it.dbfId == dbfId }.get()
+            channel.send(card)
         }
     }
-}
-
-private inline fun Boolean.doIf(predicate: () -> Unit): Boolean
-{
-    if (this)
-        predicate.invoke()
-    return this
 }

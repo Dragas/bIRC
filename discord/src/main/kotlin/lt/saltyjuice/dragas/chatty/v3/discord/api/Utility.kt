@@ -118,6 +118,7 @@ object Utility
         GsonBuilder().apply()
         {
             registerTypeAdapter(AuditLogChange::class.java, AuditLogChangeAdapter())
+            excludeFieldsWithoutExposeAnnotation()
             serializeNulls()
         }
     }

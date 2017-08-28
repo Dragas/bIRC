@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.request
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -8,9 +9,11 @@ import com.google.gson.annotations.SerializedName
  */
 open class OPCode
 {
+    @Expose
     @SerializedName("op")
     open var opCode: Int = DEFAULT_OP_CODE
 
+    @Expose
     @SerializedName("t")
     open var eventName: String? = null
 

@@ -62,8 +62,30 @@ class Enum()
 }*/
 
 
+/*fun main(args: Array<String>)
+{
+    *//*val arguments = "Leeroy Jenkins --verbose --gold -n"
+    println(arguments.split(Regex("-{1,2}")))*//*
+}*/
+
+/*fun main(args : Array<String>)
+{
+    val a  = 10
+    val b = (a shl 7).toByte()
+}*/
+
 fun main(args: Array<String>)
 {
-    val arguments = "Leeroy Jenkins --verbose --gold -n"
-    println(arguments.split(Regex("-{1,2}")))
+    /*val deckstring = "AAECAZICBvgMrqsClL0C+cACyccCmdMCDEBf/gHEBuQIvq4CtLsCy7wCz7wC3b4CoM0Ch84CAA=="
+    val decoded = Base64.getDecoder().decode(deckstring)
+    val bais = ByteArrayInputStream(decoded)
+    val din = DataInputStream(bais)
+    println("initial byte: ${din.read()}")
+    println("encoding version: ${din.read()}")
+    println("format: ${din.read()} (1 => wild, 2 => standard)")
+    println("number of heroes: ${din.read()}")
+    var heroId = din.read()
+    println("hero id: $heroId")*/
+    //println("initial byte: ${din.readByte()}")
+
 }
