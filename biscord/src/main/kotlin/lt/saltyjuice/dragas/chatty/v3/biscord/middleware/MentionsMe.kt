@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.middleware
 
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.ConnectionController
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate

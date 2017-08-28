@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
@@ -7,6 +7,7 @@ import kotlinx.coroutines.experimental.channels.produce
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.PlayerClass
+import lt.saltyjuice.dragas.chatty.v3.biscord.utility.DeckParsingException
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
@@ -20,14 +21,14 @@ open class DeckController : DiscordController()
 {
     private var byteArray: ByteArray? = null
     private var hash: String = ""
-    var format: Format = Format.Invalid // 0 implies invalid
-    var version: Int = 0
-    var numberOfHeroes: Int = 0 // should be 1
-    var heroClass: PlayerClass = PlayerClass.Neutral // should be something else
-    var deck: HashMap<Card, Int> = HashMap()
-    var heroId: Int = -1
-
-    var offset = 0
+    private var format: Format = Format.Invalid // 0 implies invalid
+    private var version: Int = 0
+    private var numberOfHeroes: Int = 0 // should be 1
+    private var heroClass: PlayerClass = PlayerClass.Neutral // should be something else
+    private var deck: HashMap<Card, Int> = HashMap()
+    private var heroId: Int = -1
+    private var offset = 0
+    private var decoder: ProducerJob<Int>? = null
 
     @Throws(IllegalArgumentException::class)
     fun getByteArray(hash: String): ByteArray
@@ -42,9 +43,11 @@ open class DeckController : DiscordController()
         try
         {
             getByteArray(hash)
-            val initialByte = readInt()
+            val initialByte = readInt() == 0
             this.hash = hash
-            return initialByte == 0
+            if (initialByte)
+                decoder = initializeDecoder()
+            return initialByte
         }
         catch (err: IllegalArgumentException)
         {
@@ -60,29 +63,50 @@ open class DeckController : DiscordController()
         numberOfHeroes = decoder.receive()
         heroId = decoder.receive()
         heroClass = PlayerClass.getById(heroId)
+        if (version != 1 || format == Format.Invalid || numberOfHeroes != 1 || heroClass == PlayerClass.Neutral)
+        {
+            decoder.cancel()
+            this@DeckController.decoder = null
+            throw DeckParsingException("invalid deck")
+        }
         val deck = Channel<Card>(Channel.UNLIMITED)
-        repeat(3)
+        var cardCount = 0
+        repeat(2)
         { multiplier ->
             val count = decoder.receive()
             repeat(count)
             {
                 val id = decoder.receive()
-                val count = decoder.receive()
-                var repetitions = multiplier + 1
-                if (multiplier == 2)
+                //val count = decoder.receive()
+                /*if (multiplier == 2)
                 {
                     repetitions = count
-                }
-                repeat(repetitions)
+                }*/
+                repeat(multiplier + 1)
                 {
                     CardController.getCardById(id, deck)
-                    if (multiplier != 2)
-                        CardController.getCardById(count, deck)
+                    cardCount++
+                    //CardController.getCardById(count, deck)
                 }
             }
         }
-        for (card in deck)
+        val multiples = decoder.receiveOrNull()
+        if (multiples != null)
         {
+            repeat(multiples)
+            {
+                val id = decoder.receive()
+                val count = decoder.receive()
+                repeat(count)
+                {
+                    cardCount++
+                    CardController.getCardById(id, deck)
+                }
+            }
+        }
+        for (i in 1..cardCount)
+        {
+            val card = deck.receive()
             var count = this@DeckController.deck.getOrDefault(card, 0)
             count++
             this@DeckController.deck[card] = count
@@ -113,23 +137,18 @@ open class DeckController : DiscordController()
         return result
     }
 
-    fun decode() = produce<Int>(CommonPool, Channel.UNLIMITED)
+    fun initializeDecoder() = produce<Int>(CommonPool, Channel.UNLIMITED)
     {
         while (offset < byteArray!!.size)
             send(readInt())
-        close()
     }
-
-    private var decoder: ProducerJob<Int>? = null
 
     @On(EventMessageCreate::class)
     @When("decodeTest")
     fun onDecodeRequest(eventMessageCreate: EventMessageCreate): OPResponse<*>?
     {
-        decoder = decode()
+        decoder = initializeDecoder()
         decodeAsDeck()
-        decoder?.cancel()
-        decoder = null
         val messageBuilder = MessageBuilder()
         messageBuilder.appendLine("# Class: ${this.heroClass.name}")
         messageBuilder.appendLine("# Format: ${this.format.name}")

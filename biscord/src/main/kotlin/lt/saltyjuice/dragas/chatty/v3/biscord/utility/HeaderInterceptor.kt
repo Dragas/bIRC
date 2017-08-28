@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.utility
 
 import okhttp3.Interceptor
 import okhttp3.Response

@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.utility
 
 import com.google.gson.Gson
 import com.google.gson.GsonBuilder
@@ -27,7 +27,7 @@ object BiscordUtility
     {
         val builder = OkHttpClient.Builder()
         builder.apply {
-            addInterceptor(HeaderInterceptor(Pair(Settings.MASHAPE_HEADER, Settings.MASHAPE_KEY)))
+            //addInterceptor(HeaderInterceptor(Pair(Settings.MASHAPE_HEADER, Settings.MASHAPE_KEY)))
             addInterceptor(HttpLoggingInterceptor().setLevel(HttpLoggingInterceptor.Level.BODY))
         }
         builder

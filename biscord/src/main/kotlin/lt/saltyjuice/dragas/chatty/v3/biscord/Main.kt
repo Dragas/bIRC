@@ -1,6 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord
 
 import kotlinx.coroutines.experimental.runBlocking
+import lt.saltyjuice.dragas.chatty.v3.biscord.utility.BiscordUtility
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.api.interceptor.RateLimitInterceptor
 import java.util.concurrent.TimeUnit

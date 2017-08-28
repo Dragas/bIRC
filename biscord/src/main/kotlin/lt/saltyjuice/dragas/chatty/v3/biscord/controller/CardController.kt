@@ -1,9 +1,12 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.launch
+import lt.saltyjuice.dragas.chatty.v3.biscord.doIf
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
+import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
+import lt.saltyjuice.dragas.chatty.v3.biscord.utility.BiscordUtility
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
@@ -27,7 +30,18 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
 
     init
     {
-        BiscordUtility.API.getCards().enqueue(this)
+        BiscordUtility.API.getCards().apply()
+        {
+            try
+            {
+                val response = this.execute()
+                onResponse(this, response)
+            }
+            catch (err: Throwable)
+            {
+                onFailure(this@apply, err)
+            }
+        }
     }
 
     override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
@@ -183,7 +197,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         fun getCardById(dbfId: Int, channel: Channel<Card>) = launch(CommonPool)
         {
             val cards = getCards()
-            val card = cards.parallelStream().findFirst().filter { it.dbfId == dbfId }.get()
+            val card = cards.parallelStream().filter { it.dbfId == dbfId }.findFirst().get()
             channel.send(card)
         }
     }

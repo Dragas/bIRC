@@ -1,4 +1,4 @@
-package lt.saltyjuice.dragas.chatty.v3.biscord
+package lt.saltyjuice.dragas.chatty.v3.biscord.utility
 
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import retrofit2.Call
