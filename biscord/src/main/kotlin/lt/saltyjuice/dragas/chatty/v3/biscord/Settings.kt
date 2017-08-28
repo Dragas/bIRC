@@ -8,5 +8,5 @@ object Settings
     val MASHAPE_KEY_ENV = "MASHAPE_KEY"
 
     @JvmStatic
-    val MASHAPE_KEY = System.getenv(MASHAPE_KEY_ENV) ?: throw NullPointerException("$MASHAPE_KEY_ENV environmental variable must be present")
+    val MASHAPE_KEY = System.getenv(MASHAPE_KEY_ENV)// ?: throw NullPointerException("$MASHAPE_KEY_ENV environmental variable must be present")
 }
