@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.request
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import lt.saltyjuice.dragas.chatty.v3.discord.CloneableData
 
@@ -9,9 +10,11 @@ import lt.saltyjuice.dragas.chatty.v3.discord.CloneableData
  */
 open class OPRequest<D> : OPCode(), CloneableData
 {
+    @Expose
     @SerializedName("d")
     open var data: D? = null
 
+    @Expose
     @SerializedName("s")
     open var sequenceNumber: Long? = null
 

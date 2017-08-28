@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.entity
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Embed
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Field
@@ -7,50 +8,73 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Image
 
 open class Card
 {
+    @Expose
     @SerializedName("cardId")
     var cardId: String = ""
+    @Expose
     @SerializedName("dbfId")
-    var dbfId: String = ""
+    var dbfId: Int = 0
+    @Expose
     @SerializedName("name")
     var name: String = ""
+    @Expose
     @SerializedName("cardSet")
     var cardSet: String = ""
+    @Expose
     @SerializedName("type")
     var type: Type? = Type.Spell
+    @Expose
     @SerializedName("faction")
     var faction: String = ""
+    @Expose
     @SerializedName("rarity")
     var rarity: String = ""
+    @Expose
     @SerializedName("cost")
     var cost: Int = 0
+    @Expose
     @SerializedName("attack")
     var attack: Int = 0
+    @Expose
     @SerializedName("health")
     var health: Int = 0
+    @Expose
     @SerializedName("armor")
     var armor: Int = 0
+    @Expose
     @SerializedName("text")
     var text: String = ""
+    @Expose
     @SerializedName("flavor")
     var flavor: String = ""
+    @Expose
     @SerializedName("artist")
     var artist: String = ""
+    @Expose
     @SerializedName("collectible")
     var collectible: Boolean = true
+    @Expose
     @SerializedName("elite")
     var elite: String = ""
+    @Expose
     @SerializedName("race")
     var race: String = ""
+    @Expose
     @SerializedName("playerClass")
     var playerClass: PlayerClass? = PlayerClass.Neutral
+    @Expose
     @SerializedName("img")
-    var img: String = ""
+    var img: String = "https://art.hearthstonejson.com/v1/render/latest/enUS/256x/$cardId.png"
+    @Expose
     @SerializedName("imgGold")
     var imgGold: String = ""
+    @Expose
     @SerializedName("locale")
     var locale: String = ""
+    @Expose
     @SerializedName("howToGet")
     var howToGet: String = ""
+    @Expose
     @SerializedName("howToGetGold")
     var howToGetGold: String = ""
 

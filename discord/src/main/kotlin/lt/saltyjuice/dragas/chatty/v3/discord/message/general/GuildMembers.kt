@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.discord.message.general
 
+import com.google.gson.annotations.Expose
 import com.google.gson.annotations.SerializedName
 
 /**
@@ -12,10 +13,13 @@ import com.google.gson.annotations.SerializedName
  */
 open class GuildMembers
 {
+    @Expose
     @SerializedName("guild_id")
     var guildId: String = "0" // snowflake
+    @Expose
     @SerializedName("query")
     var query: String = ""
+    @Expose
     @SerializedName("limit")
     var limit: Int = 0
 }

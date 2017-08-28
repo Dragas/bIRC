@@ -9,4 +9,7 @@ object Settings
     val VERSION = 1
     val DISCORD_KEY_ENV = "DISCORD_KEY"
     val token = System.getenv(DISCORD_KEY_ENV) ?: throw NullPointerException("$DISCORD_KEY_ENV environmental variable must be present")
+    val FIELD_LIMIT: Int = 25
+    val MAX_MESSAGE_CONTENT_LENGTH: Int = 2000
+    val MAX_EMBED_CONTENT_LENGTH: Int = 6000
 }
