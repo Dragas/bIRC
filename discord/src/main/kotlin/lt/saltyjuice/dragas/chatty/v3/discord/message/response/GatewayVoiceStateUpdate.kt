@@ -6,5 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.VoiceStateUpdate
 
 open class GatewayVoiceStateUpdate(@Expose @SerializedName("d") override var data: VoiceStateUpdate) : OPResponse<VoiceStateUpdate>()
 {
+    @Expose
+    @SerializedName("op")
     override val op: Int = 4
 }

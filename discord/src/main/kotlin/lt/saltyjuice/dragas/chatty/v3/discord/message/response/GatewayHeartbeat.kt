@@ -15,5 +15,7 @@ import com.google.gson.annotations.SerializedName
  */
 open class GatewayHeartbeat(@Expose @SerializedName("d") override var data: Long?) : OPResponse<Long?>()
 {
+    @Expose
+    @SerializedName("op")
     override val op: Int = 1
 }

@@ -6,5 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Presence
 
 open class GatewayStatusUpdate(@Expose @SerializedName("d") override var data: Presence) : OPResponse<Presence>()
 {
+    @Expose
+    @SerializedName("op")
     override val op: Int = 3
 }

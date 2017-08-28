@@ -6,5 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Identify
 
 open class GatewayIdentify(@Expose @SerializedName("d") override var data: Identify) : OPResponse<Identify>()
 {
+    @Expose
+    @SerializedName("op")
     override val op: Int = 2
 }
