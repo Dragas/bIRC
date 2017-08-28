@@ -86,6 +86,7 @@ open class MessageBuilder
     }
 
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun buildMessage(): MessageBuilder
     {
         if (isBuildingMention)
@@ -126,6 +127,7 @@ open class MessageBuilder
     }
 
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun append(text: String): MessageBuilder
     {
         if (messageBuilder.length + text.length < Settings.MAX_MESSAGE_CONTENT_LENGTH)
@@ -136,6 +138,7 @@ open class MessageBuilder
     }
 
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun appendLine(text: String): MessageBuilder
     {
         if (isBuildingMention)
@@ -144,6 +147,7 @@ open class MessageBuilder
     }
 
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun validate()
     {
         if (isBuildingMention)
@@ -180,6 +184,7 @@ open class MessageBuilder
 
     @JvmOverloads
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun field(name: String, value: String, inline: Boolean = false): MessageBuilder
     {
         val embed = getEmbedOrCreate()
@@ -287,6 +292,7 @@ open class MessageBuilder
     }
 
     @Synchronized
+    @Throws(MessageBuilderException::class)
     private fun validate(regex: String, starting: Boolean)
     {
         val characterToAppend = if (starting) "<" else ">"
