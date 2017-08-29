@@ -84,7 +84,7 @@ open class DeckController : DiscordController()
         }
     }
 
-    fun decodeAsDeck() = runBlocking<Unit>
+    fun decodeAsDeck() = runBlocking<Boolean>
     {
         val decoder = decoder!!
         deck = HashMap<Card, Int>()
@@ -98,6 +98,7 @@ open class DeckController : DiscordController()
             offset = 0
             decoder.cancel()
             this@DeckController.decoder = null
+            return@runBlocking false
             //throw DeckParsingException("invalid deck")
         }
         val deck = Channel<Card>(Channel.UNLIMITED)
@@ -139,6 +140,7 @@ open class DeckController : DiscordController()
             count++
             this@DeckController.deck[card] = count
         }
+        return@runBlocking true
     }
 
     fun decodeTest(request: EventMessageCreate): Boolean
@@ -192,15 +194,17 @@ open class DeckController : DiscordController()
     fun onDecodeRequest(eventMessageCreate: EventMessageCreate): OPResponse<*>?
     {
         //decoder = initializeDecoder()
-        decodeAsDeck()
-        val messageBuilder = MessageBuilder()
-        messageBuilder.appendLine("# Class: ${this.heroClass.name}")
-        messageBuilder.appendLine("# Format: ${this.format.name}")
-        deck.toList().sortedWith(Comparator { it1, it2 -> it1.first.cost - it2.first.cost }).forEach()
-        { (card, count) ->
-            messageBuilder.appendLine("# ${count}x (${card.cost}) ${card.name}")
+        if (decodeAsDeck())
+        {
+            val messageBuilder = MessageBuilder()
+            messageBuilder.appendLine("# Class: ${this.heroClass.name}")
+            messageBuilder.appendLine("# Format: ${this.format.name}")
+            deck.toList().sortedWith(Comparator { it1, it2 -> it1.first.cost - it2.first.cost }).forEach()
+            { (card, count) ->
+                messageBuilder.appendLine("# ${count}x (${card.cost}) ${card.name}")
+            }
+            messageBuilder.send(eventMessageCreate.data!!.channelId, messageCallback)
         }
-        messageBuilder.send(eventMessageCreate.data!!.channelId, messageCallback)
         return null
     }
 
