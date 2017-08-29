@@ -1,9 +1,11 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
 import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ProducerJob
 import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.PlayerClass
@@ -55,7 +57,7 @@ open class DeckController : DiscordController()
     }
 
     @Throws(IllegalArgumentException::class)
-    fun getByteArray(hash: String): ByteArray
+    private fun getByteArray(hash: String): ByteArray
     {
         byteArray = Base64.getDecoder().decode(hash)
 
@@ -64,6 +66,7 @@ open class DeckController : DiscordController()
 
     fun canDecode(hash: String): Boolean
     {
+        offset = 0
         try
         {
             getByteArray(hash)
@@ -86,7 +89,7 @@ open class DeckController : DiscordController()
         val decoder = decoder!!
         deck = HashMap<Card, Int>()
         version = decoder.receive()
-        format = Format.values()[decoder.receive()]
+        format = Format.values().getOrElse(decoder.receive(), { Format.Invalid })
         numberOfHeroes = decoder.receive()
         heroId = decoder.receive()
         heroClass = PlayerClass.getById(heroId)
@@ -98,7 +101,7 @@ open class DeckController : DiscordController()
             //throw DeckParsingException("invalid deck")
         }
         val deck = Channel<Card>(Channel.UNLIMITED)
-        var cardCount = 0
+        val jobs = ArrayList<Job>()
         repeat(2)
         { multiplier ->
             val count = decoder.receive()
@@ -112,9 +115,7 @@ open class DeckController : DiscordController()
                 }*/
                 repeat(multiplier + 1)
                 {
-                    CardController.getCardById(id, deck)
-                    cardCount++
-                    //CardController.getCardById(count, deck)
+                    addCardToDeck(id, jobs, deck)
                 }
             }
         }
@@ -127,25 +128,40 @@ open class DeckController : DiscordController()
                 val count = decoder.receive()
                 repeat(count)
                 {
-                    cardCount++
-                    CardController.getCardById(id, deck)
+                    addCardToDeck(id, jobs, deck)
                 }
             }
         }
-        for (i in 1..cardCount)
+        for (card in deck)
         {
-            val card = deck.receive()
+            //val card = deck.receive()
             var count = this@DeckController.deck.getOrDefault(card, 0)
             count++
             this@DeckController.deck[card] = count
         }
-        deck.close()
     }
 
     fun decodeTest(request: EventMessageCreate): Boolean
     {
         val data = request.data!!.content.split(" ")
         return data.find(this::canDecode) != null
+    }
+
+    private fun addCardToDeck(id: Int, jobs: ArrayList<Job>, deck: Channel<Card>)
+    {
+        launch(CommonPool)
+        {
+            CardController.getCardById(id, deck)
+        }.apply()
+        {
+            jobs.add(this)
+            this.invokeOnCompletion()
+            {
+                jobs.remove(this)
+                if (jobs.isEmpty())
+                    deck.close()
+            }
+        }
     }
 
     fun readInt(): Int
@@ -169,7 +185,6 @@ open class DeckController : DiscordController()
     {
         while (offset < byteArray!!.size)
             send(readInt())
-        offset = 0
     }
 
     @On(EventMessageCreate::class)

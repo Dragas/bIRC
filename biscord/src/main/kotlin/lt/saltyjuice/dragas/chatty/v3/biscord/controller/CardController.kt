@@ -1,8 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.channels.Channel
-import kotlinx.coroutines.experimental.launch
 import lt.saltyjuice.dragas.chatty.v3.biscord.doIf
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
@@ -22,6 +20,7 @@ import retrofit2.Response
 import java.util.*
 import java.util.concurrent.ConcurrentSkipListSet
 import java.util.stream.Stream
+import kotlin.streams.toList
 
 class CardController : DiscordController(), Callback<ArrayList<Card>>
 {
@@ -42,20 +41,27 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         }
     private lateinit var content: Message
     private val exceptionMap: HashMap<String, String> = hashMapOf(
-            Pair("Pot of Greed", "Arcane Intellect")
+            Pair("Pot of Greed", "Arcane Intellect"),
+            Pair("Black Lotus", "Innervate"),
+            Pair("Dr. Balance", "Dr. Boom"),
+            Pair("Dr Balance", "Dr. Boom"),
+            Pair("Shit", "(You)")
     )
     init
     {
-        BiscordUtility.API.getCards().apply()
+        if (cardss.isEmpty())
         {
-            try
+            BiscordUtility.API.getCards().apply()
             {
-                val response = this.execute()
-                onResponse(this, response)
-            }
-            catch (err: Throwable)
-            {
-                onFailure(this@apply, err)
+                try
+                {
+                    val response = this.execute()
+                    onResponse(this, response)
+                }
+                catch (err: Throwable)
+                {
+                    onFailure(this@apply, err)
+                }
             }
         }
     }
@@ -73,6 +79,54 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         throw up
     }
 
+    fun isCardRequest(request: EventMessageCreate): Boolean
+    {
+        val content = request.data!!
+        return containsArgument(content, Param.CARD.values[0])
+    }
+
+    private fun containsArgument(request: Message, param: String): Boolean
+    {
+        return request.content.toLowerCase().startsWith(param).doIf {
+            request.content = request.content.replaceFirst(param, "")
+            request.content = request.content.replaceFirst(" ", "")
+        }
+    }
+
+    private fun beforeRequest(request: EventMessageCreate)
+    {
+        arguments = parseArguments(request.data!!.content)
+        beforeRequest()
+    }
+
+    private fun beforeRequest()
+    {
+        val exception = exceptionMap.keys.find { it.toLowerCase() == arguments[0].toLowerCase() }
+        if (exception != null)
+            arguments[0] = exceptionMap[exception]!!
+        shouldBeGold = containsArgument(Param.GOLD.values)
+        shouldBeVerbose = containsArgument(Param.VERBOSE.values)
+        shouldBeMany = containsArgument(Param.MANY.values)
+    }
+
+    private fun containsArgument(param: Array<out String>): Boolean
+    {
+        return param.find { value -> arguments.contains(value) } != null
+    }
+
+    private fun parseArguments(request: String): Array<String>
+    {
+        val args = request.split(Regex("\\s+-{1,2}"))
+
+        return args.toTypedArray()
+    }
+
+    fun pushArguments(array: Array<String>)
+    {
+        arguments = array
+        beforeRequest()
+    }
+
 
     @On(EventMessageCreate::class)
     @When("isCardRequest")
@@ -87,79 +141,92 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             MessageBuilder().append("Due to changes in how cards are obtained, GOLDEN versions are unavailable. Just omit the -g/--gold modifier").send(content.channelId)
             return null
         }
+
         getCards().parallelStream().use {
             if (shouldBeMany)
             {
-                filterForMany(it)
+                val data = filterForMany(it)
+                val count = data.size
+                if (count > 0)
+                {
+                    if (shouldBeVerbose)
+                    {
+                        data.forEach(this::buildVerbose)
+                    }
+                    else
+                    {
+                        data.forEach(this::buildSimple)
+                    }
+                }
+                else
+                    messageBuilder.appendLine("None of the collectible cards matched ${arguments[0]}")
+                messageBuilder.send(content.channelId)
             }
             else
             {
-                filterForSingle(it)
+                val card = filterForSingle(it)
+                if (card.dbfId == -1)
+                {
+                    messageBuilder
+                            .mention(content.author)
+                            .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
+                            .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
+                    getCards().parallelStream().use(this::filterForMany)
+                }
+                else
+                {
+                    if (shouldBeVerbose)
+                        buildVerbose(card)
+                    else
+                        buildSimple(card)
+                    messageBuilder.send(content.channelId)
+                }
             }
         }
-
         return null
     }
 
-    fun cardFilter(card: Card): Boolean
+    private fun cardFilter(card: Card): Boolean
     {
         return card.dbfId.toString() == arguments[0]
                 || card.cardId.toLowerCase() == arguments[0]
     }
 
-    fun cardFilterSingle(card: Card): Boolean
+    private fun cardFilterSingle(card: Card): Boolean
     {
         return cardFilter(card) || card.name.toLowerCase() == arguments[0].toLowerCase()
     }
 
-    fun cardFilterMany(card: Card): Boolean
+    private fun cardFilterMany(card: Card): Boolean
     {
         return cardFilter(card) || card.name.contains(arguments[0], true)
     }
 
-    private fun filterForMany(it: Stream<Card>)
+    fun getFilteredForMany(it: Stream<Card>): Stream<Card>
     {
-        val it = it.filter(this::cardFilterMany)
-        if (shouldBeVerbose)
-        {
-            it.forEach(this::buildVerbose)
-        }
-        else
-        {
-            it.forEach(this::buildSimple)
-            messageBuilder.send(content.channelId)
-        }
+        return it.filter(this::cardFilterMany)
     }
 
-    private fun filterForSingle(it: Stream<Card>): Boolean
+    fun getFilteredForSingle(it: Stream<Card>): Stream<Card>
     {
-        return it
-                .filter(this::cardFilterSingle)
+        return it.filter(this::cardFilterSingle)
+    }
+
+    fun filterForMany(it: Stream<Card>): List<Card>
+    {
+        return getFilteredForMany(it).toList()
+    }
+
+    fun filterForSingle(it: Stream<Card>): Card
+    {
+        return getFilteredForSingle(it)
                 .findFirst()
-                .flatMap<Card>()
-                {
-                    if (shouldBeVerbose)
-                        buildVerbose(it)
-                    else
-                        buildSimple(it)
-                    messageBuilder.send(content.channelId)
-                    Optional.of(it)
-                }
                 .orElseGet()
                 {
-                    messageBuilder
-                            .mention(content.author)
-                            .appendLine(": can't find ${arguments[0]}.")
-                            .send(content.channelId)
                     Card()
-                }.dbfId == -1
+                }
     }
 
-    fun isCardRequest(request: EventMessageCreate): Boolean
-    {
-        val content = request.data!!
-        return containsArgument(content, Param.CARD.values[0])
-    }
 
     private fun buildVerbose(card: Card)
     {
@@ -184,37 +251,6 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         }
     }
 
-    private fun containsArgument(request: Message, param: String): Boolean
-    {
-        return request.content.toLowerCase().startsWith(param).doIf {
-            request.content = request.content.replaceFirst(param, "")
-            request.content = request.content.replaceFirst(" ", "")
-        }
-    }
-
-    private fun beforeRequest(request: EventMessageCreate)
-    {
-        arguments = parseArguments(request.data!!.content)
-        val exception = exceptionMap.keys.find { it.toLowerCase() == arguments[0].toLowerCase() }
-        if (exception != null)
-            arguments[0] = exceptionMap[exception]!!
-        shouldBeGold = containsArgument(Param.GOLD.values)
-        shouldBeVerbose = containsArgument(Param.VERBOSE.values)
-        shouldBeMany = containsArgument(Param.MANY.values)
-    }
-
-    private fun containsArgument(param: Array<out String>): Boolean
-    {
-        return param.find { value -> arguments.contains(value) } != null
-    }
-
-    private fun parseArguments(request: String): Array<String>
-    {
-        val args = request.split(Regex("\\s+-{1,2}"))
-
-        return args.toTypedArray()
-    }
-
     private enum class Param(vararg val values: String)
     {
         CARD("card"),
@@ -235,7 +271,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         }
 
         @JvmStatic
-        fun getCardById(dbfId: Int, channel: Channel<Card>) = launch(CommonPool)
+        suspend fun getCardById(dbfId: Int, channel: Channel<Card>)
         {
             val cards = getCards()
             val card = cards.parallelStream().filter { it.dbfId == dbfId }.findFirst().get()
