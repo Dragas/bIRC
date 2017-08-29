@@ -45,7 +45,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             Pair("Black Lotus", "Innervate"),
             Pair("Dr. Balance", "Dr. Boom"),
             Pair("Dr Balance", "Dr. Boom"),
-            Pair("Shit", "(You)")
+            Pair("Shit", "\"(You)\"")
     )
     init
     {
@@ -142,29 +142,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             return null
         }
 
-        getCards().parallelStream().use {
-            if (shouldBeMany)
-            {
-                buildMessage(filterForMany(it))
-            }
-            else
-            {
-                val card = filterForSingle(it)
-                if (card.dbfId == -1)
-                {
-                    messageBuilder
-                            .mention(content.author)
-                            .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
-                            .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
-                    buildMessage(getCards().parallelStream().use(this::filterForMany))
-                }
-                else
-                {
-                    buildMessage(listOf(card))
-                    messageBuilder.send(content.channelId)
-                }
-            }
-        }
+        buildMessage(filterCards(this::onNoneFound))
         return null
     }
 
@@ -231,6 +209,33 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
     }
 
 
+    @JvmOverloads
+    fun filterCards(onNoneFound: (() -> Unit)? = null): List<Card>
+    {
+        return getCards().parallelStream().use {
+            val cardList = ArrayList<Card>()
+            if (shouldBeMany)
+            {
+                cardList.addAll(filterForMany(it))
+            }
+            else
+            {
+                val card = filterForSingle(it)
+                if (card.dbfId == -1)
+                {
+                    cardList.addAll(getCards().parallelStream().use(this::filterForMany))
+                }
+                else
+                {
+                    cardList.add(card)
+                }
+            }
+            if (cardList.isEmpty())
+                onNoneFound?.invoke()
+            cardList
+        }
+    }
+
     private fun buildVerbose(card: Card)
     {
         messageBuilder
@@ -252,6 +257,14 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             messageBuilder.send(content.channelId)
             messageBuilder = MessageBuilder()
         }
+    }
+
+    fun onNoneFound()
+    {
+        messageBuilder
+                .mention(content.author)
+                .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
+                .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
     }
 
     private enum class Param(vararg val values: String)

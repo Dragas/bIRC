@@ -16,7 +16,7 @@ import java.util.*
 /**
  * Message Builder for discord messages.
  *
- * Contains various helpers and builder methods to easily build a message of various flavors.
+ * Contains various helpers and builder methods to easily build a message of various flavors. All methods return this embed builder.
  */
 open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typingCallback: Callback<Any> = DiscordEndpoint.emptyCallback) : Callback<Message>
 {
@@ -79,7 +79,6 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         val embed = getEmbedOrCreate()
         embed.author = author
         return embed(embed)
-        //return this
     }
 
     /**
@@ -113,33 +112,43 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     }
 
     @Synchronized
-    fun mention(user: User): MessageBuilder
+    @JvmOverloads
+    fun mention(user: User, shouldUseNickname: Boolean = false): MessageBuilder
     {
-        mentionStart(MentionType.USER)
-        mentionId(user.id)
-        return mentionEnd()
+        val mentionType = if (shouldUseNickname) MentionType.USER_NICKNAME else MentionType.USER
+        return mentionId(user.id, mentionType)
+    }
+
+    @Synchronized
+    fun mention(channel: Channel): MessageBuilder
+    {
+        return mentionId(channel.id, MentionType.CHANNEL)
+    }
+
+    @Synchronized
+    fun mention(role: Role): MessageBuilder
+    {
+        return mentionId(role.id, MentionType.ROLE)
     }
 
     @Synchronized
     fun mentionStart(mentionType: MentionType): MessageBuilder
     {
         isBuildingMention = true
-        messageBuilder.append("<${mentionType.value}")
-        return this
+        return append("<${mentionType.value}")
     }
 
     @Synchronized
-    fun mentionId(id: String): MessageBuilder
+    fun mentionId(id: String, mentionType: MentionType): MessageBuilder
     {
-        return append(id)
+        return mentionStart(mentionType).append(id).mentionEnd()
     }
 
     @Synchronized
     fun mentionEnd(): MessageBuilder
     {
         isBuildingMention = false
-        messageBuilder.append(">")
-        return this
+        return append(">")
     }
 
     @Synchronized
@@ -305,6 +314,12 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         provider.name = name
         provider.url = url
         return provider(provider)
+    }
+
+    fun attachment(file: File): MessageBuilder
+    {
+        attachment = file
+        return this
     }
 
     @Synchronized

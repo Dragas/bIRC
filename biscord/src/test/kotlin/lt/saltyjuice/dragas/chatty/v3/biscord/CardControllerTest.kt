@@ -44,6 +44,13 @@ class CardControllerTest
         Assert.assertTrue(cc.getFilteredForMany(CardController.getCards().parallelStream()).count() > 0)
     }
 
+    @Test
+    fun fallsBackToMany()
+    {
+        cc.pushArguments(arrayOf("murloc"))
+        Assert.assertTrue(cc.filterCards().isNotEmpty())
+    }
+
 
     companion object
     {
