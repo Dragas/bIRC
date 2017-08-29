@@ -145,22 +145,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         getCards().parallelStream().use {
             if (shouldBeMany)
             {
-                val data = filterForMany(it)
-                val count = data.size
-                if (count > 0)
-                {
-                    if (shouldBeVerbose)
-                    {
-                        data.forEach(this::buildVerbose)
-                    }
-                    else
-                    {
-                        data.forEach(this::buildSimple)
-                    }
-                }
-                else
-                    messageBuilder.appendLine("None of the collectible cards matched ${arguments[0]}")
-                messageBuilder.send(content.channelId)
+                buildMessage(filterForMany(it))
             }
             else
             {
@@ -171,14 +156,11 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                             .mention(content.author)
                             .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
                             .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
-                    getCards().parallelStream().use(this::filterForMany)
+                    buildMessage(getCards().parallelStream().use(this::filterForMany))
                 }
                 else
                 {
-                    if (shouldBeVerbose)
-                        buildVerbose(card)
-                    else
-                        buildSimple(card)
+                    buildMessage(listOf(card))
                     messageBuilder.send(content.channelId)
                 }
             }
@@ -225,6 +207,27 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                 {
                     Card()
                 }
+    }
+
+    private fun buildMessage(data: List<Card>)
+    {
+        val count = data.size
+        if (count > 0)
+        {
+            if (shouldBeVerbose)
+            {
+                data.forEach(this::buildVerbose)
+            }
+            else
+            {
+                data.forEach(this::buildSimple)
+            }
+        }
+        else
+        {
+            messageBuilder.appendLine("None of the collectible cards matched ${arguments[0]}")
+        }
+        messageBuilder.send(content.channelId)
     }
 
 
