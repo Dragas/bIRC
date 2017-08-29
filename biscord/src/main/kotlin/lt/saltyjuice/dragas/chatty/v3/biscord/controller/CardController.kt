@@ -223,6 +223,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                 val card = filterForSingle(it)
                 if (card.dbfId == -1)
                 {
+                    onNoneFound?.invoke()
                     cardList.addAll(getCards().parallelStream().use(this::filterForMany))
                 }
                 else
@@ -230,8 +231,6 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                     cardList.add(card)
                 }
             }
-            if (cardList.isEmpty())
-                onNoneFound?.invoke()
             cardList
         }
     }
