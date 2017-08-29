@@ -38,13 +38,19 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
 
     private var isBuildingMention: Boolean = false
 
+    private var embedLength = 0
+
     init
     {
         if (channelId != "")
             DiscordEndpoint.startTyping(channelId, typingCallback)
     }
 
+    /**
+     * Builds the message and sends it to some channel. Be it a DM or a public one.
+     */
     @JvmOverloads
+    @Throws(MessageBuilderException::class)
     open fun send(channelId: String, callback: Callback<Message> = this)
     {
         buildMessage()
@@ -61,8 +67,11 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
      */
     @JvmOverloads
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun embed(embed: Embed? = null): MessageBuilder
     {
+        if (this.embed == null)
+            evaluateEmbedLength(embed)
         this.embed = embed
         return this
     }
@@ -74,10 +83,13 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
      */
     @JvmOverloads
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun author(author: Author? = null): MessageBuilder
     {
         val embed = getEmbedOrCreate()
+        decreaseEmbedCounter(embed.author)
         embed.author = author
+        increaseEmbedCounter(embed.author)
         return embed(embed)
     }
 
@@ -87,6 +99,7 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
      * @return this
      */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun author(author: String): MessageBuilder
     {
         val authorInternal = this.embed?.author ?: Author()
@@ -94,102 +107,182 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return author(authorInternal)
     }
 
+    /**
+     * Sets message to this builder and calls [validate].
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun message(message: String): MessageBuilder
     {
         this.content = message
+        validate()
         return this
     }
 
+    /**
+     * Calls `toString` on internal string builder.
+     */
     @Synchronized
     @Throws(MessageBuilderException::class)
     fun buildMessage(): MessageBuilder
     {
         if (isBuildingMention)
             throw MessageBuilderException("You haven't finished mentioning someone.")
-        validate()
+        //validate()
         return message(messageBuilder.toString())
     }
 
+    /**
+     * Mentions user.
+     */
     @Synchronized
     @JvmOverloads
+    @Throws(MessageBuilderException::class)
     fun mention(user: User, shouldUseNickname: Boolean = false): MessageBuilder
     {
         val mentionType = if (shouldUseNickname) MentionType.USER_NICKNAME else MentionType.USER
         return mentionId(user.id, mentionType)
     }
 
+    /**
+     * Mentions channel.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun mention(channel: Channel): MessageBuilder
     {
         return mentionId(channel.id, MentionType.CHANNEL)
     }
 
+    /**
+     * Mentions role.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun mention(role: Role): MessageBuilder
     {
+        if (!role.isMentionable)
+            throw MessageBuilderException("Role can't be mentioned")
         return mentionId(role.id, MentionType.ROLE)
     }
 
     @Synchronized
-    fun mentionStart(mentionType: MentionType): MessageBuilder
+    @Throws(MessageBuilderException::class)
+    fun mention(emoji: Emoji): MessageBuilder
     {
-        isBuildingMention = true
-        return append("<${mentionType.value}")
+        return mentionStart().append(":${emoji.name}:${emoji.id}").mentionEnd()
     }
 
+    /**
+     * Starts a mention.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
+    fun mentionStart(): MessageBuilder
+    {
+        if (isBuildingMention)
+            throw MessageBuilderException("Mention is already being built. $messageBuilder")
+        isBuildingMention = true
+        return append("<")
+    }
+
+    /**
+     * Begins mentioning something. When mention ends, you should call [mentionEnd]
+     */
+    @Synchronized
+    @Throws(MessageBuilderException::class)
+    fun mentionStart(mentionType: MentionType): MessageBuilder
+    {
+        return mentionStart().append(mentionType.value)
+    }
+
+    /**
+     * Mentions particular ID.
+     */
+    @Synchronized
+    @Throws(MessageBuilderException::class)
     fun mentionId(id: String, mentionType: MentionType): MessageBuilder
     {
         return mentionStart(mentionType).append(id).mentionEnd()
     }
 
+    /**
+     * Ends mention building.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun mentionEnd(): MessageBuilder
     {
+        if (!isBuildingMention)
+            throw MessageBuilderException("Mention isn't even being built. $messageBuilder")
         isBuildingMention = false
         return append(">")
     }
 
+    /**
+     * Appends some text.
+     *
+     * @throws MessageBuilderException when appendable text length and current text length sum is over limit.
+     */
     @Synchronized
     @Throws(MessageBuilderException::class)
     fun append(text: String): MessageBuilder
     {
+        if (text.contains("\r\n") && isBuildingMention)
+            throw MessageBuilderException("You can't append lines while building mentions.")
         if (messageBuilder.length + text.length < Settings.MAX_MESSAGE_CONTENT_LENGTH)
             messageBuilder.append(text)
         else
-            throw MessageBuilderException("Content length over limit. Consider using an embed instead.")
+            throw MessageBuilderException("Content length over limit (${messageBuilder.length + text.length} > ${Settings.MAX_MESSAGE_CONTENT_LENGTH}. Consider using an embed instead.")
         return this
     }
 
+    /**
+     * Appends message and then appends \r\n terminator to start a new line.
+     */
     @Synchronized
     @Throws(MessageBuilderException::class)
     fun appendLine(text: String): MessageBuilder
     {
-        if (isBuildingMention)
-            throw MessageBuilderException("You can't append lines while building mentions.")
         return append("$text \r\n")
     }
 
+    /**
+     * Validates the message and throws if anything is out of order.
+     */
     @Synchronized
     @Throws(MessageBuilderException::class)
     fun validate()
     {
         if (isBuildingMention)
             throw MessageBuilderException("Mention is being built.")
+        if (content.length > Settings.MAX_MESSAGE_CONTENT_LENGTH)
+            throw MessageBuilderException("Content is over maximum length! Expected: ${Settings.MAX_MESSAGE_CONTENT_LENGTH}, got: ${content.length}")
+        if (embedLength > Settings.MAX_EMBED_CONTENT_LENGTH)
+            throw MessageBuilderException("Embed is over maximum length! Expected: ${Settings.MAX_EMBED_CONTENT_LENGTH}, got: $embedLength")
         validate("(@[!&]?|#|:(\\w+):)\\d+", false)
         validate("(@[!&]?|#|:(\\w+):)\\d+", true)
+
     }
 
+    /**
+     * Appends description to this embed.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun description(description: String): MessageBuilder
     {
         val embed = getEmbedOrCreate()
+        decreaseEmbedCounter(embed.description)
         embed.description = description
+        increaseEmbedCounter(embed.description)
         return embed(embed)
         //return this
     }
 
+    /**
+     * Sets color for this embed.
+     */
     @Synchronized
     fun color(color: Int): MessageBuilder
     {
@@ -198,15 +291,23 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return embed(embed)
     }
 
+    /**
+     * Sets title for this embed.
+     */
     @Synchronized
+    @Throws(MessageBuilderException::class)
     fun title(title: String): MessageBuilder
     {
         val embed = getEmbedOrCreate()
+        decreaseEmbedCounter(embed.title)
         embed.title = title
+        increaseEmbedCounter(embed.title)
         return embed(embed)
     }
 
-
+    /**
+     * Appends field for this embed.
+     */
     @JvmOverloads
     @Synchronized
     @Throws(MessageBuilderException::class)
@@ -214,12 +315,19 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     {
         val embed = getEmbedOrCreate()
         if (embed.fields.size < Settings.FIELD_LIMIT)
-            embed.fields.add(Field(name, value, inline))
+        {
+            val field = Field(name, value, inline)
+            increaseEmbedCounter(field)
+            embed.fields.add(field)
+        }
         else
             throw MessageBuilderException("Too many embed fields!")
         return embed(embed)
     }
 
+    /**
+     * Appends image to this embed
+     */
     @Synchronized
     fun image(url: String): MessageBuilder
     {
@@ -229,6 +337,9 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         //return embed(embed)
     }
 
+    /**
+     * Appends image to this embed.
+     */
     @Synchronized
     fun image(image: Image): MessageBuilder
     {
@@ -237,14 +348,22 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return embed(embed)
     }
 
+    /**
+     * Appends footer to this embed.
+     */
     @Synchronized
     fun footer(footer: Footer): MessageBuilder
     {
         val embed = getEmbedOrCreate()
+        decreaseEmbedCounter(embed.footer)
         embed.footer = footer
+        increaseEmbedCounter(embed.footer)
         return embed(embed)
     }
 
+    /**
+     * Appends footer to this embed.
+     */
     @Synchronized
     fun footer(text: String): MessageBuilder
     {
@@ -253,12 +372,18 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return footer(footer)
     }
 
+    /**
+     * Appends timestamp
+     */
     @Synchronized
     fun timestamp(time: Long): MessageBuilder
     {
         return timestamp(Date(time))
     }
 
+    /**
+     * Appends timestamp
+     */
     @Synchronized
     fun timestamp(time: Date): MessageBuilder
     {
@@ -267,6 +392,9 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return embed(embed)
     }
 
+    /**
+     * Appends thumbnail.
+     */
     @Synchronized
     fun thumbnail(thumbnail: Thumbnail): MessageBuilder
     {
@@ -275,6 +403,9 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return embed(embed)
     }
 
+    /**
+     * Appends thumbnail.
+     */
     @Synchronized
     fun thumbnail(url: String): MessageBuilder
     {
@@ -283,6 +414,9 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return thumbnail(thumbnail)
     }
 
+    /**
+     * Appends video.
+     */
     @Synchronized
     fun video(video: Video): MessageBuilder
     {
@@ -291,6 +425,9 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return embed(embed)
     }
 
+    /**
+     * Appends video.
+     */
     @Synchronized
     fun video(url: String): MessageBuilder
     {
@@ -299,29 +436,19 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
         return video(video)
     }
 
+    /**
+     * Appends attachment.
+     */
     @Synchronized
-    fun provider(provider: Provider): MessageBuilder
-    {
-        val embed = getEmbedOrCreate()
-        embed.provider = provider
-        return embed(embed)
-    }
-
-    @Synchronized
-    fun provider(name: String, url: String): MessageBuilder
-    {
-        val provider = Provider()
-        provider.name = name
-        provider.url = url
-        return provider(provider)
-    }
-
     fun attachment(file: File): MessageBuilder
     {
         attachment = file
         return this
     }
 
+    /**
+     * Validates the message for mentions that may be built incorrectly.
+     */
     @Synchronized
     @Throws(MessageBuilderException::class)
     private fun validate(regex: String, starting: Boolean)
@@ -337,6 +464,80 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
             if (message.getOrNull(index)?.toString() != characterToLookFor)
             {
                 throw MessageBuilderException("Incorrectly built mention at index ${index + 1}. Missing required character: $characterToLookFor: \r\n $message \r\n ${"^here".padStart(index)}")
+            }
+        }
+    }
+
+    private fun decreaseEmbedCounter(value: String): Int
+    {
+
+        if (embedLength - value.length < 0)
+            throw MessageBuilderException("Invalid embed counter value: $embedLength")
+        embedLength -= value.length
+        return value.length
+    }
+
+    private fun increaseEmbedCounter(value: String): Int
+    {
+        if (embedLength + value.length > Settings.MAX_EMBED_CONTENT_LENGTH)
+            throw MessageBuilderException("Invalid embed counter value: $embedLength")
+        embedLength += value.length
+        return value.length
+    }
+
+    private fun decreaseEmbedCounter(author: Author?): Int
+    {
+        author ?: return 0
+        return decreaseEmbedCounter(author.name)
+    }
+
+    private fun increaseEmbedCounter(author: Author?): Int
+    {
+        author ?: return 0
+        return increaseEmbedCounter(author.name)
+    }
+
+    private fun increaseEmbedCounter(field: Field?): Int
+    {
+        field ?: return 0
+        return increaseEmbedCounter(field.value) + increaseEmbedCounter(field.name)
+    }
+
+    private fun increaseEmbedCounter(footer: Footer?): Int
+    {
+        footer ?: return 0
+        return increaseEmbedCounter(footer.text)
+    }
+
+    private fun decreaseEmbedCounter(footer: Footer?): Int
+    {
+        footer ?: return 0
+        return decreaseEmbedCounter(footer.text)
+    }
+
+    private fun evaluateEmbedLength(embed: Embed?)
+    {
+        if (embed == null)
+        {
+            embedLength = 0
+            return
+        }
+        else
+        {
+            if (embed.provider != null)
+                throw MessageBuilderException("Invalid embed! You cannot set provider field.")
+            val oldLength = embedLength
+            embedLength = 0
+            embed.fields.forEach { increaseEmbedCounter(it) }
+            increaseEmbedCounter(embed.author)
+            increaseEmbedCounter(embed.title)
+            increaseEmbedCounter(embed.description)
+            increaseEmbedCounter(embed.footer)
+            if (embedLength > Settings.MAX_EMBED_CONTENT_LENGTH)
+            {
+                val message = "Embed is over maximum length! Expected: ${Settings.MAX_EMBED_CONTENT_LENGTH}, got: $embedLength"
+                embedLength = oldLength
+                throw MessageBuilderException(message)
             }
         }
     }
