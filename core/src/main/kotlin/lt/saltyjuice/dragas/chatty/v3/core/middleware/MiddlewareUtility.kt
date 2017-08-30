@@ -2,6 +2,7 @@ package lt.saltyjuice.dragas.chatty.v3.core.middleware
 
 import lt.saltyjuice.dragas.chatty.v3.core.route.After
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
+import java.lang.reflect.AnnotatedElement
 
 object MiddlewareUtility
 {
@@ -47,7 +48,7 @@ object MiddlewareUtility
     }
 
     @JvmStatic
-    fun getAfterMiddlewares(it: Class<*>): List<Class<out AfterMiddleware<*>>>
+    fun getAfterMiddlewares(it: AnnotatedElement): List<Class<out AfterMiddleware<*>>>
     {
         val annotation = it.getAnnotation(After::class.java)
         annotation ?: return listOf()
@@ -58,7 +59,7 @@ object MiddlewareUtility
     }
 
     @JvmStatic
-    fun getBeforeMiddlewares(it: Class<*>): List<Class<out BeforeMiddleware<*>>>
+    fun getBeforeMiddlewares(it: AnnotatedElement): List<Class<out BeforeMiddleware<*>>>
     {
         val annotation = it.getAnnotation(Before::class.java)
         annotation ?: return listOf()
