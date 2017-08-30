@@ -1,44 +1,26 @@
 # Chatty 
 
-#### master ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=master)  websocket-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=websocket-dev) discord-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=discord-dev) biscord-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=biscord-dev) irc-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=irc-dev) birc-dev ![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=birc-dev) 
+![Build Status](https://travis-ci.org/Dragas/bIRC.svg?branch=master)  
 
-Somewhat elegant Java/Kotlin chat bot framework.
-
-Includes both sources and implementation for IRCs, WebSockets and others!
-
-## Adding Blackjack and Hookers
-
-By the power of Declarative programming and reflection magic, you may use these the following annotations to enhance your chat bot experience!
-
-- `@UsesControllers` - Marks that particular `Client` uses these `Controller` classes during runtime to 
-check requests and try to respond to them. Note: that they need to extend `core.route.Controller`
-- `@Before` - Marks either `Controller`, a `@On` method or `Client` that they use `BeforeMiddleware` to test
-the request before using it. Note: Selected classes MUST implement `BeforeMiddleware` interface. There are 3 cases for this:
-  - When `Client` is marked with this annotation, it tests the requests before pushing them to `Router` pipeline.
-  - When `Controller` is marked with this annotation, it adds all mentioned middlewares to routes generated from it.
-  - When `@On` method is marked with this annotation, it adds mentioned middlewares to route generated from it.
-  - Note: You may only add particular middleware once to that route. So don't mention them twice in `@On` or `Controller`
-- `@After` - Works the same as `@BeforeRequest`, BUT tests generated responses and uses `AfterMiddleware`.
-- `@On` - marks a method in `Controller` that it can be used to generate responses. That method 
-should return either `null` or `Response` object that was specified by implementing `Controller`. Requires `@When` annotation and a `clazz`
-reference, which needs to match in `@When` call and this callback..
-- `@When` - marks that a particular `@On` is tested with another method before it is used. That method
-needs to have a single parameter `Request` and return a `Boolean` value.
-- `@Description` - helps with router debugging. 
+Elegant Java/Kotlin chat bot framework.
 
 ### How does it look?
 
 ```kotlin
+@Singleton // marks that the controller should not be recreated after every request
+@Before(AnotherMockBeforeMiddleware::class) // marks that any callbacks generated from this controller have this middleware
+@After(AnotherMockAfterMiddleware::class) // read above.
 class MockController() : Controller<MockRequest, MockResponse>()
 {
-    @On(MockRequest::class)
-    @When("mockTest")
-    @Before(MockBeforeMiddleware::class)
-    @After(MockAfterMiddleware::class)
-    @Description("A mock method brought to you by readme.md")
-    fun mockResponseGenerator(mockRequest: MockRequest): MockResponse
+    @On(MockRequest::class) // marks the method as callback and tests if request is or has a super class of the argument
+    @When("mockTest") // marks which method is used to test the request
+    // Note that you can't add same middleware twice to a route.
+    @Before(MockBeforeMiddleware::class) // notes which middlewares test the request before actual testing
+    @After(MockAfterMiddleware::class) // notes which middlewares test the generate responses
+    @Description("A mock method brought to you by readme.md") // a description [shrug]
+    fun mockResponseGenerator(mockRequest: MockRequest)
     {
-        return MockResponse(mockRequest.fieldValue, mockRequest.fieldName)
+        writeResponse(MockResponse(mockRequest.fieldValue, mockRequest.fieldName))
     }
 
     fun mockTest(mockRequest: MockRequest): Boolean
@@ -48,10 +30,19 @@ class MockController() : Controller<MockRequest, MockResponse>()
 }
 ```
 
+And then in your client
+```kotlin
+@UsesControllers(MockController::class) // Marks which controllers are used by the client
+@Before(GlobalBeforeMiddleware::class) // adds this middleware to all routes generated in this client
+@After(GlobalAfterMiddleware::class) // read above
+class MockClient() : Client<String, Request, Response, String>
+```
+
 ## Usage
 
-Considering that `chatty-core` is just an abstraction set, you might want to look into either `chatty-irc` or
-even `chatty-birc`.
+Considering that `chatty-core` is just an abstraction set, you might want to look into either `chatty-irc`, `chatty-websocket`
+or even their implementations: `chatty-birc` and `chatty-discord`(Websocket implementation for discord API) and 
+`chatty-biscord`.
 
 With that out of the way, `chatty-core` contains 4 abstractions that should be implemented: 
  * An adapter, located in `lt.saltyjuice.dragas.chatty.v3.core.adapter`;
@@ -79,7 +70,7 @@ repositories {
 And then just list `chatty-core`/`chatty-websocket`/`chatty-irc` as your dependency:
 ```groovy
 dependencies {
-    compile "lt.saltyjuice.dragas:chatty-core:2.2.0"
+    compile "lt.saltyjuice.dragas:chatty-core:3.0.0"
 }
 ```
 
