@@ -1,10 +1,10 @@
 package lt.saltyjuice.dragas.chatty.v3.core.route
 
 import lt.saltyjuice.dragas.chatty.v3.core.adapter.Deserializer
+import lt.saltyjuice.dragas.chatty.v3.core.exception.RouteBuilderException
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
-import lt.saltyjuice.dragas.chatty.v3.core.middleware.MiddlewareUtility
-import java.lang.reflect.Method
+import kotlin.streams.toList
 
 
 /**
@@ -15,9 +15,10 @@ import java.lang.reflect.Method
  */
 abstract class Router<Request, Response>
 {
-    protected open val routes: MutableList<Route<Request, Response>> = ArrayList()
+    protected open val routes: MutableList<Route<Request, Response>> = mutableListOf()
     /**
-     * Returns a route builder, which handles assigning middlewares, callback and test callback
+     * Returns a route builder, which handles assigning middlewares, callback and test callback and builds routes that can
+     * be used by this router.
      */
     abstract fun builder(): Route.Builder<Request, Response>
 
@@ -38,100 +39,41 @@ abstract class Router<Request, Response>
         add(route.build())
     }
 
+    open fun add(routes: List<Route.Builder<Request, Response>>)
+    {
+        routes.forEach(this::add)
+    }
 
     /**
      * Attempts consuming provided [request] request. Returns null on failure.
      *
      * Implementations should take into consideration, that there are global middlewares that should be tested against.
+     *
+     * Your [Request] class MAY implement [Cloneable] interface, which permits your data being cloned, if it does, you may then
+     * modify the request while testing in middlewares and test callbacks freely, without influencing other routes.
+     *
+     * @throws IllegalStateException when [initialize] wasn't called.
+     * @return a list of all responses that were generated using [request]
      */
-    open fun consume(request: Request): Response?
+    @Throws(IllegalStateException::class)
+    fun consume(request: Request): List<Response>
     {
-        routes.forEach {
-            val result = it.attemptTrigger(request)
-            if (result != null)
-                return result
-        }
-        return null
+        return routes.parallelStream()
+                .flatMap()
+                {
+                    val cloned = if (request is Cloneable) request.javaClass.getMethod("clone").invoke(request) as Request else request
+                    it.attemptTrigger(cloned)
+                    it.getResponses().stream()
+                }.toList()
     }
 
     /**
      * Scraps particular controller for methods that have [On] annotation and then builds routes for them.
      */
-    fun consume(controller: Controller<Request, Response>)
+    @Throws(RouteBuilderException::class)
+    @JvmOverloads
+    fun consume(controller: Class<out Controller<Response>>, beforeMiddlewares: List<Class<out BeforeMiddleware<Request>>> = listOf(), afterMiddlewares: List<Class<out AfterMiddleware<Response>>> = listOf())
     {
-        controller.methods().forEach()
-        { it ->
-            val builder = builder()
-            consumeMethod(builder, controller, it)
-            add(builder)
-        }
-    }
-
-    /**
-     * Should any additional annotations be added later in core or protocol implementations, they should be scrapped here.
-     * Calling super is mandatory.
-     */
-    open fun consumeMethod(builder: Route.Builder<Request, Response>, controller: Controller<Request, Response>, method: Method)
-    {
-        val type = method.getAnnotation(On::class.java).clazz
-        builder.apply()
-        {
-            description("${controller.javaClass.canonicalName}#${method.name}")
-            callback()
-            { request ->
-                method.invoke(controller, request) as Response?
-            }
-            testCallback()
-            {
-                it as Any
-                type.java.isAssignableFrom(it.javaClass)
-            }
-            MiddlewareUtility.getBeforeMiddlewares(controller).forEach()
-            {
-                before(it as Class<BeforeMiddleware<Request>>)
-            }
-            MiddlewareUtility.getAfterMiddlewares(controller).forEach()
-            {
-                after(it as Class<AfterMiddleware<Response>>)
-            }
-        }
-
-        method.annotations.forEach()
-        {
-            when (it)
-            {
-                is When ->
-                {
-                    val testCallbackAnnotation = it.value
-                    val testCallback = controller.javaClass.methods.find { it.name == testCallbackAnnotation }
-                    testCallback ?: throw NoSuchMethodException("Unable to find method named $testCallbackAnnotation")
-                    builder.testCallback()
-                    {
-                        it as Any
-                        type.java.isAssignableFrom(it.javaClass) && testCallback.invoke(controller, it) as Boolean
-                    }
-
-                }
-                is Before ->
-                {
-                    it.value.forEach()
-                    { clazz ->
-                        builder.before(clazz.java as Class<BeforeMiddleware<Request>>)
-                    }
-
-                }
-                is After ->
-                {
-                    it.value.forEach()
-                    { clazz ->
-                        builder.after(clazz.java as Class<AfterMiddleware<Response>>)
-                    }
-                }
-                is Description ->
-                {
-                    builder.description(it.value)
-                }
-            }
-        }
+        add(builder().consume(controller, beforeMiddlewares, afterMiddlewares))
     }
 }
