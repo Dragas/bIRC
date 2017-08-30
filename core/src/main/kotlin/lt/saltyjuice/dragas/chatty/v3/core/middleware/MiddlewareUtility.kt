@@ -35,24 +35,36 @@ object MiddlewareUtility
     }
 
     @JvmStatic
-    fun getBeforeMiddlewares(it: Any): List<Class<BeforeMiddleware<*>>>
+    fun getBeforeMiddlewares(it: Any): List<Class<out BeforeMiddleware<*>>>
     {
-        val annotation = it.javaClass.getAnnotation(Before::class.java)
+        return getBeforeMiddlewares(it.javaClass)
+    }
+
+    @JvmStatic
+    fun getAfterMiddlewares(it: Any): List<Class<out AfterMiddleware<*>>>
+    {
+        return getAfterMiddlewares(it.javaClass)
+    }
+
+    @JvmStatic
+    fun getAfterMiddlewares(it: Class<*>): List<Class<out AfterMiddleware<*>>>
+    {
+        val annotation = it.getAnnotation(After::class.java)
         annotation ?: return listOf()
         return annotation.value.map()
         {
-            it.java as Class<BeforeMiddleware<*>>
+            it.java
         }
     }
 
     @JvmStatic
-    fun getAfterMiddlewares(it: Any): List<Class<AfterMiddleware<*>>>
+    fun getBeforeMiddlewares(it: Class<*>): List<Class<out BeforeMiddleware<*>>>
     {
-        val annotation = it.javaClass.getAnnotation(After::class.java)
+        val annotation = it.getAnnotation(Before::class.java)
         annotation ?: return listOf()
         return annotation.value.map()
         {
-            it.java as Class<AfterMiddleware<*>>
+            it.java
         }
     }
 }
