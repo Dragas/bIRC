@@ -10,25 +10,6 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class ClientTest
 {
-
-    @Test
-    fun clientHasBeforeMiddlewares()
-    {
-        Assert.assertTrue(client.getBeforeMiddlewaress().isNotEmpty())
-    }
-
-    @Test
-    fun clientHasAfterMiddlewares()
-    {
-        Assert.assertTrue(client.getAfterMiddlewaress().isNotEmpty())
-    }
-
-    @Test
-    fun clientHasControllers()
-    {
-        Assert.assertTrue(client.getControllerss().isNotEmpty())
-    }
-
     @Test
     fun clientHasRoutes()
     {
