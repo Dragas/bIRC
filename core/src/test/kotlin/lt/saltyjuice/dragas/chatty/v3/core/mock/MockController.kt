@@ -4,16 +4,16 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 
-class MockController() : Controller<MockRequest, MockResponse>()
+open class MockController() : Controller<MockResponse>()
 {
     @On(MockRequest::class)
     @When("mockTest")
-    fun mockResponseGenerator(mockRequest: MockRequest): MockResponse
+    fun mockResponseGenerator(mockRequest: MockRequest)
     {
-        return MockResponse(mockRequest.fieldValue, mockRequest.fieldName)
+        writeResponse(MockResponse(mockRequest.fieldValue, mockRequest.fieldName))
     }
 
-    fun mockTest(mockRequest: MockRequest): Boolean
+    open fun mockTest(mockRequest: MockRequest): Boolean
     {
         return true
     }

@@ -1,5 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
+import lt.saltyjuice.dragas.chatty.v3.core.exception.RouteBuilderException
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithoutTestMethod
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
 import org.junit.Assert
@@ -14,8 +15,8 @@ class RouterTestWithoutTestMethod
     @Test
     fun routerDoesntAddRouteWithoutTestMethod()
     {
-        val count = router.getRoutess().count()
-        Assert.assertTrue(count <= 0)
+        val count = router.getRoutess()
+        Assert.assertTrue(count.isEmpty())
     }
 
     companion object
@@ -29,12 +30,11 @@ class RouterTestWithoutTestMethod
         {
             try
             {
-                router.consume(MockControllerWithoutTestMethod())
+                router.consume(MockControllerWithoutTestMethod::class.java)
             }
-            catch (err: Throwable)
+            catch (err: RouteBuilderException)
             {
-                println("Carry on. This is intended.")
-                err.printStackTrace()
+
             }
         }
     }

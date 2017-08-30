@@ -1,8 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.core.mock
 
 import lt.saltyjuice.dragas.chatty.v3.core.main.Client
-import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
-import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
 import lt.saltyjuice.dragas.chatty.v3.core.route.After
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.UsesControllers
@@ -39,7 +37,7 @@ class MockClient : Client<String, MockRequest, MockResponse, String>()
      */
     override fun onConnect()
     {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     /**
@@ -48,7 +46,7 @@ class MockClient : Client<String, MockRequest, MockResponse, String>()
      */
     override fun onDisconnect()
     {
-        //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+
     }
 
     /**
@@ -57,7 +55,7 @@ class MockClient : Client<String, MockRequest, MockResponse, String>()
      */
     override fun connect(): Boolean
     {
-        return true//TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
+        return true
     }
 
     /**
@@ -66,22 +64,7 @@ class MockClient : Client<String, MockRequest, MockResponse, String>()
      */
     override fun isConnected(): Boolean
     {
-        return true //TODO("not implemented") //To change body of created functions use File | Settings | File Templates.
-    }
-
-    fun getBeforeMiddlewaress(): MutableCollection<BeforeMiddleware<MockRequest>>
-    {
-        return beforeMiddlewares
-    }
-
-    fun getAfterMiddlewaress(): MutableCollection<AfterMiddleware<MockResponse>>
-    {
-        return afterMiddlewares
-    }
-
-    fun getControllerss(): MutableCollection<MockController>
-    {
-        return controllers as MutableCollection<MockController>
+        return true
     }
 
     fun getRouters(): MockRouter

@@ -15,14 +15,14 @@ class RouterTestWithMiddleware
     fun routeHasBeforeMiddleware()
     {
         val route = router.getRoutess()[0]
-        Assert.assertTrue(route.getBeforeMiddlewaress().count() > 0)
+        Assert.assertTrue(route.getBeforeMiddlewaress().isNotEmpty())
     }
 
     @Test
     fun routeHasAfterMiddleware()
     {
         val route = router.getRoutess()[0]
-        Assert.assertTrue(route.getAftereMiddlewaress().count() > 0)
+        Assert.assertTrue(route.getAftereMiddlewaress().isNotEmpty())
     }
 
     companion object
@@ -31,7 +31,7 @@ class RouterTestWithMiddleware
         val router = MockRouter()
 
         @JvmStatic
-        val controller = MockControllerWithMiddleware()
+        val controller = MockControllerWithMiddleware::class.java
 
         @JvmStatic
         @BeforeClass

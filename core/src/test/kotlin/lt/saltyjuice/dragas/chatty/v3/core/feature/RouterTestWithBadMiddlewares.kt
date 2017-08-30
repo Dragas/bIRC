@@ -1,6 +1,6 @@
 package lt.saltyjuice.dragas.chatty.v3.core.feature
 
-import lt.saltyjuice.dragas.chatty.v3.core.exception.DuplicateMiddlewareException
+import lt.saltyjuice.dragas.chatty.v3.core.exception.RouteBuilderException
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockControllerWithBadMiddlewares
 import lt.saltyjuice.dragas.chatty.v3.core.mock.MockRouter
 import org.junit.Assert
@@ -19,20 +19,13 @@ class RouterTestWithBadMiddlewares
         Assert.assertTrue(route.isEmpty())
     }
 
-    /*@Test
-    fun routeHasAfterMiddleware()
-    {
-        val route = router.getRoutess()[0]
-        Assert.assertTrue(route.getAftereMiddlewaress().count() > 0)
-    }*/
-
     companion object
     {
         @JvmStatic
         val router = MockRouter()
 
         @JvmStatic
-        val controller = MockControllerWithBadMiddlewares()
+        val controller = MockControllerWithBadMiddlewares::class.java
 
         @JvmStatic
         @BeforeClass
@@ -42,10 +35,9 @@ class RouterTestWithBadMiddlewares
             {
                 router.consume(controller)
             }
-            catch (err: DuplicateMiddlewareException)
+            catch (err: RouteBuilderException)
             {
-                println("Carry on. this is intented")
-                err.printStackTrace()
+
             }
         }
     }

@@ -4,12 +4,12 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 
-class MockControllerWithoutTestMethod() : Controller<MockRequest, MockResponse>()
+class MockControllerWithoutTestMethod() : Controller<MockResponse>()
 {
     @On(MockRequest::class)
     @When("anotherMethod")
-    fun notSoMockResponseGenerator(mockRequest: MockRequest): MockResponse
+    fun notSoMockResponseGenerator(mockRequest: MockRequest)
     {
-        return MockResponse("", "")
+        writeResponse(MockResponse("", ""))
     }
 }

@@ -36,7 +36,7 @@ class RouterTestWithControllerMiddlewares
         @BeforeClass
         fun init()
         {
-            router.consume(MockControllerWithGlobalMiddlewares())
+            router.consume(MockControllerWithGlobalMiddlewares::class.java)
         }
 
         fun getRoute(): MockRoute

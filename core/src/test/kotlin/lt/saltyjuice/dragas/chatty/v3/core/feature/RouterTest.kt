@@ -13,18 +13,17 @@ import org.junit.runners.JUnit4
 @RunWith(JUnit4::class)
 class RouterTest
 {
-
     @Test
     fun routerHasRoutes()
     {
-        val count = router.getRoutess().count()
-        Assert.assertTrue(count > 0)
+        val count = router.getRoutess().isNotEmpty()
+        Assert.assertTrue(count)
     }
 
     @Test
     fun routeHasDescription()
     {
-        val description = getRoute().getDescriptions()
+        val description = route.getDescriptions()
         Assert.assertNotEquals("", description)
     }
 
@@ -32,24 +31,37 @@ class RouterTest
     fun routeCanBeTested()
     {
         val mockRequest = MockRequest("", "")
-        Assert.assertTrue(getRoute().canTrigger(mockRequest))
+        Assert.assertTrue(route.canTrigger(mockRequest))
     }
 
     @Test
-    fun routeCanResponse()
+    fun routeCanRespond()
     {
         val mockRequest = MockRequest("", "")
-        val response = getRoute().attemptTrigger(mockRequest)
-        Assert.assertNotNull(response)
+        route.attemptTrigger(mockRequest)
+        val response = route.getResponses()
+        Assert.assertTrue(response.isNotEmpty())
+    }
+
+    @Test
+    fun controllerDoesntStick()
+    {
+        val controllerInstance = route.getControllerInstance()
+        route.canTrigger(MockRequest("", ""))
+        val controllerInstance2 = route.getControllerInstance()
+        Assert.assertNotEquals(controllerInstance, controllerInstance2)
     }
 
     companion object
     {
         @JvmStatic
+        val route: MockRoute by lazy { getFirstRoute() }
+
+        @JvmStatic
         val router = MockRouter()
 
         @JvmStatic
-        val controller = MockController()
+        var controller = MockController::class.java
 
         @JvmStatic
         @BeforeClass
@@ -59,7 +71,7 @@ class RouterTest
         }
 
         @JvmStatic
-        fun getRoute(): MockRoute
+        fun getFirstRoute(): MockRoute
         {
             return router.getRoutess()[0]
         }
