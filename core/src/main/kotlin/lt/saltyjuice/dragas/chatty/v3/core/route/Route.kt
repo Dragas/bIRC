@@ -91,7 +91,7 @@ open class Route<Request, Response>
      */
     open fun canTrigger(request: Request): Boolean
     {
-        return beforeMiddlewares.firstOrNull { it -> !it.before(request) } == null && testCallback(this, request)
+        return (beforeMiddlewares.firstOrNull { it -> !it.before(request) } == null && testCallback(this, request)).also { canBeReused.set(!it) }
     }
 
     /**
@@ -129,11 +129,6 @@ open class Route<Request, Response>
             callback(this, request)
             val responses = getCurrentControllerInstance().getResponses()
             responses.forEach(this::attemptRespond)
-            canBeReused.set(false)
-        }
-        else
-        {
-            canBeReused.set(true)
         }
         getCurrentControllerInstance().getResponses() // cleans the generated responses, if there were any.
     }
@@ -254,7 +249,7 @@ open class Route<Request, Response>
                         afterMiddlewares.forEach { builder.after(it) }
                         beforeMiddlewares.forEach { builder.before(it) }
                         builder.consume(controller, method)
-                        if (!superConsumeMethodCalledWhenBuilding)
+                        if (!builder.superConsumeMethodCalledWhenBuilding)
                             throw RouteBuilderException("super.consumeMethod() was not called.")
                         builder
                     }
@@ -269,7 +264,7 @@ open class Route<Request, Response>
         open fun consume(controller: Class<out Controller<Response>>, method: Method): Route.Builder<Request, Response>
         {
             val type = method.getAnnotation(On::class.java).clazz
-            description(method.getAnnotation(Description::class.java)?.value ?: "${controller.javaClass.canonicalName}#${method.name}")
+            description(method.getAnnotation(Description::class.java)?.value ?: "${controller.canonicalName}#${method.name}")
             singleton(controller.getAnnotation(Singleton::class.java) != null)
             controller(controller)
             try
