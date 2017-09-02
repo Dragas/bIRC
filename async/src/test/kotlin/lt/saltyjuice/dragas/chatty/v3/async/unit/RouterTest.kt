@@ -40,7 +40,7 @@ class RouterTest
     companion object
     {
         private lateinit var router: MockRouter
-        private val channel = Channel<Int>()
+        private val channel = Channel<Float>()
         private val controller = NotAsyncController::class.java
         @BeforeClass
         @JvmStatic

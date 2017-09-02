@@ -4,13 +4,13 @@ import lt.saltyjuice.dragas.chatty.v3.async.route.AsyncController
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 
-class MockController : AsyncController<Int>()
+class MockController : AsyncController<Float>()
 {
     @On(Int::class)
     @When("isEven")
     fun provideModuloOfTwoWritesLater(request: Int)
     {
-        writeResponse(request % 2)
+        writeResponse((request % 2).toFloat())
     }
 
     fun isEven(request: Int): Boolean
@@ -22,7 +22,7 @@ class MockController : AsyncController<Int>()
     @When("isOdd")
     fun providesModuloOfTwoWritesNow(request: Int)
     {
-        writeResponse(request % 2, true)
+        writeResponse((request % 2).toFloat(), true)
     }
 
     fun isOdd(request: Int): Boolean

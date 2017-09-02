@@ -37,7 +37,7 @@ class RouteTest
     companion object
     {
         @JvmStatic
-        private val channel: Channel<Int> = Channel()
+        private val channel: Channel<Float> = Channel()
 
         @JvmStatic
         private val builder: MockRoute.Builder by lazy()

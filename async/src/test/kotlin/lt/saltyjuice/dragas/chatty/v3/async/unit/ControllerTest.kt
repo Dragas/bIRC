@@ -20,7 +20,7 @@ open class ControllerTest
     fun controllerWritesResponseNow() = runBlocking()
     {
         controller.providesModuloOfTwoWritesNow(2)
-        Assert.assertEquals(0, channel.receive())
+        Assert.assertEquals(0f, channel.receive())
     }
 
     companion object
@@ -29,7 +29,7 @@ open class ControllerTest
         private val controller: MockController = MockController()
 
         @JvmStatic
-        private val channel: Channel<Int> = Channel()
+        private val channel: Channel<Float> = Channel()
 
         @JvmStatic
         @BeforeClass

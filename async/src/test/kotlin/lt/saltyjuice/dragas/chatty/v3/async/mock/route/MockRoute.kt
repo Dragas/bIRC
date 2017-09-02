@@ -8,21 +8,21 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
 import lt.saltyjuice.dragas.chatty.v3.core.route.Route
 import java.lang.reflect.Method
 
-open class MockRoute : AsyncRoute<Int, Int>()
+open class MockRoute : AsyncRoute<Int, Float>()
 {
-    open class Builder : AsyncRoute.Builder<Int, Int>()
+    open class Builder : AsyncRoute.Builder<Int, Float>()
     {
         override fun returnableRoute(): MockRoute
         {
             return MockRoute()
         }
 
-        override fun adapt(route: Route<Int, Int>): MockRoute
+        override fun adapt(route: Route<Int, Float>): MockRoute
         {
             return super.adapt(route) as MockRoute
         }
 
-        override fun after(clazz: Class<out AfterMiddleware<Int>>): Builder
+        override fun after(clazz: Class<out AfterMiddleware<Float>>): Builder
         {
             return super.after(clazz) as Builder
         }
@@ -32,17 +32,17 @@ open class MockRoute : AsyncRoute<Int, Int>()
             return super.before(clazz) as Builder
         }
 
-        override fun callback(callback: (Route<Int, Int>, Int) -> Unit): Builder
+        override fun callback(callback: (Route<Int, Float>, Int) -> Unit): Builder
         {
             return super.callback(callback) as Builder
         }
 
-        override fun consume(controller: Class<out Controller<Int>>, method: Method): Builder
+        override fun consume(controller: Class<out Controller<Float>>, method: Method): Builder
         {
             return super.consume(controller, method) as Builder
         }
 
-        override fun controller(clazz: Class<out Controller<Int>>): Builder
+        override fun controller(clazz: Class<out Controller<Float>>): Builder
         {
             return super.controller(clazz) as Builder
         }
@@ -52,12 +52,12 @@ open class MockRoute : AsyncRoute<Int, Int>()
             return super.description(string) as Builder
         }
 
-        override fun testCallback(callback: (Route<Int, Int>, Int) -> Boolean): Builder
+        override fun testCallback(callback: (Route<Int, Float>, Int) -> Boolean): Builder
         {
             return super.testCallback(callback) as Builder
         }
 
-        override fun responseChannel(channel: SendChannel<Int>): Builder
+        override fun responseChannel(channel: SendChannel<Float>): Builder
         {
             return super.responseChannel(channel) as Builder
         }
