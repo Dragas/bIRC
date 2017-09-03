@@ -125,7 +125,7 @@ class CardController : DiscordController()
             return null
         }
 
-        buildMessage(filterCards(this::onNoneFound))
+        buildMessage(filterCards())
         return null
     }
 
@@ -193,9 +193,10 @@ class CardController : DiscordController()
 
 
     @JvmOverloads
-    fun filterCards(onNoneFound: ((cardList: MutableList<Card>) -> Unit)? = null): List<Card>
+    fun filterCards(): List<Card>
     {
-        return getCollectable().parallelStream().use {
+        return getCollectable().parallelStream().use()
+        {
             val cardList = ArrayList<Card>()
             if (shouldBeMany)
             {
@@ -206,7 +207,11 @@ class CardController : DiscordController()
                 val card = filterForSingle(it)
                 if (card.dbfId == -1)
                 {
-                    onNoneFound?.invoke(cardList)
+                    cardList.addAll(getCollectable().parallelStream().use(this::filterForMany))
+                    if (cardList.isEmpty())
+                    {
+                        cardList.addAll(getCards().parallelStream().use(this::filterForMany))
+                    }
                 }
                 else
                 {
@@ -287,26 +292,6 @@ class CardController : DiscordController()
             err.printStackTrace(System.err)
         }
         messageBuilder = MessageBuilder()
-    }
-
-    fun onNoneFound(cards: MutableList<Card>)
-    {
-        messageBuilder
-                .mention(content.author)
-                .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
-                .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
-                .send(content.channelId)
-        messageBuilder = MessageBuilder()
-        cards.addAll(getCollectable().parallelStream().use(this::filterForMany))
-        if (cards.isEmpty())
-        {
-            messageBuilder
-                    .mention(content.author)
-                    .appendLine(": can't find ${arguments[0]} in collectible list. Including not collectibles.")
-                    .send(content.channelId)
-            messageBuilder = MessageBuilder()
-            cards.addAll(getCards().parallelStream().use(this::filterForMany))
-        }
     }
 
     private enum class Param(vararg val values: String)
