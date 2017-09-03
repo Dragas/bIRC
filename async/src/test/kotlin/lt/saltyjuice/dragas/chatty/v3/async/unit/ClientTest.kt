@@ -7,16 +7,19 @@ import lt.saltyjuice.dragas.chatty.v3.async.mock.main.MockClient
 import lt.saltyjuice.dragas.chatty.v3.async.mock.message.MockRequest
 import org.junit.Assert
 import org.junit.BeforeClass
+import org.junit.Rule
 import org.junit.Test
+import org.junit.rules.Timeout
 import org.junit.runner.RunWith
 import org.junit.runners.JUnit4
+import java.util.concurrent.TimeUnit
 
 @RunWith(JUnit4::class)
 class ClientTest
 {
-    /*@Rule
+    @Rule
     @JvmField
-    val timeout = Timeout(1000, TimeUnit.MILLISECONDS)*/
+    val timeout = Timeout(1000, TimeUnit.MILLISECONDS)
 
     @Test
     fun clientIsCapableOfConsumeAndResponding() = runBlocking()
