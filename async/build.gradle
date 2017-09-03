@@ -38,4 +38,4 @@ compileTestKotlin {
     kotlinOptions.jvmTarget = "1.8"
 }
 
-apply from: "../upload.gradle"
+//apply from: "../upload.gradle"

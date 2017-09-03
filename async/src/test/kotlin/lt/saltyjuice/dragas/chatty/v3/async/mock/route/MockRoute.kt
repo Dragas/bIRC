@@ -1,6 +1,7 @@
 package lt.saltyjuice.dragas.chatty.v3.async.mock.route
 
 import kotlinx.coroutines.experimental.channels.SendChannel
+import lt.saltyjuice.dragas.chatty.v3.async.mock.message.MockRequest
 import lt.saltyjuice.dragas.chatty.v3.async.route.AsyncRoute
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.AfterMiddleware
 import lt.saltyjuice.dragas.chatty.v3.core.middleware.BeforeMiddleware
@@ -8,16 +9,16 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.Controller
 import lt.saltyjuice.dragas.chatty.v3.core.route.Route
 import java.lang.reflect.Method
 
-open class MockRoute : AsyncRoute<Int, Float>()
+open class MockRoute : AsyncRoute<MockRequest, Float>()
 {
-    open class Builder : AsyncRoute.Builder<Int, Float>()
+    open class Builder : AsyncRoute.Builder<MockRequest, Float>()
     {
         override fun returnableRoute(): MockRoute
         {
             return MockRoute()
         }
 
-        override fun adapt(route: Route<Int, Float>): MockRoute
+        override fun adapt(route: Route<MockRequest, Float>): MockRoute
         {
             return super.adapt(route) as MockRoute
         }
@@ -27,12 +28,12 @@ open class MockRoute : AsyncRoute<Int, Float>()
             return super.after(clazz) as Builder
         }
 
-        override fun before(clazz: Class<out BeforeMiddleware<Int>>): Builder
+        override fun before(clazz: Class<out BeforeMiddleware<MockRequest>>): Builder
         {
             return super.before(clazz) as Builder
         }
 
-        override fun callback(callback: (Route<Int, Float>, Int) -> Unit): Builder
+        override fun callback(callback: (Route<MockRequest, Float>, MockRequest) -> Unit): Builder
         {
             return super.callback(callback) as Builder
         }
@@ -52,7 +53,7 @@ open class MockRoute : AsyncRoute<Int, Float>()
             return super.description(string) as Builder
         }
 
-        override fun testCallback(callback: (Route<Int, Float>, Int) -> Boolean): Builder
+        override fun testCallback(callback: (Route<MockRequest, Float>, MockRequest) -> Boolean): Builder
         {
             return super.testCallback(callback) as Builder
         }

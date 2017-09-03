@@ -3,6 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.async.unit
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.async.mock.controller.MockController
+import lt.saltyjuice.dragas.chatty.v3.async.mock.message.MockRequest
 import org.junit.*
 import org.junit.rules.Timeout
 import org.junit.runner.RunWith
@@ -19,7 +20,7 @@ open class ControllerTest
     @Test
     fun controllerWritesResponseNow() = runBlocking()
     {
-        controller.providesModuloOfTwoWritesNow(2)
+        controller.providesModuloOfTwoWritesNow(MockRequest(2))
         Assert.assertEquals(0f, channel.receive())
     }
 

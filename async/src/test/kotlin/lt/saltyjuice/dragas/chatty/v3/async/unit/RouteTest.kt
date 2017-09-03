@@ -3,6 +3,7 @@ package lt.saltyjuice.dragas.chatty.v3.async.unit
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.async.mock.controller.MockController
+import lt.saltyjuice.dragas.chatty.v3.async.mock.message.MockRequest
 import lt.saltyjuice.dragas.chatty.v3.async.mock.route.MockRoute
 import org.junit.AfterClass
 import org.junit.Assert
@@ -23,15 +24,15 @@ class RouteTest
     @Test
     fun routeRespondsAsynchronously() = runBlocking()
     {
-        buildAsyncRoute().attemptTrigger(3)
-        Assert.assertEquals(1, channel.receive())
+        buildAsyncRoute().attemptTrigger(MockRequest(3))
+        Assert.assertEquals(1.0f, channel.receive())
     }
 
     @Test
     fun routeRespondsSynchonously() = runBlocking()
     {
-        buildSyncRoute().attemptTrigger(2)
-        Assert.assertEquals(0, channel.receive())
+        buildSyncRoute().attemptTrigger(MockRequest(2))
+        Assert.assertEquals(0.0f, channel.receive())
     }
 
     companion object

@@ -18,7 +18,7 @@ class RouterTest
     {
         shouldThrow(RouteBuilderException::class.java)
         {
-            router.consume(NotAsyncController::class.java)
+            router.consume(controller)
         }
     }
 
@@ -31,7 +31,7 @@ class RouterTest
         }
         catch (err: Throwable)
         {
-            clazz.forEach { if (it.isAssignableFrom(err.javaClass)) threw = true }
+            clazz.forEach { if (it.isAssignableFrom(err.javaClass)) threw = true else throw err }
         }
 
         Assert.assertTrue(threw)
