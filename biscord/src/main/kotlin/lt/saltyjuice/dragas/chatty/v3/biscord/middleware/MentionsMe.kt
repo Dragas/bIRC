@@ -13,10 +13,10 @@ class MentionsMe : DiscordMiddleware()
         {
             val content = request.data!!
             val doesMentionMe = content.mentionsMe()
-            val startsWithMe = content.content.startsWith("<@${ConnectionController.getCurrentUserId()}>")
+            val startsWithMe = content.content.run { startsWith("<@${ConnectionController.getCurrentUserId()}>") || startsWith("<@!${ConnectionController.getCurrentUserId()}>") }
             if (startsWithMe)
             {
-                content.content = content.content.replaceFirst("<@${ConnectionController.getCurrentUserId()}>", "")
+                content.content = content.content.replaceFirst(Regex("<@!?${ConnectionController.getCurrentUserId()}>"), "")
                 if (content.content.startsWith(" "))
                     content.content = content.content.replaceFirst(" ", "")
             }
