@@ -9,8 +9,8 @@ interface CardAPI
     /**
      * Returns many cards by partial name.
      */
-    @GET("cards.collectible.json")
-    fun getCards(): Call<ArrayList<Card>>
+    @GET("cards.json")
+    fun getCards(): Call<Set<Card>>
 
     //https://api.hearthstonejson.com/v1/latest/enUS/
 }

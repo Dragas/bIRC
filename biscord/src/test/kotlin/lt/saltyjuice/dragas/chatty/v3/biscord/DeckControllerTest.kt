@@ -59,7 +59,7 @@ class DeckControllerTest
         fun init()
         {
             dc = DeckController()
-            CardController()
+            CardController.initialize()
             Assert.assertTrue(dc.canDecode(hash))
             //dc.initializeDecoder()
             dc.decodeAsDeck()
