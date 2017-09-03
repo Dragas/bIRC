@@ -66,7 +66,7 @@ open class Card : Comparable<Card>
     var artist: String = ""
     @Expose
     @SerializedName("collectible")
-    var collectible: Boolean = true
+    var collectible: Boolean = false
     @Expose
     @SerializedName("elite")
     var elite: String = ""

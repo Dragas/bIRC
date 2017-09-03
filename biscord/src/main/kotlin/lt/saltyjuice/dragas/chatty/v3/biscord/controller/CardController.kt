@@ -9,6 +9,7 @@ import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.doIf
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
+import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Type
 import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
 import lt.saltyjuice.dragas.chatty.v3.biscord.utility.BiscordUtility
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
@@ -230,19 +231,30 @@ class CardController : DiscordController()
         val image = if (shouldBeGold) card.imgGold else card.img
         try
         {
-            messageBuilder.append(image)
+            if (card.collectible)
+            {
+                messageBuilder.append(image)
+                messageBuilder.appendLine(" ")
+            }
+            else
+            {
+                buildSimpleCodeSnippet(card)
+            }
             if (card.entourages.isNotEmpty())
             {
                 if (!shouldIncludeCreated)
                 {
                     messageBuilder
-                            .append(" creates ${card.entourages.count()} cards. Use ")
+                            .append(" creates ${card.entourages.count()} cards. Use \"")
                             .mention(ConnectionController.getCurrentUser())
-                            .append(" card ${card.name} --creates to include them.")
+                            .append(" card ${card.name} --creates\" to include them.")
                 }
                 else
                 {
-                    card.entourages.forEach(this::buildSimple)
+                    messageBuilder.appendLine("API does not include images for generated cards.")
+                    messageBuilder.send(content.channelId)
+                    messageBuilder = MessageBuilder()
+                    card.entourages.forEach(this::buildSimpleCodeSnippet)
                 }
             }
         }
@@ -252,6 +264,29 @@ class CardController : DiscordController()
             messageBuilder = MessageBuilder()
             messageBuilder.appendLine(image)
         }
+    }
+
+    private fun buildSimpleCodeSnippet(card: Card)
+    {
+        try
+        {
+            messageBuilder.beginCodeSnippet("markdown")
+                    .appendLine("[${card.name}][${card.dbfId}]{${card.cardId}]")
+                    .appendLine("[${card.cost} mana]")
+            when (card.type)
+            {
+                Type.Minion -> messageBuilder.appendLine("[${card.attack}/${card.health}]")
+            }
+            messageBuilder.appendLine(card.text.replace("\r", "").replace("\n", ""))
+            messageBuilder.endCodeSnippet()
+            messageBuilder.send(content.channelId)
+
+        }
+        catch (err: MessageBuilderException)
+        {
+            err.printStackTrace(System.err)
+        }
+        messageBuilder = MessageBuilder()
     }
 
     fun onNoneFound(cards: MutableList<Card>)
@@ -270,7 +305,7 @@ class CardController : DiscordController()
                     .appendLine(": can't find ${arguments[0]} in collectible list. Including not collectibles.")
                     .send(content.channelId)
             messageBuilder = MessageBuilder()
-            getCards().parallelStream().use(this::filterForMany)
+            cards.addAll(getCards().parallelStream().use(this::filterForMany))
         }
     }
 
