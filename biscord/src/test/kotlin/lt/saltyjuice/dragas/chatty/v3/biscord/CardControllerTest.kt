@@ -51,6 +51,13 @@ class CardControllerTest
         Assert.assertTrue(cc.filterCards().isNotEmpty())
     }
 
+    @Test
+    fun filtersForEntourage()
+    {
+        val count = CardController.getCollectable().parallelStream().filter { it.entourages.isNotEmpty() }.count()
+        Assert.assertNotEquals(0L, count)
+    }
+
 
     companion object
     {
@@ -61,6 +68,7 @@ class CardControllerTest
         @BeforeClass
         fun init()
         {
+            CardController.initialize()
             cc = CardController()
         }
     }

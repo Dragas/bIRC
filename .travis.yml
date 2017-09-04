@@ -10,3 +10,8 @@ cache:
     - $HOME/.gradle/wrapper/
 script:
   - ./gradlew test --stacktrace
+
+after_success:
+  - "chmod a+x automerger"
+  - "BRANCHES_TO_MERGE_REGEX='-dev$' BRANCH_TO_MERGE_INTO=master GITHUB_REPO=Dragas/bIRC"
+  - ./automerger

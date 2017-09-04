@@ -1,13 +1,21 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
+import kotlinx.coroutines.experimental.CommonPool
+import kotlinx.coroutines.experimental.Unconfined
 import kotlinx.coroutines.experimental.channels.Channel
+import kotlinx.coroutines.experimental.channels.SendChannel
+import kotlinx.coroutines.experimental.channels.produce
+import kotlinx.coroutines.experimental.launch
+import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.doIf
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
+import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Type
 import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
 import lt.saltyjuice.dragas.chatty.v3.biscord.utility.BiscordUtility
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
+import lt.saltyjuice.dragas.chatty.v3.discord.controller.ConnectionController
 import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
 import lt.saltyjuice.dragas.chatty.v3.discord.exception.MessageBuilderException
 import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
@@ -18,16 +26,16 @@ import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
 import java.util.*
-import java.util.concurrent.ConcurrentSkipListSet
 import java.util.stream.Stream
 import kotlin.streams.toList
 
-class CardController : DiscordController(), Callback<ArrayList<Card>>
+class CardController : DiscordController()
 {
     private var arguments = Array(1, { "" })
     private var shouldBeGold = false
     private var shouldBeVerbose = false
     private var shouldBeMany = false
+    private var shouldIncludeCreated = false
     private var messageBuilder = MessageBuilder()
         @Synchronized
         get()
@@ -47,37 +55,6 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             Pair("Dr Balance", "Dr. Boom"),
             Pair("Shit", "\"(You)\"")
     )
-    init
-    {
-        if (cardss.isEmpty())
-        {
-            BiscordUtility.API.getCards().apply()
-            {
-                try
-                {
-                    val response = this.execute()
-                    onResponse(this, response)
-                }
-                catch (err: Throwable)
-                {
-                    onFailure(this@apply, err)
-                }
-            }
-        }
-    }
-
-    override fun onResponse(call: Call<ArrayList<Card>>, response: Response<ArrayList<Card>>)
-    {
-        if (response.isSuccessful)
-            cardss = ConcurrentSkipListSet(response.body()!!.toSet())
-        else
-            throw IllegalStateException("Failed to get cards from API")
-    }
-
-    override fun onFailure(call: Call<ArrayList<Card>>, up: Throwable)
-    {
-        throw up
-    }
 
     fun isCardRequest(request: EventMessageCreate): Boolean
     {
@@ -104,9 +81,15 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         val exception = exceptionMap.keys.find { it.toLowerCase() == arguments[0].toLowerCase() }
         if (exception != null)
             arguments[0] = exceptionMap[exception]!!
-        shouldBeGold = containsArgument(Param.GOLD.values)
-        shouldBeVerbose = containsArgument(Param.VERBOSE.values)
-        shouldBeMany = containsArgument(Param.MANY.values)
+        shouldBeGold = containsArgument(Param.GOLD)
+        shouldBeVerbose = containsArgument(Param.VERBOSE)
+        shouldBeMany = containsArgument(Param.MANY)
+        shouldIncludeCreated = containsArgument(Param.CREATES)
+    }
+
+    private fun containsArgument(param: Param): Boolean
+    {
+        return containsArgument(param.values)
     }
 
     private fun containsArgument(param: Array<out String>): Boolean
@@ -142,7 +125,7 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
             return null
         }
 
-        buildMessage(filterCards(this::onNoneFound))
+        buildMessage(filterCards())
         return null
     }
 
@@ -210,9 +193,10 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
 
 
     @JvmOverloads
-    fun filterCards(onNoneFound: (() -> Unit)? = null): List<Card>
+    fun filterCards(): List<Card>
     {
-        return getCards().parallelStream().use {
+        return getCollectable().parallelStream().use()
+        {
             val cardList = ArrayList<Card>()
             if (shouldBeMany)
             {
@@ -223,8 +207,11 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
                 val card = filterForSingle(it)
                 if (card.dbfId == -1)
                 {
-                    onNoneFound?.invoke()
-                    cardList.addAll(getCards().parallelStream().use(this::filterForMany))
+                    cardList.addAll(getCollectable().parallelStream().use(this::filterForMany))
+                    if (cardList.isEmpty())
+                    {
+                        cardList.addAll(getCards().parallelStream().use(this::filterForMany))
+                    }
                 }
                 else
                 {
@@ -246,24 +233,65 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
 
     private fun buildSimple(card: Card)
     {
+        val image = if (shouldBeGold) card.imgGold else card.img
         try
         {
-            val image = if (shouldBeGold) card.imgGold else card.img
-            messageBuilder.appendLine(image)
+            if (card.collectible)
+            {
+                messageBuilder.append(image)
+                messageBuilder.appendLine(" ")
+            }
+            else
+            {
+                buildSimpleCodeSnippet(card)
+            }
+            if (card.entourages.isNotEmpty())
+            {
+                if (!shouldIncludeCreated)
+                {
+                    messageBuilder
+                            .append(" creates ${card.entourages.count()} cards. Use \"")
+                            .mention(ConnectionController.getCurrentUser())
+                            .append(" card ${card.name} --creates\" to include them.")
+                }
+                else
+                {
+                    messageBuilder.appendLine("API does not include images for generated cards.")
+                    messageBuilder.send(content.channelId)
+                    messageBuilder = MessageBuilder()
+                    card.entourages.forEach(this::buildSimpleCodeSnippet)
+                }
+            }
         }
         catch (err: MessageBuilderException)
         {
             messageBuilder.send(content.channelId)
             messageBuilder = MessageBuilder()
+            messageBuilder.appendLine(image)
         }
     }
 
-    fun onNoneFound()
+    private fun buildSimpleCodeSnippet(card: Card)
     {
-        messageBuilder
-                .mention(content.author)
-                .appendLine(": can't find ${arguments[0]}. Falling back to --many.")
-                .appendLine("Note: This search does not include not collectible cards (tokens, hero powers) anymore.")
+        try
+        {
+            messageBuilder.beginCodeSnippet("markdown")
+                    .appendLine("[${card.name}][${card.dbfId}]{${card.cardId}]")
+                    .appendLine("[${card.cost} mana]")
+            when (card.type)
+            {
+                Type.Minion -> messageBuilder.appendLine("[${card.attack}/${card.health}]")
+            }
+            messageBuilder.appendLine(card.text.replace("\r", "").replace("\n", ""))
+            messageBuilder.endCodeSnippet()
+            messageBuilder.send(content.channelId)
+
+        }
+        catch (err: MessageBuilderException)
+        {
+            err.printStackTrace(System.err)
+        }
+        messageBuilder = MessageBuilder()
     }
 
     private enum class Param(vararg val values: String)
@@ -271,13 +299,42 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         CARD("card"),
         MANY("many", "m"),
         VERBOSE("verbose", "v"),
-        GOLD("gold", "g");
+        GOLD("gold", "g"),
+        CREATES("creates", "c");
     }
 
-    companion object
+    companion object : Callback<Set<Card>>
     {
         @JvmStatic
-        private var cardss = ConcurrentSkipListSet<Card>()
+        private var cardss = setOf<Card>()
+
+        @JvmStatic
+        fun initialize()
+        {
+            if (cardss.isNotEmpty())
+                return
+            BiscordUtility.API.getCards().apply()
+            {
+                try
+                {
+                    val response = this.execute()
+                    onResponse(this, response)
+                }
+                catch (err: Throwable)
+                {
+                    onFailure(this, err)
+                }
+            }
+        }
+
+        @JvmStatic
+        private var collectableCards = setOf<Card>()
+
+        @JvmStatic
+        fun getCollectable(): Set<Card>
+        {
+            return collectableCards
+        }
 
         @JvmStatic
         fun getCards(): Set<Card>
@@ -286,11 +343,62 @@ class CardController : DiscordController(), Callback<ArrayList<Card>>
         }
 
         @JvmStatic
-        suspend fun getCardById(dbfId: Int, channel: Channel<Card>)
+        suspend fun getCardById(dbfId: Int, channel: SendChannel<Card>)
         {
             val cards = getCards()
-            val card = cards.parallelStream().filter { it.dbfId == dbfId }.findFirst().get()
-            channel.send(card)
+            cards.parallelStream()
+                    .filter { it.dbfId == dbfId }
+                    .findFirst()
+                    .ifPresent { launch(CommonPool) { channel.send(it) } }
+        }
+
+        @JvmStatic
+        suspend fun getCardById(dbfId: String, channel: SendChannel<Card>)
+        {
+            val cards = getCards()
+            cards.parallelStream()
+                    .filter { it.cardId == dbfId }
+                    .findFirst()
+                    .ifPresent { launch(CommonPool) { channel.send(it) } }
+
+        }
+
+        @JvmStatic
+        override fun onResponse(call: Call<Set<Card>>, response: Response<Set<Card>>)
+        {
+            if (response.isSuccessful)
+            {
+                cardss = response.body()!!
+                collectableCards = cardss
+                        .parallelStream()
+                        .filter { it.collectible }
+                        .toList()
+                        .toSortedSet()
+                collectableCards.forEach()
+                { entoraging ->
+                    val channel = produce<Card>(Unconfined, Channel.UNLIMITED)
+                    {
+                        for (id in entoraging.entourage)
+                        {
+                            getCardById(id, this.channel)
+                        }
+                    }
+                    runBlocking()
+                    {
+                        for (card in channel)
+                            entoraging.entourages.add(card)
+                    }
+
+                }
+            }
+            else
+                throw IllegalStateException("Failed to get cards from API")
+        }
+
+        @JvmStatic
+        override fun onFailure(call: Call<Set<Card>>, up: Throwable)
+        {
+            throw up
         }
     }
 }

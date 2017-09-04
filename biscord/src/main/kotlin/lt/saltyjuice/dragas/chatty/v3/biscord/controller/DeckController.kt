@@ -1,11 +1,9 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
 import kotlinx.coroutines.experimental.CommonPool
-import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.channels.Channel
 import kotlinx.coroutines.experimental.channels.ProducerJob
 import kotlinx.coroutines.experimental.channels.produce
-import kotlinx.coroutines.experimental.launch
 import kotlinx.coroutines.experimental.runBlocking
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.Card
 import lt.saltyjuice.dragas.chatty.v3.biscord.entity.PlayerClass
@@ -71,9 +69,11 @@ open class DeckController : DiscordController()
         {
             getByteArray(hash)
             val initialByte = readInt() == 0
-            this.hash = hash
             if (initialByte)
+            {
+                this.hash = hash
                 decoder = initializeDecoder()
+            }
             else
                 offset = 0
             return initialByte
@@ -88,10 +88,10 @@ open class DeckController : DiscordController()
     {
         val decoder = decoder!!
         deck = HashMap<Card, Int>()
-        version = decoder.receive()
-        format = Format.values().getOrElse(decoder.receive(), { Format.Invalid })
-        numberOfHeroes = decoder.receive()
-        heroId = decoder.receive()
+        version = decoder.receiveOrNull() ?: -1
+        format = Format.values().getOrElse(decoder.receiveOrNull() ?: -1, { Format.Invalid })
+        numberOfHeroes = decoder.receiveOrNull() ?: -1
+        heroId = decoder.receiveOrNull() ?: -1
         heroClass = PlayerClass.getById(heroId)
         if (version != 1 || format == Format.Invalid || numberOfHeroes != 1 || heroClass == PlayerClass.Neutral)
         {
@@ -101,38 +101,40 @@ open class DeckController : DiscordController()
             return@runBlocking false
             //throw DeckParsingException("invalid deck")
         }
-        val deck = Channel<Card>(Channel.UNLIMITED)
-        val jobs = ArrayList<Job>()
-        repeat(2)
-        { multiplier ->
-            val count = decoder.receive()
-            repeat(count)
-            {
-                val id = decoder.receive()
-                //val count = decoder.receive()
-                /*if (multiplier == 2)
-                {
-                    repetitions = count
-                }*/
-                repeat(multiplier + 1)
-                {
-                    addCardToDeck(id, jobs, deck)
-                }
-            }
-        }
-        val multiples = decoder.receiveOrNull()
-        if (multiples != null)
+        val deck = produce<Card>(CommonPool)
         {
-            repeat(multiples)
-            {
-                val id = decoder.receive()
+            repeat(2)
+            { multiplier ->
                 val count = decoder.receive()
                 repeat(count)
                 {
-                    addCardToDeck(id, jobs, deck)
+                    val id = decoder.receive()
+                    //val count = decoder.receive()
+                    /*if (multiplier == 2)
+                    {
+                        repetitions = count
+                    }*/
+                    repeat(multiplier + 1)
+                    {
+                        CardController.getCardById(id, this)
+                    }
+                }
+            }
+            val multiples = decoder.receiveOrNull()
+            if (multiples != null)
+            {
+                repeat(multiples)
+                {
+                    val id = decoder.receive()
+                    val count = decoder.receive()
+                    repeat(count)
+                    {
+                        CardController.getCardById(id, this)
+                    }
                 }
             }
         }
+
         for (card in deck)
         {
             //val card = deck.receive()
@@ -147,23 +149,6 @@ open class DeckController : DiscordController()
     {
         val data = request.data!!.content.split(" ")
         return data.find(this::canDecode) != null
-    }
-
-    private fun addCardToDeck(id: Int, jobs: ArrayList<Job>, deck: Channel<Card>)
-    {
-        launch(CommonPool)
-        {
-            CardController.getCardById(id, deck)
-        }.apply()
-        {
-            jobs.add(this)
-            this.invokeOnCompletion()
-            {
-                jobs.remove(this)
-                if (jobs.isEmpty())
-                    deck.close()
-            }
-        }
     }
 
     fun readInt(): Int

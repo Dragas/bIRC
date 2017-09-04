@@ -228,7 +228,7 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     @Throws(MessageBuilderException::class)
     fun append(text: String): MessageBuilder
     {
-        if (text.contains("\r\n") && isBuildingMention)
+        if (text.contains("\n") && isBuildingMention)
             throw MessageBuilderException("You can't append lines while building mentions.")
         if (messageBuilder.length + text.length < Settings.MAX_MESSAGE_CONTENT_LENGTH)
             messageBuilder.append(text)
@@ -238,13 +238,30 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
     }
 
     /**
-     * Appends message and then appends \r\n terminator to start a new line.
+     * Appends message and then appends \n terminator to start a new line.
      */
     @Synchronized
     @Throws(MessageBuilderException::class)
     fun appendLine(text: String): MessageBuilder
     {
-        return append("$text \r\n")
+        return append("$text\n")
+    }
+
+    /**
+     * Begins code snippet. Style can be anything, usually it matches some language name: Markdown, Java, Ruby, etc.
+     */
+    @Synchronized
+    @Throws(MessageBuilderException::class)
+    fun beginCodeSnippet(style: String): MessageBuilder
+    {
+        return appendLine("```$style")
+    }
+
+    @Synchronized
+    @Throws(MessageBuilderException::class)
+    fun endCodeSnippet(): MessageBuilder
+    {
+        return appendLine("\n```")
     }
 
     /**
@@ -463,7 +480,7 @@ open class MessageBuilder @JvmOverloads constructor(channelId: String = "", typi
             val index = if (starting) it.range.last + 1 else it.range.first - 1
             if (message.getOrNull(index)?.toString() != characterToLookFor)
             {
-                throw MessageBuilderException("Incorrectly built mention at index ${index + 1}. Missing required character: $characterToLookFor: \r\n $message \r\n ${"^here".padStart(index)}")
+                throw MessageBuilderException("Incorrectly built mention at index ${index + 1}. Missing required character: $characterToLookFor: \n $message \n ${"^here".padStart(index)}")
             }
         }
     }
