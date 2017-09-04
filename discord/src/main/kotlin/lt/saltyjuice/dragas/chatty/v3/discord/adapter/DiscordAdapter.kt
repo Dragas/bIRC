@@ -125,6 +125,7 @@ open class DiscordAdapter : WebSocketAdapter<String, OPRequest<*>, OPResponse<*>
             EventGuildBanAdd.EVENT_NAME -> return gson.fromJson<EventGuildBanAdd>(block, EventGuildBanAdd::class.java)
             EventGuildBanRemove.EVENT_NAME -> return gson.fromJson<EventGuildBanRemove>(block, EventGuildBanRemove::class.java)
             EventGuildCreate.EVENT_NAME -> return gson.fromJson<EventGuildCreate>(block, EventGuildCreate::class.java)
+            EventGuildUpdate.EVENT_NAME -> return gson.fromJson<EventGuildUpdate>(block, EventGuildUpdate::class.java)
             EventGuildDelete.EVENT_NAME -> return gson.fromJson<EventGuildDelete>(block, EventGuildDelete::class.java)
             EventGuildEmojisUpdate.EVENT_NAME -> return gson.fromJson<EventGuildEmojisUpdate>(block, EventGuildEmojisUpdate::class.java)
             EventGuildIntegrationsUpdate.EVENT_NAME -> return gson.fromJson<EventGuildIntegrationsUpdate>(block, EventGuildIntegrationsUpdate::class.java)
