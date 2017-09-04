@@ -287,7 +287,7 @@ open class Route<Request, Response>
             { route, it ->
                 it as Any
                 route.getControllerInstance()
-                type.java.isAssignableFrom(it.javaClass)
+                type.javaObjectType.isAssignableFrom(it.javaClass)
             }
 
             method.getAnnotation(When::class.java)?.apply()
@@ -298,9 +298,7 @@ open class Route<Request, Response>
                 { route, request ->
                     request as Any
                     val controllerInstance = route.getControllerInstance()
-                    val isAssignable = type.java.isAssignableFrom(request.javaClass)
-                    val canBeInvoked = testMethod.invoke(controllerInstance, request) as Boolean
-                    isAssignable && canBeInvoked
+                    type.javaObjectType.isAssignableFrom(request.javaClass) && testMethod.invoke(controllerInstance, request) as Boolean
                 }
             }
             superConsumeMethodCalledWhenBuilding = true
