@@ -16,6 +16,7 @@ class MentionsMe : DiscordMiddleware()
             val startsWithMe = content.content.run { startsWith("<@${ConnectionController.getCurrentUserId()}>") || startsWith("<@!${ConnectionController.getCurrentUserId()}>") }
             if (startsWithMe)
             {
+                content.mentionedUsers.removeIf { it.id == ConnectionController.getCurrentUserId() }
                 content.content = content.content.replaceFirst(Regex("<@!?${ConnectionController.getCurrentUserId()}>"), "")
                 if (content.content.startsWith(" "))
                     content.content = content.content.replaceFirst(" ", "")
