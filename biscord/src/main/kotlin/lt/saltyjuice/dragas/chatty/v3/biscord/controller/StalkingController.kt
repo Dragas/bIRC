@@ -87,7 +87,7 @@ class StalkingController : CommandController()
                         append("not ")
                     appendLine("have two factor authentification enabled.")
                 }
-                .send("342047989067677699")// 342047989067677699
+                .send(System.getenv("office_id"))// 342047989067677699
     }
 
     fun containsID(request: EventMessageCreate): Boolean
