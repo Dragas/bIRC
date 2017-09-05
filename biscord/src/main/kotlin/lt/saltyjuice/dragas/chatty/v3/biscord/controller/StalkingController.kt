@@ -4,10 +4,14 @@ import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
 import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
+import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
+import retrofit2.Call
+import retrofit2.Callback
+import retrofit2.Response
 import java.util.*
 
 
@@ -22,38 +26,72 @@ class StalkingController : CommandController()
     {
         requst.data!!
                 .mentionedUsers
-                .forEach()
-                {
-                    val age = it.getAge()
-                    val ageVerbose = getVerboseAge(age)
-
-                    MessageBuilder()
-                            .appendLine("${it.username}#${it.discriminator}")
-                            .appendLine("Email: ${it.email}")
-                            .appendLine("Account age: $age ms (that's $ageVerbose)")
-                            .append("Account is ")
-                            .apply()
-                            {
-                                if (!it.isVerified)
-                                    append("not ")
-                            }
-                            .append("verified. ")
-                            .apply()
-                            {
-                                if (!it.isVerified)
-                                    append("This means that account owner isn't some sort of celebrity or what ever.")
-                            }
-                            .appendLine(" ")
-                            .apply()
-                            {
-                                append("This user does ")
-                                if (!it.isTwoFactorAuthentificationEnabled)
-                                    append("not ")
-                                appendLine("have two factor authentification enabled.")
-                            }
-                            .send("344789216045170690")// 342047989067677699
-                }
+                .forEach(this::extractData)
         return null
+    }
+
+    @On(EventMessageCreate::class)
+    @When("containsID")
+    @Before(MentionsMe::class)
+    fun onRequest(request: EventMessageCreate): OPResponse<*>?
+    {
+        Utility.discordAPI.getUser(request.data!!.content).enqueue(object : Callback<User>
+        {
+            override fun onResponse(call: Call<User>, response: Response<User>)
+            {
+                if (response.isSuccessful)
+                {
+                    extractData(response.body()!!)
+                }
+                else
+                {
+                    MessageBuilder().append("Couldn't dig shit up.").send("344789216045170690")
+                }
+            }
+
+            override fun onFailure(call: Call<User>, t: Throwable)
+            {
+                throw t
+            }
+        })
+        return null
+    }
+
+    fun extractData(it: User)
+    {
+        val age = it.getAge()
+        val ageVerbose = getVerboseAge(age)
+
+        MessageBuilder()
+                .appendLine("${it.username}#${it.discriminator}")
+                .appendLine("Email: ${it.email}")
+                .appendLine("Account age: $age ms (that's $ageVerbose)")
+                .append("Account is ")
+                .apply()
+                {
+                    if (!it.isVerified)
+                        append("not ")
+                }
+                .append("verified. ")
+                .apply()
+                {
+                    if (!it.isVerified)
+                        append("This means that account owner isn't some sort of celebrity or what ever.")
+                }
+                .appendLine(" ")
+                .apply()
+                {
+                    append("This user does ")
+                    if (!it.isTwoFactorAuthentificationEnabled)
+                        append("not ")
+                    appendLine("have two factor authentification enabled.")
+                }
+                .send("344789216045170690")// 342047989067677699
+    }
+
+    fun containsId(request: EventMessageCreate): Boolean
+    {
+        return request.data!!.content.matches(Regex("\\d+"))
     }
 
     fun getVerboseAge(age: Long): String
