@@ -6,6 +6,7 @@ import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
 import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
+import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventGuildMemberAdd
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
@@ -92,6 +93,13 @@ class StalkingController : CommandController()
     fun containsID(request: EventMessageCreate): Boolean
     {
         return request.data!!.content.matches(Regex("\\d+"))
+    }
+
+    @On(EventGuildMemberAdd::class)
+    fun onNewGuildMember(event: EventGuildMemberAdd): OPResponse<*>?
+    {
+        extractData(event.data!!.user)
+        return null
     }
 
     fun getVerboseAge(age: Long): String
