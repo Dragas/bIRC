@@ -350,4 +350,7 @@ interface DiscordAPI
      */
     @DELETE("channels/{channel-id}/recipients/{user-id}")
     fun removeGroupDMRecipient(@Path("channel-id") channelId: String, @Path("user-id") userId: String): Call<Any>
+
+    @GET("users/{user-id}")
+    fun getUser(@Path("user-id") userId: String): Call<User>
 }
