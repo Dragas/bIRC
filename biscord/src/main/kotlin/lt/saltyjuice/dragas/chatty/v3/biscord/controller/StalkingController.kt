@@ -13,6 +13,8 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.time.ZoneId
+import java.time.ZoneOffset
 import java.util.*
 
 
@@ -157,6 +159,7 @@ class StalkingController : CommandController()
     {
         val calendar = Calendar.getInstance()
         calendar.clear()
+        calendar.timeZone = TimeZone.getTimeZone(ZoneId.ofOffset("GMT", ZoneOffset.ofHours(0)))
         calendar.set(2015, 0, 0)
         calendar.timeInMillis += id.toLong().shr(22)
         return Date().time - calendar.timeInMillis - StalkingController.hour * 24
