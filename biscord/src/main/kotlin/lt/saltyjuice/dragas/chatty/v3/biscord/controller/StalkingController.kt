@@ -87,7 +87,7 @@ class StalkingController : CommandController()
                         append("not ")
                     appendLine("have two factor authentification enabled.")
                 }
-                .send("344789216045170690")// 342047989067677699
+                .send("342047989067677699")// 342047989067677699
     }
 
     fun containsID(request: EventMessageCreate): Boolean
@@ -152,13 +152,14 @@ class StalkingController : CommandController()
         @JvmStatic
         private val day = hour * 24
     }
+
+    private fun User.getAge(): Long
+    {
+        val calendar = Calendar.getInstance()
+        calendar.clear()
+        calendar.set(2015, 0, 0)
+        calendar.timeInMillis += id.toLong().shr(22)
+        return Date().time - calendar.timeInMillis - StalkingController.hour * 24
+    }
 }
 
-private fun User.getAge(): Long
-{
-    val calendar = Calendar.getInstance()
-    calendar.clear()
-    calendar.set(2015, 0, 0)
-    calendar.timeInMillis += id.toLong().shr(22)
-    return Date().time - calendar.timeInMillis
-}
