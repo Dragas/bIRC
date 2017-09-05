@@ -96,10 +96,16 @@ class StalkingController : CommandController()
     }
 
     @On(EventGuildMemberAdd::class)
+    @When("alwaysTrue")
     fun onNewGuildMember(event: EventGuildMemberAdd): OPResponse<*>?
     {
         extractData(event.data!!.user)
         return null
+    }
+
+    fun alwaysTrue(event: EventGuildMemberAdd): Boolean
+    {
+        return true
     }
 
     fun getVerboseAge(age: Long): String
