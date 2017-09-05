@@ -89,7 +89,7 @@ class StalkingController : CommandController()
                 .send("344789216045170690")// 342047989067677699
     }
 
-    fun containsId(request: EventMessageCreate): Boolean
+    fun containsID(request: EventMessageCreate): Boolean
     {
         return request.data!!.content.matches(Regex("\\d+"))
     }
