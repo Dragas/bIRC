@@ -12,6 +12,7 @@ import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Embed
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
 import lt.saltyjuice.dragas.chatty.v3.discord.message.request.GatewayInit
+import lt.saltyjuice.dragas.chatty.v3.discord.message.response.ChannelBuilder
 import retrofit2.Call
 import retrofit2.http.*
 import java.io.File
@@ -351,6 +352,24 @@ interface DiscordAPI
     @DELETE("channels/{channel-id}/recipients/{user-id}")
     fun removeGroupDMRecipient(@Path("channel-id") channelId: String, @Path("user-id") userId: String): Call<Any>
 
+    /**
+     * Returns a user object for a given user ID.
+     */
     @GET("users/{user-id}")
     fun getUser(@Path("user-id") userId: String): Call<User>
+
+
+    /**
+     * Returns the user object of the requester's account. For OAuth2, this requires the identify scope,
+     * which will return the object without an email, and optionally the email scope,
+     * which returns the object with an email.
+     */
+    @GET("users/@me")
+    fun getUser(): Call<User>
+
+    /**
+     * Create a new DM channel with a user. Returns a DM channel object.
+     */
+    @POST("users/@me/channels")
+    fun createChannel(@Body channelBuilder: ChannelBuilder): Call<Channel>
 }

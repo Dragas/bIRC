@@ -1,63 +1,65 @@
 package lt.saltyjuice.dragas.chatty.v3.biscord.controller
 
-import lt.saltyjuice.dragas.chatty.v3.biscord.middleware.MentionsMe
-import lt.saltyjuice.dragas.chatty.v3.core.route.Before
 import lt.saltyjuice.dragas.chatty.v3.core.route.On
 import lt.saltyjuice.dragas.chatty.v3.core.route.When
 import lt.saltyjuice.dragas.chatty.v3.discord.api.Utility
+import lt.saltyjuice.dragas.chatty.v3.discord.controller.ConnectionController
+import lt.saltyjuice.dragas.chatty.v3.discord.controller.DiscordController
 import lt.saltyjuice.dragas.chatty.v3.discord.message.MessageBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventGuildMemberAdd
 import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageCreate
+import lt.saltyjuice.dragas.chatty.v3.discord.message.event.EventMessageUpdate
+import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Channel
+import lt.saltyjuice.dragas.chatty.v3.discord.message.general.Message
 import lt.saltyjuice.dragas.chatty.v3.discord.message.general.User
+import lt.saltyjuice.dragas.chatty.v3.discord.message.response.ChannelBuilder
 import lt.saltyjuice.dragas.chatty.v3.discord.message.response.OPResponse
 import retrofit2.Call
 import retrofit2.Callback
 import retrofit2.Response
+import java.text.SimpleDateFormat
 import java.time.ZoneId
 import java.time.ZoneOffset
 import java.util.*
 
 
-class StalkingController : CommandController()
+class StalkingController : DiscordController()
 {
-    override val command: String = "dox"
 
     @On(EventMessageCreate::class)
-    @When("shouldRespond")
-    @Before(MentionsMe::class)
-    override fun onCommand(requst: EventMessageCreate): OPResponse<*>?
+    @When("alwaysTrue")
+    fun onMessage(request: EventMessageCreate): OPResponse<*>?
     {
-        requst.data!!
-                .mentionedUsers
-                .forEach(this::extractData)
+        val content = request.data!!
+        checkForLinks(content)
         return null
     }
 
-    @On(EventMessageCreate::class)
-    @When("containsID")
-    @Before(MentionsMe::class)
-    fun onRequest(request: EventMessageCreate): OPResponse<*>?
+    @On(EventMessageUpdate::class)
+    @When("alwaysTrue")
+    fun onMessage(request: EventMessageUpdate): OPResponse<*>?
     {
-        Utility.discordAPI.getUser(request.data!!.content).enqueue(object : Callback<User>
-        {
-            override fun onResponse(call: Call<User>, response: Response<User>)
-            {
-                if (response.isSuccessful)
-                {
-                    extractData(response.body()!!)
-                }
-                else
-                {
-                    MessageBuilder().append("Couldn't dig shit up.").send("344789216045170690")
-                }
-            }
-
-            override fun onFailure(call: Call<User>, t: Throwable)
-            {
-                throw t
-            }
-        })
+        val content = request.data!!
+        checkForLinks(content)
         return null
+    }
+
+    @On(EventGuildMemberAdd::class)
+    @When("alwaysTrue")
+    fun onNewGuildMember(event: EventGuildMemberAdd): OPResponse<*>?
+    {
+        extractData(event.data!!.user)
+        return null
+    }
+
+    fun containsID(request: EventMessageCreate): Boolean
+    {
+        return request.data!!.content.matches(Regex("\\d+"))
+    }
+
+    fun checkForLinks(message: Message)
+    {
+        MessageDeleteCallback(message)
     }
 
     fun extractData(it: User)
@@ -89,23 +91,10 @@ class StalkingController : CommandController()
                         append("not ")
                     appendLine("have two factor authentification enabled.")
                 }
-                .send(System.getenv("office_id"))// 342047989067677699
+                .send(officeChannel)// 342047989067677699
     }
 
-    fun containsID(request: EventMessageCreate): Boolean
-    {
-        return request.data!!.content.matches(Regex("\\d+"))
-    }
-
-    @On(EventGuildMemberAdd::class)
-    @When("alwaysTrue")
-    fun onNewGuildMember(event: EventGuildMemberAdd): OPResponse<*>?
-    {
-        extractData(event.data!!.user)
-        return null
-    }
-
-    fun alwaysTrue(event: EventGuildMemberAdd): Boolean
+    fun alwaysTrue(event: Any): Boolean
     {
         return true
     }
@@ -135,9 +124,94 @@ class StalkingController : CommandController()
             sb.append(", ")
     }
 
-    override fun shouldRespond(request: EventMessageCreate): Boolean
+    private class MessageDeleteCallback(val message: Message) : Callback<Any>
     {
-        return super.shouldRespond(request) && request.data!!.mentionedUsers.isNotEmpty()
+        private var retryCount = 0
+
+        init
+        {
+            val author = ConnectionController.getUser(message.channelId, message.author.id)
+            val matchingRole = author?.roles?.find { permittedRoles.contains(it) }
+            if (message.content.contains(linkRegex) && matchingRole == null)
+            {
+                Utility.discordAPI.deleteMessage(message.channelId, message.id).enqueue(this)
+            }
+        }
+
+        override fun onResponse(call: Call<Any>, response: Response<Any>)
+        {
+            if (response.isSuccessful)
+            {
+                val dateAsString = sdf.format(message.timestamp)
+                Utility.discordAPI.createChannel(ChannelBuilder(message.author.id)).enqueue(object : Callback<Channel>
+                {
+                    var retryCount = 0
+                    override fun onResponse(call: Call<Channel>, response: Response<Channel>)
+                    {
+                        if (response.isSuccessful)
+                        {
+                            MessageBuilder()
+                                    .appendLine("I'm sorry, but you need to have a region to post links. Don't worry.")
+                                    .appendLine("The team were already notified of your presence and message content.")
+                                    .send(response.body()!!.id)
+                        }
+                        else
+                        {
+                            retry(call)
+                        }
+                    }
+
+                    override fun onFailure(call: Call<Channel>, t: Throwable)
+                    {
+                        t.printStackTrace(System.err)
+                        retry(call)
+                    }
+
+                    fun retry(call: Call<Channel>)
+                    {
+                        if (retryCount <= 3)
+                        {
+                            retryCount++
+                            call.clone().enqueue(this)
+                        }
+                    }
+                })
+                MessageBuilder()
+                        .appendLine("@everyone : ATTENTION! Possible spammer detected!")
+                        .appendLine("User (id): ${message.author.username}#${message.author.discriminator} (${message.author.id})")
+                        .appendLine("MessageID: ${message.id}")
+                        .append("Channel: ")
+                        .mentionId(message.channelId, MessageBuilder.MentionType.CHANNEL)
+                        .appendLine(" ")
+                        .appendLine("When: $dateAsString (timezones may apply)")
+                        .appendLine("Note: Content may exceed 2k characters, thus it's separated from this warning message.")
+                        .send(quarantineChannel)
+                MessageBuilder()
+                        .beginCodeSnippet("")
+                        .appendLine(message.content)
+                        .endCodeSnippet()
+                        .send(quarantineChannel)
+            }
+            else
+            {
+                retry(call)
+            }
+        }
+
+        override fun onFailure(call: Call<Any>, t: Throwable)
+        {
+            t.printStackTrace(System.err)
+            retry(call)
+        }
+
+        fun retry(call: Call<Any>)
+        {
+            if (retryCount <= 3)
+            {
+                retryCount++
+                call.clone().enqueue(this)
+            }
+        }
     }
 
     companion object
@@ -153,6 +227,21 @@ class StalkingController : CommandController()
 
         @JvmStatic
         private val day = hour * 24
+
+        @JvmStatic
+        private val linkRegex = Regex("((([A-Za-z]{3,9}:(?:\\//)?)(?:[\\-;:&=\\+\\\$,\\w]+@)?[A-Za-z0-9\\.\\-]+|(?:www\\.|[\\-;:&=\\+\\\$,\\w]+@)[A-Za-z0-9\\.\\-]+)((?:\\/[\\+~%\\/\\.\\w\\-_]*)?\\??(?:[\\-\\+=&;%@\\.\\w_]*)#?(?:[\\.\\!\\/\\\\\\w]*))?)")
+
+        @JvmStatic
+        private val quarantineChannel = System.getenv("quarantine_id")
+
+        @JvmStatic
+        private val officeChannel = System.getenv("office_id")
+
+        @JvmStatic
+        private val permittedRoles = System.getenv("roles").split(";")
+
+        @JvmStatic
+        private val sdf = SimpleDateFormat("YYYY-MM-dd HH:mm:ss z")
     }
 
     private fun User.getAge(): Long
