@@ -71,7 +71,6 @@ open class DeckController : DiscordController()
             val initialByte = readInt() == 0
             if (initialByte)
             {
-                offset++
                 this.hash = hash
                 decoder = initializeDecoder()
             }
@@ -164,7 +163,7 @@ open class DeckController : DiscordController()
             result = result.or(value.shl(length * 7))
             length++
         }
-        while (read.and(0x80) == 0x80)
+        while (read.and(0x80) == 0x80 && length < bytes.size)
         offset += length
         return result
     }
