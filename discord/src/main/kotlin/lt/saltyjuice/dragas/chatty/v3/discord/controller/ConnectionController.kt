@@ -173,7 +173,7 @@ open class ConnectionController : DiscordController()
             val member = guild.users.find { it.user.id == userId }
             if (member == null)
             {
-                MessageBuilder().append("Warning: user with id ${channel.id} doesn't correspond to any member.").send(debugChannel)
+                MessageBuilder().append("Warning: user with id $userId doesn't correspond to any member.").send(debugChannel)
                 return null
             }
             return member

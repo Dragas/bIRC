@@ -66,11 +66,13 @@ class StalkingController : DiscordController()
     {
         val age = it.getAge()
         val ageVerbose = getVerboseAge(age)
-
+        val date = Date()
+        date.time -= age
         MessageBuilder()
                 .appendLine("${it.username}#${it.discriminator}")
                 .appendLine("Email: ${it.email}")
                 .appendLine("Account age: $age ms (that's $ageVerbose)")
+                .appendLine("Account creation date: ${sdf.format(date)}")
                 .append("Account is ")
                 .apply()
                 {
@@ -130,11 +132,14 @@ class StalkingController : DiscordController()
 
         init
         {
-            val author = ConnectionController.getUser(message.channelId, message.author.id)
-            val matchingRole = author?.roles?.find { permittedRoles.contains(it) }
-            if (message.content.contains(linkRegex) && matchingRole == null)
+            if (!message.author.isBot)
             {
-                Utility.discordAPI.deleteMessage(message.channelId, message.id).enqueue(this)
+                val author = ConnectionController.getUser(message.channelId, message.author.id)
+                val hasNoRole = author?.roles?.isEmpty() ?: true
+                if (message.content.contains(linkRegex) && hasNoRole)
+                {
+                    Utility.discordAPI.deleteMessage(message.channelId, message.id).enqueue(this)
+                }
             }
         }
 
@@ -187,9 +192,9 @@ class StalkingController : DiscordController()
                         .appendLine("Note: Content may exceed 2k characters, thus it's separated from this warning message.")
                         .send(quarantineChannel)
                 MessageBuilder()
-                        .beginCodeSnippet("")
-                        .appendLine(message.content)
-                        .endCodeSnippet()
+                        .append("`")
+                        .append(message.content)
+                        .append("`")
                         .send(quarantineChannel)
             }
             else

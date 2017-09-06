@@ -71,6 +71,7 @@ open class DeckController : DiscordController()
             val initialByte = readInt() == 0
             if (initialByte)
             {
+                offset++
                 this.hash = hash
                 decoder = initializeDecoder()
             }
