@@ -154,7 +154,7 @@ open class ConnectionController : DiscordController()
             return readyEvent.data!!.user!!
         }
 
-        private val debugChannel = System.getenv("debug_channel_id")
+        val debugChannel = System.getenv("debug_channel_id")
         @JvmStatic
         public fun getUser(channelId: String, userId: String): Member?
         {

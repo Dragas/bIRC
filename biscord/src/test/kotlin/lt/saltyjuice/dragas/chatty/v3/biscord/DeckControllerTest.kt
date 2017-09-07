@@ -19,7 +19,18 @@ class DeckControllerTest
         dc.obtainDeck().forEach {
             count += it.value
         }
-        Assert.assertEquals(30, count)
+        try
+        {
+            Assert.assertEquals(30, count)
+        }
+        catch (err: Throwable)
+        {
+            println("deck size: ${dc.obtainDeck().size}")
+            dc.obtainDeck().forEach { t, u ->
+                println("$t: $u")
+            }
+            throw err
+        }
     }
 
     @Test

@@ -135,7 +135,16 @@ class StalkingController : DiscordController()
             if (!message.author.isBot)
             {
                 val author = ConnectionController.getUser(message.channelId, message.author.id)
+                if (author == null)
+                {
+                    MessageBuilder().append("Warning: no author for message ${message.id}.").send(ConnectionController.debugChannel)
+                }
                 val hasNoRole = author?.roles?.isEmpty() ?: true
+                message.content = message.content.toLowerCase()
+                        .replace("vv", "w")
+                        .replace("dot", ".")
+                        .replace("slash", "/")
+                        .replace(Regex("[\\s\\(\\)\\\\]+"), "")
                 if (message.content.contains(linkRegex) && hasNoRole)
                 {
                     Utility.discordAPI.deleteMessage(message.channelId, message.id).enqueue(this)
@@ -182,20 +191,20 @@ class StalkingController : DiscordController()
                     }
                 })
                 MessageBuilder()
-                        .appendLine("@everyone : ATTENTION! Possible spammer detected!")
+                        .appendLine("ATTENTION! Possible spammer detected!")
                         .appendLine("User (id): ${message.author.username}#${message.author.discriminator} (${message.author.id})")
                         .appendLine("MessageID: ${message.id}")
                         .append("Channel: ")
                         .mentionId(message.channelId, MessageBuilder.MentionType.CHANNEL)
                         .appendLine(" ")
                         .appendLine("When: $dateAsString (timezones may apply)")
-                        .appendLine("Note: Content may exceed 2k characters, thus it's separated from this warning message.")
+                        //                        .appendLine("Note: Content may exceed 2k characters, thus it's separated from this warning message.")
                         .send(quarantineChannel)
-                MessageBuilder()
-                        .append("`")
-                        .append(message.content)
-                        .append("`")
-                        .send(quarantineChannel)
+                //                MessageBuilder()
+                //                        .append("`")
+                //                        .append(message.content)
+                //                        .append("`")
+                //                        .send(quarantineChannel)
             }
             else
             {

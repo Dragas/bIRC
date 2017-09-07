@@ -152,4 +152,12 @@ open class Card : Comparable<Card>
 
         return ArrayList(list.filter { it.value.isNotBlank() })
     }
+
+    /**
+     * Returns a string representation of the object.
+     */
+    override fun toString(): String
+    {
+        return "$name ($cost) - dbfid $dbfId - cardid $cardId"
+    }
 }
